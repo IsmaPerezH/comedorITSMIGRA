@@ -4,13 +4,13 @@ Aplicación móvil para la gestión del comedor del Instituto Tecnológico Super
 
 ## Características
 
-- ✅ Gestión de beneficiarios
-- ✅ Control de asistencias mediante código QR
-- ✅ Gestión de roles (cocina y aseo)
-- ✅ Documentos PDF (rools de cocina y aseo)
-- ✅ Sistema de recordatorios
-- ✅ Dashboard administrativo
-- ✅ Autenticación de usuarios
+-  Gestión de beneficiarios
+-  Control de asistencias mediante código QR
+-  Gestión de roles (cocina y aseo)
+-  Documentos PDF (rools de cocina y aseo)
+-  Sistema de recordatorios
+-  Dashboard administrativo
+-  Autenticación de usuarios
 
 ## Tecnologías
 
