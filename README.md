@@ -1,8 +1,8 @@
-# 🍽️ Comedor ITSMIGRA
+# Comedor ITSMIGRA
 
 Aplicación móvil para la gestión del comedor del Instituto Tecnológico Superior de Misantla.
 
-## 📱 Características
+## Características
 
 - ✅ Gestión de beneficiarios
 - ✅ Control de asistencias mediante código QR
@@ -12,7 +12,7 @@ Aplicación móvil para la gestión del comedor del Instituto Tecnológico Super
 - ✅ Dashboard administrativo
 - ✅ Autenticación de usuarios
 
-## 🛠️ Tecnologías
+## Tecnologías
 
 - **Framework:** React Native con Expo
 - **Navegación:** Expo Router
@@ -21,7 +21,7 @@ Aplicación móvil para la gestión del comedor del Instituto Tecnológico Super
 - **Generación QR:** react-native-qrcode-svg
 - **Iconos:** @expo/vector-icons
 
-## 🚀 Instalación
+## Instalación
 
 ### Prerrequisitos
 
@@ -51,7 +51,7 @@ Aplicación móvil para la gestión del comedor del Instituto Tecnológico Super
    - Escanea el código QR con la app Expo Go (Android/iOS)
    - O presiona `w` para abrir en el navegador web
 
-## 📂 Estructura del Proyecto
+## Estructura del Proyecto
 
 ```
 comedorITSMIGRA/
@@ -66,12 +66,13 @@ comedorITSMIGRA/
 └── assets/               # Imágenes y recursos estáticos
 ```
 
-## 👥 Colaboradores
+## Colaboradores
 
-- Tu Nombre - Desarrollador Principal
-- [Nombre del colaborador] - Desarrollador
+- Ismael Hernández Pérez 
+- Brenda Vazquez Crúz
+- Jose Adrian Cruz Cuevaz 
 
-## 📝 Flujo de Trabajo con Git
+## Flujo de Trabajo con Git
 
 ### Para trabajar en una nueva funcionalidad:
 
@@ -98,7 +99,7 @@ comedorITSMIGRA/
 
 5. **Crear Pull Request en GitHub**
 
-## 🔐 Credenciales de Prueba
+## Credenciales de Prueba
 
 **Administrador:**
 - Usuario: admin
@@ -108,6 +109,6 @@ comedorITSMIGRA/
 - Matrícula: 22105081
 - Contraseña: (generada automáticamente)
 
-## 📄 Licencia
+## Licencia
 
-Este proyecto es privado y de uso exclusivo para el Instituto Tecnológico Superior de Misantla.
+Este proyecto es privado y de uso exclusivo para alumnos de septimo semestre de la carrera de Ingenieria en Tecnologias de la Informacion y Comunicaciones.
