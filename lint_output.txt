@@ -1,0 +1,39 @@
+
+> comedoritsmigra@1.0.0 lint
+> expo lint
+
+
+C:\Users\LENOVO-RS\Desktop\movil\comedorITSMIGRA\app\(tabs)\asistencia.tsx
+  8:11  warning  'Asistencia' is defined but never used  @typescript-eslint/no-unused-vars
+
+C:\Users\LENOVO-RS\Desktop\movil\comedorITSMIGRA\app\(tabs)\recordatorios.tsx
+   23:5   warning  'recordatorios' is assigned a value but never used  @typescript-eslint/no-unused-vars
+  188:14  warning  'error' is defined but never used                   @typescript-eslint/no-unused-vars
+  206:22  warning  'error' is defined but never used                   @typescript-eslint/no-unused-vars
+
+C:\Users\LENOVO-RS\Desktop\movil\comedorITSMIGRA\app\(tabs)\roles.tsx
+   8:11  warning  'Rol' is defined but never used                           @typescript-eslint/no-unused-vars
+  22:40  warning  'actualizarEstadoRol' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+C:\Users\LENOVO-RS\Desktop\movil\comedorITSMIGRA\app\admin\carga-roles.tsx
+   30:47  warning  'roles' is assigned a value but never used  @typescript-eslint/no-unused-vars
+  139:14  warning  'error' is defined but never used           @typescript-eslint/no-unused-vars
+
+C:\Users\LENOVO-RS\Desktop\movil\comedorITSMIGRA\app\admin\dashboard.tsx
+  11:5   warning  'asistencias' is assigned a value but never used                 @typescript-eslint/no-unused-vars
+  52:44  error    `'` can be escaped with `&apos;`, `&lsquo;`, `&#39;`, `&rsquo;`  react/no-unescaped-entities
+
+C:\Users\LENOVO-RS\Desktop\movil\comedorITSMIGRA\app\admin\gestion-pdfs.tsx
+  119:22  warning  'error' is defined but never used                                @typescript-eslint/no-unused-vars
+  256:30  error    `"` can be escaped with `&quot;`, `&ldquo;`, `&#34;`, `&rdquo;`  react/no-unescaped-entities
+  256:32  error    `"` can be escaped with `&quot;`, `&ldquo;`, `&#34;`, `&rdquo;`  react/no-unescaped-entities
+
+C:\Users\LENOVO-RS\Desktop\movil\comedorITSMIGRA\app\admin\qr-scanner.tsx
+   71:14  warning  'error' is defined but never used                                @typescript-eslint/no-unused-vars
+  111:58  error    `'` can be escaped with `&apos;`, `&lsquo;`, `&#39;`, `&rsquo;`  react/no-unescaped-entities
+
+C:\Users\LENOVO-RS\Desktop\movil\comedorITSMIGRA\app\index.tsx
+  8:37  error  `'` can be escaped with `&apos;`, `&lsquo;`, `&#39;`, `&rsquo;`  react/no-unescaped-entities
+
+Ô£û 16 problems (5 errors, 11 warnings)
+

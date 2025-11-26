@@ -1,0 +1,28 @@
+app/(tabs)/recordatorios.tsx(99,7): error TS7006: Parameter 'r' implicitly has an 'any' type.
+app/(tabs)/recordatorios.tsx(354,47): error TS7006: Parameter 'r' implicitly has an 'any' type.
+app/(tabs)/recordatorios.tsx(358,43): error TS7006: Parameter 'r' implicitly has an 'any' type.
+app/(tabs)/recordatorios.tsx(360,47): error TS7006: Parameter 'r' implicitly has an 'any' type.
+app/(tabs)/recordatorios.tsx(360,67): error TS7006: Parameter 'recordatorio' implicitly has an 'any' type.
+app/(tabs)/recordatorios.tsx(536,18): error TS2304: Cannot find name 'DateTimePicker'.
+app/(tabs)/recordatorios.tsx(539,28): error TS2304: Cannot find name 'Platform'.
+app/admin/gestion-pdfs.tsx(269,23): error TS2322: Type '"organize"' is not assignable to type '"text" | "push" | "map" | "filter" | "at" | "navigate" | "body" | "code" | "link" | "menu" | "search" | "time" | "ellipse" | "image" | "stop" | "repeat" | "options" | "infinite" | ... 1339 more ... | undefined'.
+hooks/useNotifications.ts(3,25): error TS2307: Cannot find module 'expo-device' or its corresponding type declarations.
+hooks/useNotifications.ts(27,39): error TS2322: Type 'Promise<{ shouldShowAlert: true; shouldPlaySound: true; shouldSetBadge: true; }>' is not assignable to type 'Promise<NotificationBehavior>'.
+  Type '{ shouldShowAlert: true; shouldPlaySound: true; shouldSetBadge: true; }' is missing the following properties from type 'NotificationBehavior': shouldShowBanner, shouldShowList
+hooks/useNotifications.ts(95,9): error TS2322: Type 'Date' is not assignable to type 'NotificationTriggerInput'.
+hooks/useStorage.ts(357,9): error TS2451: Cannot redeclare block-scoped variable 'agregarRecordatorio'.
+hooks/useStorage.ts(364,39): error TS2552: Cannot find name 'recordatorios'. Did you mean 'recordatorio'?
+hooks/useStorage.ts(365,7): error TS2552: Cannot find name 'setRecordatorios'. Did you mean 'recordatorio'?
+hooks/useStorage.ts(438,9): error TS2451: Cannot redeclare block-scoped variable 'agregarRecordatorio'.
+hooks/useStorage.ts(445,39): error TS2552: Cannot find name 'recordatorios'. Did you mean 'recordatorio'?
+hooks/useStorage.ts(446,7): error TS2552: Cannot find name 'setRecordatorios'. Did you mean 'recordatorio'?
+hooks/useStorage.ts(451,15): error TS2304: Cannot find name 'programarNotificacion'.
+hooks/useStorage.ts(463,10): error TS2304: Cannot find name 'recordatorios'.
+hooks/useStorage.ts(463,31): error TS7006: Parameter 'r' implicitly has an 'any' type.
+hooks/useStorage.ts(468,41): error TS2304: Cannot find name 'recordatorios'.
+hooks/useStorage.ts(468,59): error TS7006: Parameter 'recordatorio' implicitly has an 'any' type.
+hooks/useStorage.ts(472,7): error TS2304: Cannot find name 'setRecordatorios'.
+hooks/useStorage.ts(476,70): error TS7006: Parameter 'r' implicitly has an 'any' type.
+hooks/useStorage.ts(480,19): error TS2304: Cannot find name 'programarNotificacion'.
+hooks/useStorage.ts(482,19): error TS2304: Cannot find name 'cancelarNotificacion'.
+hooks/useStorage.ts(524,5): error TS18004: No value exists in scope for the shorthand property 'recordatorios'. Either declare one or provide an initializer.
