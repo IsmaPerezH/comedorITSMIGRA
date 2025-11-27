@@ -25,11 +25,11 @@ import Animated, { FadeInDown } from 'react-native-reanimated';
 const { width } = Dimensions.get('window');
 
 export default function MiQRScreen() {
-  const { logout } = useAuth();
+  const { user, logout } = useAuth();
   const router = useRouter();
   const { obtenerBeneficiarioPorId, beneficiarios, loading } = useStorage();
 
-  const [beneficiarioId] = useState('1');
+  const beneficiarioId = user?.role === 'student' ? user.beneficiarioId : null;
   const [qrValue, setQrValue] = useState<string>('');
   const [qrWebDataUrl, setQrWebDataUrl] = useState<string>('');
   const [cargando, setCargando] = useState(true);
@@ -38,9 +38,7 @@ export default function MiQRScreen() {
 
   let qrRef: any = useRef(null);
 
-  const beneficiario =
-    obtenerBeneficiarioPorId(beneficiarioId) ||
-    (beneficiarios.length > 0 ? beneficiarios[0] : undefined);
+  const beneficiario = beneficiarioId ? obtenerBeneficiarioPorId(beneficiarioId) : undefined;
 
   useEffect(() => {
     if (!loading && beneficiario) {
@@ -217,9 +215,6 @@ export default function MiQRScreen() {
                   />
                 )}
               </View>
-
-
-
             </>
           ) : (
             <View style={styles.errorContainer}>

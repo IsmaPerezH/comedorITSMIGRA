@@ -65,6 +65,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
             return;
         }
 
+        if (beneficiario.password !== password) {
+            Alert.alert('Error', 'Contraseña incorrecta');
+            return;
+        }
+
         const studentUser: User = {
             role: 'student',
             beneficiarioId: beneficiario.id,

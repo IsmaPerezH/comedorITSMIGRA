@@ -1,23 +1,44 @@
-// app/(tabs)/index.tsx
+import { useAuth } from '@/context/AuthContext';
+import { useStorage } from '@/hooks/useStorage';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
-import { ScrollView, StatusBar, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Alert, ScrollView, StatusBar, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import Animated, { FadeInDown } from 'react-native-reanimated';
 
 export default function UserHomeScreen() {
   const router = useRouter();
+  const { user, logout } = useAuth();
+  const { obtenerEstadisticasCompletas, roles } = useStorage();
+
+  const stats = user && user.role === 'student' ? obtenerEstadisticasCompletas(user.beneficiarioId) : { totalAsistencias: 0 };
+  const rolesPendientesCount = user && user.role === 'student'
+    ? roles.filter(r => r.beneficiarioId === user.beneficiarioId && (r.estado === 'pendiente' || r.estado === 'proximo')).length
+    : 0;
 
   const userInfo = {
-    name: 'Brenda Vásquez',
-    studentId: '22105081',
-    asistencias: 14,
-    rolesPendientes: 2
+    name: user && user.role === 'student' ? user.nombre : 'Invitado',
+    studentId: user && user.role === 'student' ? user.matricula : '---',
+    asistencias: stats.totalAsistencias,
+    rolesPendientes: rolesPendientesCount
   };
 
-  const proximosRoles = [
-    { tipo: 'Cocina', fecha: '25 Nov 2025', completado: false },
-    { tipo: 'Aseo', fecha: '28 Nov 2025', completado: false }
-  ];
+  const handleLogout = () => {
+    Alert.alert(
+      'Cerrar Sesión',
+      '¿Estás seguro de que quieres salir?',
+      [
+        { text: 'Cancelar', style: 'cancel' },
+        {
+          text: 'Salir',
+          style: 'destructive',
+          onPress: () => {
+            logout();
+            router.replace('/');
+          }
+        }
+      ]
+    );
+  };
 
   return (
     <View style={styles.container}>
@@ -33,9 +54,14 @@ export default function UserHomeScreen() {
               <Text style={styles.userId}>{userInfo.studentId}</Text>
             </View>
           </View>
-          <View style={styles.avatarContainer}>
-            <View style={styles.avatar}>
-              <Text style={styles.avatarText}>{userInfo.name.charAt(0)}</Text>
+          <View style={styles.headerActions}>
+            <TouchableOpacity onPress={handleLogout} style={styles.logoutButton}>
+              <Ionicons name="log-out-outline" size={24} color="white" />
+            </TouchableOpacity>
+            <View style={styles.avatarContainer}>
+              <View style={styles.avatar}>
+                <Text style={styles.avatarText}>{userInfo.name.charAt(0)}</Text>
+              </View>
             </View>
           </View>
         </View>
@@ -167,8 +193,21 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: 'rgba(255,255,255,0.8)',
   },
+  headerActions: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+  },
+  logoutButton: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: 'rgba(255,255,255,0.2)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
   avatarContainer: {
-    marginLeft: 16,
+    marginLeft: 0,
   },
   avatar: {
     width: 56,

@@ -1,4 +1,5 @@
 // app/(tabs)/asistencia.tsx
+import { useAuth } from '@/context/AuthContext';
 import { useStorage } from '@/hooks/useStorage';
 import { Ionicons } from '@expo/vector-icons';
 import React, { useState } from 'react';
@@ -16,13 +17,20 @@ interface Asistencia {
 type FiltroTipo = 'todos' | 'comida' | 'cena';
 
 export default function AsistenciaScreen() {
+  const { user } = useAuth();
   const { obtenerAsistenciasPorBeneficiario, obtenerEstadisticasCompletas } = useStorage();
 
-  const beneficiarioActualId = '1';
+  const beneficiarioActualId = user?.role === 'student' ? user.beneficiarioId : '';
   const [filtroActivo, setFiltroActivo] = useState<FiltroTipo>('todos');
 
-  const todasAsistencias = obtenerAsistenciasPorBeneficiario(beneficiarioActualId);
-  const estadisticas = obtenerEstadisticasCompletas(beneficiarioActualId);
+  const todasAsistencias = beneficiarioActualId ? obtenerAsistenciasPorBeneficiario(beneficiarioActualId) : [];
+  const estadisticas = beneficiarioActualId ? obtenerEstadisticasCompletas(beneficiarioActualId) : {
+    totalAsistencias: 0,
+    asistenciasComida: 0,
+    asistenciasCena: 0,
+    rachaActual: 0,
+    ultimaAsistencia: null
+  };
 
   // Filtrar asistencias según el filtro activo
   const asistenciasFiltradas = todasAsistencias.filter(asistencia => {
@@ -45,6 +53,13 @@ export default function AsistenciaScreen() {
       month: 'short',
       year: 'numeric'
     });
+  };
+
+  // Adapter for statistics display
+  const statsDisplay = {
+    total: estadisticas.totalAsistencias,
+    registradas: estadisticas.totalAsistencias, // Assuming registered means total for now
+    porcentaje: 100 // Placeholder
   };
 
   return (
@@ -77,7 +92,7 @@ export default function AsistenciaScreen() {
             <View style={[styles.statIcon, { backgroundColor: '#EFF6FF' }]}>
               <Ionicons name="calendar-outline" size={24} color="#2563EB" />
             </View>
-            <Text style={styles.statValue}>{estadisticas.total}</Text>
+            <Text style={styles.statValue}>{statsDisplay.total}</Text>
             <Text style={styles.statLabel}>Total</Text>
           </Animated.View>
 
@@ -85,7 +100,7 @@ export default function AsistenciaScreen() {
             <View style={[styles.statIcon, { backgroundColor: '#D1FAE5' }]}>
               <Ionicons name="checkmark-done" size={24} color="#059669" />
             </View>
-            <Text style={[styles.statValue, { color: '#059669' }]}>{estadisticas.registradas}</Text>
+            <Text style={[styles.statValue, { color: '#059669' }]}>{statsDisplay.registradas}</Text>
             <Text style={[styles.statLabel, { color: '#059669' }]}>Registradas</Text>
           </Animated.View>
 
@@ -93,7 +108,7 @@ export default function AsistenciaScreen() {
             <View style={[styles.statIcon, { backgroundColor: '#FDE68A' }]}>
               <Ionicons name="trending-up" size={24} color="#D97706" />
             </View>
-            <Text style={[styles.statValue, { color: '#D97706' }]}>{estadisticas.porcentaje}%</Text>
+            <Text style={[styles.statValue, { color: '#D97706' }]}>{statsDisplay.porcentaje}%</Text>
             <Text style={[styles.statLabel, { color: '#D97706' }]}>Asistencia</Text>
           </Animated.View>
         </View>
