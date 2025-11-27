@@ -4,14 +4,16 @@ import { useStorage } from '@/hooks/useStorage';
 import { Ionicons } from '@expo/vector-icons';
 import { Link, useRouter } from 'expo-router';
 import React from 'react';
-import { Alert, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Alert, Dimensions, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import Animated, { FadeInDown, FadeInRight } from 'react-native-reanimated';
+
+const { width } = Dimensions.get('window');
 
 export default function AdminDashboard() {
   const { logout } = useAuth();
   const router = useRouter();
   const {
     beneficiarios,
-    asistencias,
     roles,
     obtenerAsistenciasDelDia,
     limpiarDatos
@@ -27,232 +29,184 @@ export default function AdminDashboard() {
       : 0,
   };
 
-  // Asistencias de hoy
   const asistenciasHoy = obtenerAsistenciasDelDia();
 
-  // Función para limpiar datos (solo desarrollo)
-  const handleLimpiarDatos = () => {
-    Alert.alert(
-      'Limpiar Datos',
-      '¿Estás seguro de que quieres limpiar todos los datos? Esto es solo para desarrollo.',
-      [
-        { text: 'Cancelar', style: 'cancel' },
-        {
-          text: 'Limpiar',
-          style: 'destructive',
-          onPress: () => limpiarDatos()
-        },
-      ]
-    );
+  const handleLogout = () => {
+    Alert.alert('Cerrar Sesión', '¿Estás seguro?', [
+      { text: 'Cancelar', style: 'cancel' },
+      { text: 'Salir', style: 'destructive', onPress: () => { logout(); router.replace('/'); } }
+    ]);
   };
 
-  const handleLogout = () => {
-    logout();
-    router.replace('/');
+  const handleLimpiarDatos = () => {
+    Alert.alert('¡Cuidado!', 'Esto borrará todos los datos. ¿Continuar?', [
+      { text: 'Cancelar', style: 'cancel' },
+      { text: 'Borrar Todo', style: 'destructive', onPress: limpiarDatos }
+    ]);
   };
+
+  const StatCard = ({ icon, number, label, color, delay }: any) => (
+    <Animated.View entering={FadeInDown.delay(delay).springify()} style={styles.statCard}>
+      <View style={[styles.statIconContainer, { backgroundColor: color }]}>
+        <Ionicons name={icon} size={24} color="white" />
+      </View>
+      <View>
+        <Text style={styles.statNumber}>{number}</Text>
+        <Text style={styles.statLabel}>{label}</Text>
+      </View>
+    </Animated.View>
+  );
+
+  const ActionButton = ({ icon, title, subtitle, href, color, delay }: any) => (
+    <Link href={href} asChild>
+      <TouchableOpacity activeOpacity={0.8}>
+        <Animated.View entering={FadeInRight.delay(delay).springify()} style={styles.actionCard}>
+          <View style={[styles.actionIcon, { backgroundColor: color + '15' }]}>
+            <Ionicons name={icon} size={28} color={color} />
+          </View>
+          <View style={styles.actionContent}>
+            <Text style={styles.actionTitle}>{title}</Text>
+            <Text style={styles.actionSubtitle}>{subtitle}</Text>
+          </View>
+          <Ionicons name="chevron-forward" size={20} color="#ccc" />
+        </Animated.View>
+      </TouchableOpacity>
+    </Link>
+  );
 
   return (
-    <ScrollView style={styles.container}>
-      {/* Header */}
+    <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
+      {/* Header Moderno */}
       <View style={styles.header}>
-        <View>
-          <Text style={styles.title}>Panel Administrador</Text>
-          <Text style={styles.subtitle}>CHA&apos;A KASKUA</Text>
-        </View>
-        <View style={styles.headerRight}>
-          <View style={styles.adminBadge}>
-            <Ionicons name="shield-checkmark" size={20} color="white" />
-            <Text style={styles.adminText}>Admin</Text>
+        <View style={styles.headerContent}>
+          <View>
+            <Text style={styles.headerSubtitle}>Panel de Control</Text>
+            <Text style={styles.headerTitle}>Comedor ITSMIGRA</Text>
           </View>
-          <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
-            <Ionicons name="log-out-outline" size={24} color="white" />
+          <TouchableOpacity style={styles.logoutBtn} onPress={handleLogout}>
+            <Ionicons name="log-out-outline" size={22} color="#FF5252" />
           </TouchableOpacity>
         </View>
-      </View>
 
-      {/* Estadísticas Principales */}
-      <View style={styles.statsGrid}>
-        <View style={styles.statCard}>
-          <View style={[styles.statIcon, { backgroundColor: '#2196F3' }]}>
-            <Ionicons name="people" size={24} color="white" />
+        {/* Resumen Rápido en Header */}
+        <View style={styles.summaryContainer}>
+          <View style={styles.summaryItem}>
+            <Text style={styles.summaryValue}>{estadisticas.activosHoy}</Text>
+            <Text style={styles.summaryLabel}>Asistencias</Text>
           </View>
-          <Text style={styles.statNumber}>{estadisticas.totalBeneficiarios}</Text>
-          <Text style={styles.statLabel}>Total Beneficiarios</Text>
-        </View>
-
-        <View style={styles.statCard}>
-          <View style={[styles.statIcon, { backgroundColor: '#4CAF50' }]}>
-            <Ionicons name="checkmark-circle" size={24} color="white" />
+          <View style={styles.summaryDivider} />
+          <View style={styles.summaryItem}>
+            <Text style={styles.summaryValue}>{estadisticas.rolesPendientes}</Text>
+            <Text style={styles.summaryLabel}>Roles Pend.</Text>
           </View>
-          <Text style={styles.statNumber}>{estadisticas.activosHoy}</Text>
-          <Text style={styles.statLabel}>Asistencias Hoy</Text>
-        </View>
-
-        <View style={styles.statCard}>
-          <View style={[styles.statIcon, { backgroundColor: '#FF9800' }]}>
-            <Ionicons name="list" size={24} color="white" />
+          <View style={styles.summaryDivider} />
+          <View style={styles.summaryItem}>
+            <Text style={styles.summaryValue}>{estadisticas.porcentajeAsistencia}%</Text>
+            <Text style={styles.summaryLabel}>Efectividad</Text>
           </View>
-          <Text style={styles.statNumber}>{estadisticas.rolesPendientes}</Text>
-          <Text style={styles.statLabel}>Roles Pendientes</Text>
-        </View>
-
-        <View style={styles.statCard}>
-          <View style={[styles.statIcon, { backgroundColor: '#9C27B0' }]}>
-            <Ionicons name="trending-up" size={24} color="white" />
-          </View>
-          <Text style={styles.statNumber}>{estadisticas.porcentajeAsistencia}%</Text>
-          <Text style={styles.statLabel}>Asistencia Hoy</Text>
         </View>
       </View>
 
-      {/* Acciones Rápidas */}
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Acciones Rápidas</Text>
-        <View style={styles.actionsGrid}>
-          <Link href="/admin/qr-scanner" asChild>
-            <TouchableOpacity style={styles.actionCard}>
-              <View style={[styles.actionIcon, { backgroundColor: '#4CAF50' }]}>
-                <Ionicons name="qr-code" size={28} color="white" />
-              </View>
-              <Text style={styles.actionText}>Escanear QR</Text>
-              <Text style={styles.actionSubtext}>Registrar asistencias</Text>
-            </TouchableOpacity>
-          </Link>
-
-          <Link href="/admin/beneficiarios" asChild>
-            <TouchableOpacity style={styles.actionCard}>
-              <View style={[styles.actionIcon, { backgroundColor: '#2196F3' }]}>
-                <Ionicons name="people" size={28} color="white" />
-              </View>
-              <Text style={styles.actionText}>Beneficiarios</Text>
-              <Text style={styles.actionSubtext}>Gestionar usuarios</Text>
-            </TouchableOpacity>
-          </Link>
-
-          <Link href="/admin/reportes" asChild>
-            <TouchableOpacity style={styles.actionCard}>
-              <View style={[styles.actionIcon, { backgroundColor: '#FF9800' }]}>
-                <Ionicons name="bar-chart" size={28} color="white" />
-              </View>
-              <Text style={styles.actionText}>Reportes</Text>
-              <Text style={styles.actionSubtext}>Ver estadísticas</Text>
-            </TouchableOpacity>
-          </Link>
-
-          <Link href="/admin/roles" asChild>
-            <TouchableOpacity style={styles.actionCard}>
-              <View style={[styles.actionIcon, { backgroundColor: '#9C27B0' }]}>
-                <Ionicons name="list" size={28} color="white" />
-              </View>
-              <Text style={styles.actionText}>Roles</Text>
-              <Text style={styles.actionSubtext}>Gestionar turnos</Text>
-            </TouchableOpacity>
-          </Link>
-
-          <Link href="/admin/carga-roles" asChild>
-            <TouchableOpacity style={styles.actionCard}>
-              <View style={[styles.actionIcon, { backgroundColor: '#9C27B0' }]}>
-                <Ionicons name="document" size={28} color="white" />
-              </View>
-              <Text style={styles.actionText}>Cargar Roles PDF</Text>
-              <Text style={styles.actionSubtext}>Importar desde archivo</Text>
-            </TouchableOpacity>
-          </Link>
-
-          <Link href="/admin/gestion-pdfs" asChild>
-            <TouchableOpacity style={styles.actionCard}>
-              <View style={[styles.actionIcon, { backgroundColor: '#9C27B0' }]}>
-                <Ionicons name="document" size={28} color="white" />
-              </View>
-              <Text style={styles.actionText}>Gestionar PDFs</Text>
-              <Text style={styles.actionSubtext}>Subir documentos</Text>
-            </TouchableOpacity>
-          </Link>
-        </View>
-      </View>
-
-      {/* Asistencias Recientes */}
-      <View style={styles.section}>
-        <View style={styles.sectionHeader}>
-          <Text style={styles.sectionTitle}>Asistencias de Hoy</Text>
-          <Text style={styles.seeAllText}>
-            {asistenciasHoy.length} de {estadisticas.totalBeneficiarios}
-          </Text>
+      <View style={styles.content}>
+        {/* Sección de Estadísticas Detalladas */}
+        <Text style={styles.sectionTitle}>Resumen General</Text>
+        <View style={styles.statsGrid}>
+          <StatCard
+            icon="people"
+            number={estadisticas.totalBeneficiarios}
+            label="Beneficiarios"
+            color="#4F46E5"
+            delay={100}
+          />
+          <StatCard
+            icon="restaurant"
+            number={estadisticas.activosHoy}
+            label="Comensales"
+            color="#10B981"
+            delay={200}
+          />
         </View>
 
-        {asistenciasHoy.length > 0 ? (
-          <View style={styles.asistenciasList}>
-            {asistenciasHoy.slice(0, 5).map((asistencia) => {
-              const beneficiario = beneficiarios.find(b => b.id === asistencia.beneficiarioId);
-              return (
-                <View key={asistencia.id} style={styles.asistenciaItem}>
-                  <View style={styles.asistenciaInfo}>
-                    <Text style={styles.beneficiarioName}>
-                      {beneficiario?.nombre || 'Desconocido'}
-                    </Text>
-                    <Text style={styles.asistenciaDetail}>
-                      {asistencia.tipo} • {asistencia.hora}
-                    </Text>
-                  </View>
-                  <View style={[
-                    styles.statusBadge,
-                    { backgroundColor: asistencia.tipo === 'comida' ? '#2196F3' : '#9C27B0' }
-                  ]}>
-                    <Text style={styles.statusText}>
-                      {asistencia.tipo.charAt(0).toUpperCase() + asistencia.tipo.slice(1)}
-                    </Text>
-                  </View>
-                </View>
-              );
-            })}
-            {asistenciasHoy.length > 5 && (
-              <TouchableOpacity style={styles.verMasButton}>
-                <Text style={styles.verMasText}>
-                  Ver {asistenciasHoy.length - 5} más...
-                </Text>
-              </TouchableOpacity>
-            )}
-          </View>
-        ) : (
-          <View style={styles.emptyState}>
-            <Ionicons name="calendar" size={48} color="#ccc" />
-            <Text style={styles.emptyStateText}>No hay asistencias hoy</Text>
-            <Text style={styles.emptyStateSubtext}>
-              Usa el escáner QR para registrar asistencias
-            </Text>
-          </View>
-        )}
-      </View>
+        {/* Acciones Principales */}
+        <Text style={styles.sectionTitle}>Gestión</Text>
+        <View style={styles.actionsList}>
+          <ActionButton
+            icon="qr-code"
+            title="Escanear QR"
+            subtitle="Registrar entradas rápidamente"
+            href="/admin/qr-scanner"
+            color="#2563EB"
+            delay={300}
+          />
+          <ActionButton
+            icon="people"
+            title="Beneficiarios"
+            subtitle="Alta, baja y modificación"
+            href="/admin/beneficiarios"
+            color="#7C3AED"
+            delay={400}
+          />
+          <ActionButton
+            icon="document-text"
+            title="Gestión de Documentos"
+            subtitle="Roles y PDFs informativos"
+            href="/admin/gestion-pdfs"
+            color="#DB2777"
+            delay={500}
+          />
+          <ActionButton
+            icon="bar-chart"
+            title="Reportes"
+            subtitle="Estadísticas y descargas"
+            href="/admin/reportes"
+            color="#F59E0B"
+            delay={600}
+          />
+        </View>
 
-      {/* Información del Sistema */}
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Información del Sistema</Text>
-        <View style={styles.infoCards}>
-          <View style={styles.infoCard}>
-            <Ionicons name="server" size={20} color="#666" />
-            <View style={styles.infoContent}>
-              <Text style={styles.infoTitle}>Almacenamiento Local</Text>
-              <Text style={styles.infoText}>Datos guardados en el dispositivo</Text>
+        {/* Asistencias Recientes */}
+        <View style={styles.recentSection}>
+          <View style={styles.recentHeader}>
+            <Text style={styles.sectionTitle}>Actividad Reciente</Text>
+            <Text style={styles.recentCount}>{asistenciasHoy.length} hoy</Text>
+          </View>
+
+          {asistenciasHoy.length > 0 ? (
+            <View style={styles.recentList}>
+              {asistenciasHoy.slice(0, 5).map((asistencia, index) => {
+                const beneficiario = beneficiarios.find(b => b.id === asistencia.beneficiarioId);
+                return (
+                  <Animated.View
+                    key={asistencia.id}
+                    entering={FadeInDown.delay(700 + (index * 100))}
+                    style={styles.recentItem}
+                  >
+                    <View style={[styles.recentIcon, { backgroundColor: asistencia.tipo === 'comida' ? '#E0F2FE' : '#FCE7F3' }]}>
+                      <Ionicons
+                        name={asistencia.tipo === 'comida' ? 'sunny' : 'moon'}
+                        size={18}
+                        color={asistencia.tipo === 'comida' ? '#0284C7' : '#DB2777'}
+                      />
+                    </View>
+                    <View style={styles.recentInfo}>
+                      <Text style={styles.recentName}>{beneficiario?.nombre || 'Desconocido'}</Text>
+                      <Text style={styles.recentTime}>{asistencia.hora} • {asistencia.tipo.toUpperCase()}</Text>
+                    </View>
+                  </Animated.View>
+                );
+              })}
             </View>
-          </View>
-
-          <View style={styles.infoCard}>
-            <Ionicons name="time" size={20} color="#666" />
-            <View style={styles.infoContent}>
-              <Text style={styles.infoTitle}>Actualizado</Text>
-              <Text style={styles.infoText}>
-                {new Date().toLocaleTimeString('es-MX')}
-              </Text>
+          ) : (
+            <View style={styles.emptyState}>
+              <Ionicons name="time-outline" size={40} color="#9CA3AF" />
+              <Text style={styles.emptyText}>Sin actividad hoy</Text>
             </View>
-          </View>
+          )}
         </View>
-      </View>
 
-      {/* Solo para desarrollo - Limpiar datos */}
-      <View style={styles.devSection}>
-        <TouchableOpacity style={styles.devButton} onPress={handleLimpiarDatos}>
-          <Ionicons name="trash" size={20} color="#f44336" />
-          <Text style={styles.devButtonText}>Limpiar Datos (Desarrollo)</Text>
+        {/* Botón Discreto de Desarrollo */}
+        <TouchableOpacity style={styles.devTrigger} onPress={handleLimpiarDatos} onLongPress={handleLimpiarDatos}>
+          <Text style={styles.devText}>v1.0.0 • Admin Mode</Text>
         </TouchableOpacity>
       </View>
     </ScrollView>
@@ -262,245 +216,223 @@ export default function AdminDashboard() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f8f9fa',
+    backgroundColor: '#F3F4F6',
   },
   header: {
+    backgroundColor: '#FFFFFF',
+    paddingTop: 60,
+    paddingBottom: 20,
+    paddingHorizontal: 24,
+    borderBottomLeftRadius: 30,
+    borderBottomRightRadius: 30,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.05,
+    shadowRadius: 10,
+    elevation: 5,
+    zIndex: 10,
+  },
+  headerContent: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    backgroundColor: '#1a237e',
-    padding: 20,
-    paddingTop: 60,
+    marginBottom: 25,
   },
-  headerRight: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 12,
-  },
-  title: {
-    color: 'white',
+  headerTitle: {
     fontSize: 24,
-    fontWeight: 'bold',
+    fontWeight: '800',
+    color: '#111827',
+    letterSpacing: -0.5,
   },
-  subtitle: {
-    color: 'rgba(255,255,255,0.8)',
-    fontSize: 16,
+  headerSubtitle: {
+    fontSize: 14,
+    color: '#6B7280',
+    fontWeight: '600',
+    textTransform: 'uppercase',
+    letterSpacing: 1,
+  },
+  logoutBtn: {
+    padding: 10,
+    backgroundColor: '#FEF2F2',
+    borderRadius: 12,
+  },
+  summaryContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    backgroundColor: '#F9FAFB',
+    borderRadius: 16,
+    padding: 16,
+  },
+  summaryItem: {
+    alignItems: 'center',
+    flex: 1,
+  },
+  summaryValue: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#1F2937',
+  },
+  summaryLabel: {
+    fontSize: 11,
+    color: '#6B7280',
     marginTop: 2,
   },
-  adminBadge: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: 'rgba(255,255,255,0.2)',
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 20,
-    gap: 4,
+  summaryDivider: {
+    width: 1,
+    backgroundColor: '#E5E7EB',
+    height: '80%',
+    alignSelf: 'center',
   },
-  adminText: {
-    color: 'white',
-    fontSize: 12,
-    fontWeight: 'bold',
+  content: {
+    padding: 24,
   },
-  logoutButton: {
-    padding: 8,
+  sectionTitle: {
+    fontSize: 18,
+    fontWeight: '700',
+    color: '#374151',
+    marginBottom: 16,
+    marginTop: 8,
   },
   statsGrid: {
     flexDirection: 'row',
-    flexWrap: 'wrap',
-    padding: 15,
-    gap: 10,
+    gap: 16,
+    marginBottom: 24,
   },
   statCard: {
-    width: '47%',
+    flex: 1,
     backgroundColor: 'white',
     padding: 16,
-    borderRadius: 12,
+    borderRadius: 20,
+    flexDirection: 'row',
     alignItems: 'center',
+    gap: 12,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
+    shadowOpacity: 0.05,
+    shadowRadius: 8,
+    elevation: 2,
   },
-  statIcon: {
-    width: 50,
-    height: 50,
-    borderRadius: 25,
+  statIconContainer: {
+    width: 40,
+    height: 40,
+    borderRadius: 12,
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: 8,
   },
   statNumber: {
     fontSize: 20,
     fontWeight: 'bold',
-    color: '#333',
-    marginBottom: 4,
+    color: '#1F2937',
   },
   statLabel: {
     fontSize: 12,
-    color: '#666',
-    textAlign: 'center',
+    color: '#6B7280',
   },
-  section: {
-    backgroundColor: 'white',
-    margin: 15,
-    padding: 20,
-    borderRadius: 12,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
-  },
-  sectionHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 15,
-  },
-  sectionTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: '#333',
-  },
-  seeAllText: {
-    fontSize: 14,
-    color: '#666',
-    fontWeight: '500',
-  },
-  actionsGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 15,
+  actionsList: {
+    gap: 12,
+    marginBottom: 24,
   },
   actionCard: {
-    width: '47%',
+    backgroundColor: 'white',
+    padding: 16,
+    borderRadius: 16,
+    flexDirection: 'row',
     alignItems: 'center',
-    padding: 15,
-    borderRadius: 12,
-    backgroundColor: '#f8f9fa',
-    borderWidth: 1,
-    borderColor: '#e9ecef',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.03,
+    shadowRadius: 4,
+    elevation: 2,
   },
   actionIcon: {
-    width: 60,
-    height: 60,
-    borderRadius: 30,
+    width: 48,
+    height: 48,
+    borderRadius: 14,
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: 8,
+    marginRight: 16,
   },
-  actionText: {
-    fontSize: 14,
-    fontWeight: 'bold',
-    color: '#333',
-    textAlign: 'center',
-    marginBottom: 2,
+  actionContent: {
+    flex: 1,
   },
-  actionSubtext: {
-    fontSize: 11,
-    color: '#666',
-    textAlign: 'center',
+  actionTitle: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#1F2937',
   },
-  asistenciasList: {
-    gap: 12,
+  actionSubtitle: {
+    fontSize: 13,
+    color: '#9CA3AF',
+    marginTop: 2,
   },
-  asistenciaItem: {
+  recentSection: {
+    backgroundColor: 'white',
+    borderRadius: 20,
+    padding: 20,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 8,
+    elevation: 2,
+    marginBottom: 30,
+  },
+  recentHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingVertical: 8,
+    marginBottom: 16,
   },
-  asistenciaInfo: {
+  recentCount: {
+    fontSize: 13,
+    color: '#6B7280',
+    backgroundColor: '#F3F4F6',
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 10,
+    overflow: 'hidden',
+  },
+  recentList: {
+    gap: 16,
+  },
+  recentItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  recentIcon: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 12,
+  },
+  recentInfo: {
     flex: 1,
   },
-  beneficiarioName: {
+  recentName: {
     fontSize: 14,
     fontWeight: '600',
-    color: '#333',
-    marginBottom: 2,
+    color: '#374151',
   },
-  asistenciaDetail: {
+  recentTime: {
     fontSize: 12,
-    color: '#666',
-  },
-  statusBadge: {
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 8,
-  },
-  statusText: {
-    color: 'white',
-    fontSize: 10,
-    fontWeight: 'bold',
-  },
-  verMasButton: {
-    alignItems: 'center',
-    padding: 12,
-    borderTopWidth: 1,
-    borderTopColor: '#f0f0f0',
-  },
-  verMasText: {
-    color: '#2196F3',
-    fontSize: 14,
-    fontWeight: '500',
+    color: '#9CA3AF',
   },
   emptyState: {
     alignItems: 'center',
-    padding: 40,
-  },
-  emptyStateText: {
-    fontSize: 16,
-    color: '#666',
-    marginTop: 12,
-    marginBottom: 4,
-  },
-  emptyStateSubtext: {
-    fontSize: 14,
-    color: '#999',
-    textAlign: 'center',
-  },
-  infoCards: {
-    gap: 12,
-  },
-  infoCard: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 12,
-    padding: 12,
-    backgroundColor: '#f8f9fa',
-    borderRadius: 8,
-  },
-  infoContent: {
-    flex: 1,
-  },
-  infoTitle: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#333',
-    marginBottom: 2,
-  },
-  infoText: {
-    fontSize: 12,
-    color: '#666',
-  },
-  devSection: {
     padding: 20,
-    alignItems: 'center',
   },
-  devButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-    padding: 12,
-    backgroundColor: '#ffebee',
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: '#ffcdd2',
-  },
-  devButtonText: {
-    color: '#f44336',
+  emptyText: {
+    color: '#9CA3AF',
+    marginTop: 8,
     fontSize: 14,
-    fontWeight: '500',
+  },
+  devTrigger: {
+    alignItems: 'center',
+    padding: 20,
+  },
+  devText: {
+    color: '#D1D5DB',
+    fontSize: 12,
   },
 });

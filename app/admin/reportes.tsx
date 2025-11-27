@@ -3,197 +3,230 @@ import { useStorage } from '@/hooks/useStorage';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import React from 'react';
-import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Dimensions, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import Animated, { FadeInDown } from 'react-native-reanimated';
+
+const { width } = Dimensions.get('window');
 
 export default function ReportesScreen() {
   const router = useRouter();
   const { asistencias, beneficiarios } = useStorage();
 
-  // Estadísticas para reportes
   const estadisticas = {
     totalAsistencias: asistencias.length,
     asistenciasHoy: asistencias.filter(a => a.fecha === new Date().toISOString().split('T')[0]).length,
     totalBeneficiarios: beneficiarios.length,
-    promedioDiario: asistencias.length > 0 ? Math.round(asistencias.length / 30) : 0, // Aproximado
+    promedioDiario: asistencias.length > 0 ? Math.round(asistencias.length / 30) : 0,
   };
 
+  const MetricCard = ({ icon, number, label, color, delay }: any) => (
+    <Animated.View
+      entering={FadeInDown.delay(delay).springify()}
+      style={styles.metricCard}
+    >
+      <View style={[styles.iconContainer, { backgroundColor: color + '15' }]}>
+        <Ionicons name={icon} size={24} color={color} />
+      </View>
+      <Text style={styles.metricNumber}>{number}</Text>
+      <Text style={styles.metricLabel}>{label}</Text>
+    </Animated.View>
+  );
+
   return (
-    <ScrollView style={styles.container}>
-      {/* Header */}
+    <View style={styles.container}>
+      {/* Header Moderno */}
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
-          <Ionicons name="arrow-back" size={24} color="white" />
-        </TouchableOpacity>
-        <Text style={styles.title}>Reportes y Estadísticas</Text>
-        <View style={styles.placeholder} />
+        <View style={styles.headerTop}>
+          <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
+            <Ionicons name="arrow-back" size={24} color="#1F2937" />
+          </TouchableOpacity>
+          <Text style={styles.headerTitle}>Reportes</Text>
+          <View style={{ width: 40 }} />
+        </View>
       </View>
 
-      {/* Contenido */}
-      <View style={styles.content}>
-        {/* Métricas principales */}
+      <ScrollView style={styles.content} contentContainerStyle={{ paddingBottom: 100 }}>
+        <Text style={styles.sectionTitle}>Métricas Clave</Text>
+
         <View style={styles.metricsGrid}>
-          <View style={styles.metricCard}>
-            <Ionicons name="bar-chart" size={24} color="#2196F3" />
-            <Text style={styles.metricNumber}>{estadisticas.totalAsistencias}</Text>
-            <Text style={styles.metricLabel}>Total Asistencias</Text>
-          </View>
-          <View style={styles.metricCard}>
-            <Ionicons name="today" size={24} color="#4CAF50" />
-            <Text style={styles.metricNumber}>{estadisticas.asistenciasHoy}</Text>
-            <Text style={styles.metricLabel}>Asistencias Hoy</Text>
-          </View>
-          <View style={styles.metricCard}>
-            <Ionicons name="people" size={24} color="#FF9800" />
-            <Text style={styles.metricNumber}>{estadisticas.totalBeneficiarios}</Text>
-            <Text style={styles.metricLabel}>Beneficiarios</Text>
-          </View>
-          <View style={styles.metricCard}>
-            <Ionicons name="trending-up" size={24} color="#9C27B0" />
-            <Text style={styles.metricNumber}>{estadisticas.promedioDiario}</Text>
-            <Text style={styles.metricLabel}>Promedio Diario</Text>
-          </View>
+          <MetricCard
+            icon="bar-chart"
+            number={estadisticas.totalAsistencias}
+            label="Total Asistencias"
+            color="#2563EB"
+            delay={100}
+          />
+          <MetricCard
+            icon="today"
+            number={estadisticas.asistenciasHoy}
+            label="Asistencias Hoy"
+            color="#10B981"
+            delay={200}
+          />
+          <MetricCard
+            icon="people"
+            number={estadisticas.totalBeneficiarios}
+            label="Beneficiarios"
+            color="#F59E0B"
+            delay={300}
+          />
+          <MetricCard
+            icon="trending-up"
+            number={estadisticas.promedioDiario}
+            label="Promedio Diario"
+            color="#8B5CF6"
+            delay={400}
+          />
         </View>
 
-        {/* Mensaje de desarrollo */}
-        <View style={styles.devMessage}>
-          <Ionicons name="analytics" size={32} color="#2196F3" />
-          <Text style={styles.devTitle}>Reportes en Desarrollo</Text>
-          <Text style={styles.devText}>
-            Próximamente tendrás acceso a reportes detallados, gráficos 
-            de asistencia, exportación de datos y análisis avanzados.
+        <Animated.View
+          entering={FadeInDown.delay(500).springify()}
+          style={styles.devCard}
+        >
+          <View style={styles.devHeader}>
+            <Ionicons name="construct" size={24} color="#4B5563" />
+            <Text style={styles.devTitle}>Próximamente</Text>
+          </View>
+          <Text style={styles.devDescription}>
+            Estamos trabajando en nuevas herramientas de análisis para ti.
           </Text>
-        </View>
 
-        {/* Funcionalidades próximas */}
-        <View style={styles.featuresList}>
-          <Text style={styles.featuresTitle}>Próximas Funcionalidades:</Text>
-          <View style={styles.featureItem}>
-            <Ionicons name="checkmark-circle" size={20} color="#4CAF50" />
-            <Text style={styles.featureText}>Gráficos de asistencia mensual</Text>
+          <View style={styles.featuresList}>
+            <View style={styles.featureItem}>
+              <Ionicons name="checkmark-circle" size={18} color="#10B981" />
+              <Text style={styles.featureText}>Gráficos mensuales</Text>
+            </View>
+            <View style={styles.featureItem}>
+              <Ionicons name="checkmark-circle" size={18} color="#10B981" />
+              <Text style={styles.featureText}>Exportación a Excel</Text>
+            </View>
+            <View style={styles.featureItem}>
+              <Ionicons name="checkmark-circle" size={18} color="#10B981" />
+              <Text style={styles.featureText}>Reportes individuales</Text>
+            </View>
           </View>
-          <View style={styles.featureItem}>
-            <Ionicons name="checkmark-circle" size={20} color="#4CAF50" />
-            <Text style={styles.featureText}>Reportes por beneficiario</Text>
-          </View>
-          <View style={styles.featureItem}>
-            <Ionicons name="checkmark-circle" size={20} color="#4CAF50" />
-            <Text style={styles.featureText}>Exportación a Excel/PDF</Text>
-          </View>
-          <View style={styles.featureItem}>
-            <Ionicons name="checkmark-circle" size={20} color="#4CAF50" />
-            <Text style={styles.featureText}>Análisis de tendencias</Text>
-          </View>
-        </View>
-      </View>
-    </ScrollView>
+        </Animated.View>
+      </ScrollView>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f8f9fa',
+    backgroundColor: '#F9FAFB',
   },
   header: {
+    backgroundColor: 'white',
+    paddingTop: 60,
+    paddingBottom: 20,
+    paddingHorizontal: 20,
+    borderBottomLeftRadius: 24,
+    borderBottomRightRadius: 24,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 10,
+    elevation: 4,
+    zIndex: 10,
+  },
+  headerTop: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    backgroundColor: '#1a237e',
-    padding: 20,
-    paddingTop: 60,
+  },
+  headerTitle: {
+    fontSize: 20,
+    fontWeight: '700',
+    color: '#111827',
   },
   backButton: {
-    padding: 4,
-  },
-  title: {
-    color: 'white',
-    fontSize: 20,
-    fontWeight: 'bold',
-    flex: 1,
-    textAlign: 'center',
-  },
-  placeholder: {
-    width: 32,
+    padding: 8,
+    borderRadius: 12,
+    backgroundColor: '#F3F4F6',
   },
   content: {
     padding: 20,
   },
+  sectionTitle: {
+    fontSize: 18,
+    fontWeight: '700',
+    color: '#374151',
+    marginBottom: 16,
+    marginTop: 8,
+  },
   metricsGrid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    gap: 12,
-    marginBottom: 30,
+    gap: 16,
+    marginBottom: 32,
   },
   metricCard: {
-    width: '47%',
+    width: (width - 56) / 2,
     backgroundColor: 'white',
     padding: 16,
-    borderRadius: 12,
-    alignItems: 'center',
+    borderRadius: 20,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
+    shadowOpacity: 0.03,
+    shadowRadius: 8,
+    elevation: 2,
+  },
+  iconContainer: {
+    width: 40,
+    height: 40,
+    borderRadius: 12,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 12,
   },
   metricNumber: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: '#333',
-    marginVertical: 8,
+    fontSize: 24,
+    fontWeight: '800',
+    color: '#1F2937',
+    marginBottom: 4,
   },
   metricLabel: {
     fontSize: 12,
-    color: '#666',
-    textAlign: 'center',
+    color: '#6B7280',
+    fontWeight: '500',
   },
-  devMessage: {
+  devCard: {
+    backgroundColor: 'white',
+    padding: 24,
+    borderRadius: 24,
+    borderWidth: 1,
+    borderColor: '#E5E7EB',
+    borderStyle: 'dashed',
+  },
+  devHeader: {
+    flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#e3f2fd',
-    padding: 20,
-    borderRadius: 12,
-    borderLeftWidth: 4,
-    borderLeftColor: '#2196F3',
-    marginBottom: 20,
+    gap: 12,
+    marginBottom: 12,
   },
   devTitle: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: '#1976d2',
-    marginTop: 12,
-    marginBottom: 8,
+    fontSize: 18,
+    fontWeight: '700',
+    color: '#374151',
   },
-  devText: {
+  devDescription: {
     fontSize: 14,
-    color: '#1976d2',
-    textAlign: 'center',
+    color: '#6B7280',
+    marginBottom: 20,
     lineHeight: 20,
   },
   featuresList: {
-    backgroundColor: 'white',
-    padding: 20,
-    borderRadius: 12,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
-  },
-  featuresTitle: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: '#333',
-    marginBottom: 12,
+    gap: 12,
   },
   featureItem: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 12,
-    marginBottom: 10,
+    gap: 10,
   },
   featureText: {
     fontSize: 14,
-    color: '#666',
-    flex: 1,
+    color: '#4B5563',
+    fontWeight: '500',
   },
 });

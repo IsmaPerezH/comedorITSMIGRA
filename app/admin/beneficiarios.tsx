@@ -1,11 +1,11 @@
-
-// app/admin/beneficiarios.tsx - Gestión de beneficiarios con campo de contraseña
+// app/admin/beneficiarios.tsx
 import { Beneficiario, useStorage } from '@/hooks/useStorage';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import React, { useState } from 'react';
 import {
   Alert,
+  Dimensions,
   Modal,
   ScrollView,
   StyleSheet,
@@ -15,6 +15,9 @@ import {
   TouchableOpacity,
   View
 } from 'react-native';
+import Animated, { FadeInDown, FadeInUp } from 'react-native-reanimated';
+
+const { width } = Dimensions.get('window');
 
 export default function BeneficiariosScreen() {
   const router = useRouter();
@@ -36,25 +39,17 @@ export default function BeneficiariosScreen() {
     password: ''
   });
 
-  // Filtrar beneficiarios según búsqueda
   const beneficiariosFiltrados = beneficiarios.filter(beneficiario =>
     beneficiario.nombre.toLowerCase().includes(searchQuery.toLowerCase()) ||
     beneficiario.matricula.includes(searchQuery)
   );
 
-  // Abrir modal para nuevo beneficiario
   const handleNuevoBeneficiario = () => {
     setEditingBeneficiario(null);
-    setFormData({
-      nombre: '',
-      matricula: '',
-      activo: true,
-      password: ''
-    });
+    setFormData({ nombre: '', matricula: '', activo: true, password: '' });
     setModalVisible(true);
   };
 
-  // Abrir modal para editar beneficiario
   const handleEditarBeneficiario = (beneficiario: Beneficiario) => {
     setEditingBeneficiario(beneficiario);
     setFormData({
@@ -66,60 +61,44 @@ export default function BeneficiariosScreen() {
     setModalVisible(true);
   };
 
-  // Guardar beneficiario
   const handleGuardar = async () => {
     if (!formData.nombre.trim() || !formData.matricula.trim()) {
-      Alert.alert('Error', 'Por favor completa todos los campos obligatorios');
+      Alert.alert('Campos incompletos', 'Por favor completa nombre y matrícula.');
       return;
     }
 
     if (!editingBeneficiario && !formData.password.trim()) {
-      Alert.alert('Error', 'La contraseña es obligatoria para nuevos beneficiarios');
+      Alert.alert('Contraseña requerida', 'Debes asignar una contraseña inicial.');
       return;
     }
 
-    // Verificar si la matrícula ya existe
     if (matriculaExiste(formData.matricula, editingBeneficiario?.id)) {
-      Alert.alert('Error', 'Ya existe un beneficiario con esta matrícula');
+      Alert.alert('Matrícula duplicada', 'Esta matrícula ya está registrada.');
       return;
     }
 
     try {
       if (editingBeneficiario) {
-        // Actualizar beneficiario existente
         await actualizarBeneficiario(editingBeneficiario.id, formData);
-        Alert.alert('Éxito', 'Beneficiario actualizado correctamente');
       } else {
-        // Crear nuevo beneficiario
         await agregarBeneficiario(formData);
-        Alert.alert('Éxito', 'Beneficiario creado correctamente');
       }
       setModalVisible(false);
     } catch (error) {
-      Alert.alert('Error', 'Hubo un problema al guardar el beneficiario');
-      console.error('Error guardando beneficiario:', error);
+      Alert.alert('Error', 'No se pudo guardar el beneficiario.');
     }
   };
 
-  // Eliminar beneficiario
   const handleEliminar = (beneficiario: Beneficiario) => {
     Alert.alert(
       'Eliminar Beneficiario',
-      `¿Estás seguro de eliminar a ${beneficiario.nombre}?`,
+      `¿Eliminar a ${beneficiario.nombre}? Esta acción no se puede deshacer.`,
       [
         { text: 'Cancelar', style: 'cancel' },
         {
           text: 'Eliminar',
           style: 'destructive',
-          onPress: async () => {
-            try {
-              await eliminarBeneficiario(beneficiario.id);
-              Alert.alert('Éxito', 'Beneficiario eliminado correctamente');
-            } catch (error) {
-              Alert.alert('Error', 'Hubo un problema al eliminar el beneficiario');
-              console.error('Error eliminando beneficiario:', error);
-            }
-          }
+          onPress: () => eliminarBeneficiario(beneficiario.id)
         },
       ]
     );
@@ -127,206 +106,181 @@ export default function BeneficiariosScreen() {
 
   return (
     <View style={styles.container}>
-      {/* Header */}
+      {/* Header Moderno */}
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
-          <Ionicons name="arrow-back" size={24} color="white" />
-        </TouchableOpacity>
-        <Text style={styles.title}>Gestión de Beneficiarios</Text>
-        <TouchableOpacity onPress={handleNuevoBeneficiario} style={styles.addButton}>
-          <Ionicons name="add" size={24} color="white" />
-        </TouchableOpacity>
-      </View>
-
-      {/* Barra de búsqueda */}
-      <View style={styles.searchContainer}>
-        <Ionicons name="search" size={20} color="#666" />
-        <TextInput
-          style={styles.searchInput}
-          placeholder="Buscar por nombre o matrícula..."
-          value={searchQuery}
-          onChangeText={setSearchQuery}
-        />
-        {searchQuery.length > 0 && (
-          <TouchableOpacity onPress={() => setSearchQuery('')}>
-            <Ionicons name="close-circle" size={20} color="#666" />
+        <View style={styles.headerTop}>
+          <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
+            <Ionicons name="arrow-back" size={24} color="#1F2937" />
           </TouchableOpacity>
-        )}
+          <Text style={styles.headerTitle}>Beneficiarios</Text>
+          <TouchableOpacity onPress={handleNuevoBeneficiario} style={styles.addButton}>
+            <Ionicons name="add" size={24} color="white" />
+          </TouchableOpacity>
+        </View>
+
+        {/* Barra de Búsqueda Integrada */}
+        <View style={styles.searchContainer}>
+          <Ionicons name="search" size={20} color="#9CA3AF" />
+          <TextInput
+            style={styles.searchInput}
+            placeholder="Buscar por nombre o matrícula..."
+            placeholderTextColor="#9CA3AF"
+            value={searchQuery}
+            onChangeText={setSearchQuery}
+          />
+          {searchQuery.length > 0 && (
+            <TouchableOpacity onPress={() => setSearchQuery('')}>
+              <Ionicons name="close-circle" size={20} color="#9CA3AF" />
+            </TouchableOpacity>
+          )}
+        </View>
       </View>
 
-      {/* Estadísticas */}
-      <View style={styles.statsContainer}>
-        <View style={styles.statItem}>
-          <Text style={styles.statNumber}>{beneficiarios.length}</Text>
-          <Text style={styles.statLabel}>Total</Text>
+      <ScrollView style={styles.content} contentContainerStyle={{ paddingBottom: 100 }}>
+        {/* Resumen de Estado */}
+        <View style={styles.statsRow}>
+          <View style={styles.statChip}>
+            <Text style={styles.statValue}>{beneficiarios.length}</Text>
+            <Text style={styles.statLabel}>Total</Text>
+          </View>
+          <View style={[styles.statChip, { backgroundColor: '#ECFDF5' }]}>
+            <Text style={[styles.statValue, { color: '#059669' }]}>
+              {beneficiarios.filter(b => b.activo).length}
+            </Text>
+            <Text style={[styles.statLabel, { color: '#059669' }]}>Activos</Text>
+          </View>
+          <View style={[styles.statChip, { backgroundColor: '#FEF2F2' }]}>
+            <Text style={[styles.statValue, { color: '#DC2626' }]}>
+              {beneficiarios.filter(b => !b.activo).length}
+            </Text>
+            <Text style={[styles.statLabel, { color: '#DC2626' }]}>Inactivos</Text>
+          </View>
         </View>
-        <View style={styles.statItem}>
-          <Text style={styles.statNumber}>
-            {beneficiarios.filter(b => b.activo).length}
-          </Text>
-          <Text style={styles.statLabel}>Activos</Text>
-        </View>
-        <View style={styles.statItem}>
-          <Text style={styles.statNumber}>
-            {beneficiarios.filter(b => !b.activo).length}
-          </Text>
-          <Text style={styles.statLabel}>Inactivos</Text>
-        </View>
-      </View>
 
-      {/* Lista de beneficiarios */}
-      <ScrollView style={styles.content}>
         {beneficiariosFiltrados.length > 0 ? (
-          <View style={styles.beneficiariosList}>
-            {beneficiariosFiltrados.map((beneficiario) => (
-              <View key={beneficiario.id} style={styles.beneficiarioCard}>
-                <View style={styles.avatar}>
-                  <Ionicons name="person" size={24} color="#666" />
-                </View>
-                <View style={styles.beneficiarioInfo}>
-                  <Text style={styles.nombre}>{beneficiario.nombre}</Text>
-                  <Text style={styles.matricula}>Matrícula: {beneficiario.matricula}</Text>
-                </View>
-                <View style={styles.actions}>
-                  <View style={[
-                    styles.statusBadge,
-                    { backgroundColor: beneficiario.activo ? '#4CAF50' : '#f44336' }
-                  ]}>
-                    <Text style={styles.statusText}>
-                      {beneficiario.activo ? 'Activo' : 'Inactivo'}
+          <View style={styles.listContainer}>
+            {beneficiariosFiltrados.map((beneficiario, index) => (
+              <Animated.View
+                key={beneficiario.id}
+                entering={FadeInDown.delay(index * 50).springify()}
+                style={styles.card}
+              >
+                <View style={styles.cardHeader}>
+                  <View style={styles.avatarContainer}>
+                    <Text style={styles.avatarText}>
+                      {beneficiario.nombre.charAt(0).toUpperCase()}
                     </Text>
                   </View>
+                  <View style={styles.cardInfo}>
+                    <Text style={styles.cardName}>{beneficiario.nombre}</Text>
+                    <Text style={styles.cardMatricula}>{beneficiario.matricula}</Text>
+                  </View>
+                  <View style={[styles.statusDot, { backgroundColor: beneficiario.activo ? '#10B981' : '#EF4444' }]} />
+                </View>
+
+                <View style={styles.cardActions}>
                   <TouchableOpacity
+                    style={[styles.actionBtn, { backgroundColor: '#EFF6FF' }]}
                     onPress={() => handleEditarBeneficiario(beneficiario)}
-                    style={styles.editButton}
                   >
-                    <Ionicons name="create" size={18} color="#2196F3" />
+                    <Ionicons name="pencil" size={18} color="#2563EB" />
+                    <Text style={[styles.actionText, { color: '#2563EB' }]}>Editar</Text>
                   </TouchableOpacity>
+
                   <TouchableOpacity
+                    style={[styles.actionBtn, { backgroundColor: '#FEF2F2' }]}
                     onPress={() => handleEliminar(beneficiario)}
-                    style={styles.deleteButton}
                   >
-                    <Ionicons name="trash" size={18} color="#f44336" />
+                    <Ionicons name="trash-outline" size={18} color="#DC2626" />
                   </TouchableOpacity>
                 </View>
-              </View>
+              </Animated.View>
             ))}
           </View>
         ) : (
           <View style={styles.emptyState}>
-            <Ionicons name="people" size={64} color="#ccc" />
-            <Text style={styles.emptyStateText}>
-              {searchQuery ? 'No se encontraron resultados' : 'No hay beneficiarios'}
-            </Text>
-            <Text style={styles.emptyStateSubtext}>
-              {searchQuery ? 'Intenta con otros términos de búsqueda' : 'Agrega el primer beneficiario'}
-            </Text>
+            <Ionicons name="search-outline" size={64} color="#E5E7EB" />
+            <Text style={styles.emptyTitle}>No se encontraron resultados</Text>
+            <Text style={styles.emptySubtitle}>Intenta con otra búsqueda o agrega un nuevo beneficiario</Text>
           </View>
         )}
       </ScrollView>
 
-      {/* Modal para agregar/editar beneficiario */}
+      {/* Modal Moderno */}
       <Modal
-        animationType="slide"
+        animationType="fade"
         transparent={true}
         visible={modalVisible}
         onRequestClose={() => setModalVisible(false)}
       >
-        <View style={styles.modalContainer}>
-          <View style={styles.modalContent}>
+        <View style={styles.modalOverlay}>
+          <Animated.View entering={FadeInUp.springify()} style={styles.modalContent}>
             <View style={styles.modalHeader}>
               <Text style={styles.modalTitle}>
                 {editingBeneficiario ? 'Editar Beneficiario' : 'Nuevo Beneficiario'}
               </Text>
-              <TouchableOpacity
-                onPress={() => setModalVisible(false)}
-                style={styles.closeButton}
-              >
-                <Ionicons name="close" size={24} color="#666" />
+              <TouchableOpacity onPress={() => setModalVisible(false)}>
+                <Ionicons name="close" size={24} color="#6B7280" />
               </TouchableOpacity>
             </View>
 
-            <View style={styles.form}>
+            <ScrollView style={styles.formContainer}>
               <View style={styles.inputGroup}>
-                <Text style={styles.label}>Nombre completo *</Text>
+                <Text style={styles.label}>Nombre Completo</Text>
                 <TextInput
                   style={styles.input}
-                  placeholder="Ej: Brenda Vásquez Cruz"
+                  placeholder="Ej. Juan Pérez"
                   value={formData.nombre}
-                  onChangeText={(text) => setFormData({ ...formData, nombre: text })}
+                  onChangeText={(t) => setFormData({ ...formData, nombre: t })}
                 />
               </View>
 
               <View style={styles.inputGroup}>
-                <Text style={styles.label}>Matrícula *</Text>
+                <Text style={styles.label}>Matrícula</Text>
                 <TextInput
                   style={styles.input}
-                  placeholder="Ej: 22105081"
-                  value={formData.matricula}
-                  onChangeText={(text) => setFormData({ ...formData, matricula: text })}
+                  placeholder="Ej. 22105081"
                   keyboardType="numeric"
                   maxLength={8}
+                  value={formData.matricula}
+                  onChangeText={(t) => setFormData({ ...formData, matricula: t })}
                 />
-                <Text style={styles.helperText}>
-                  {matriculaExiste(formData.matricula, editingBeneficiario?.id)
-                    ? '⚠️ Esta matrícula ya está en uso'
-                    : 'La matrícula debe ser única'
-                  }
-                </Text>
               </View>
 
               <View style={styles.inputGroup}>
-                <Text style={styles.label}>Contraseña {!editingBeneficiario && '*'}</Text>
+                <Text style={styles.label}>Contraseña</Text>
                 <TextInput
                   style={styles.input}
-                  placeholder={editingBeneficiario ? "Dejar vacío para mantener la actual" : "Ej: 123456"}
-                  value={formData.password}
-                  onChangeText={(text) => setFormData({ ...formData, password: text })}
+                  placeholder={editingBeneficiario ? "••••••" : "Crear contraseña"}
                   secureTextEntry
-                  maxLength={20}
+                  value={formData.password}
+                  onChangeText={(t) => setFormData({ ...formData, password: t })}
                 />
                 <Text style={styles.helperText}>
-                  {editingBeneficiario
-                    ? 'Dejar vacío para no cambiar la contraseña'
-                    : 'Contraseña para iniciar sesión'
-                  }
+                  {editingBeneficiario ? 'Dejar vacío para mantener la actual' : 'Requerido para el primer acceso'}
                 </Text>
               </View>
 
-              <View style={styles.switchGroup}>
-                <Text style={styles.label}>Estado activo</Text>
+              <View style={styles.switchRow}>
+                <Text style={styles.label}>Estado Activo</Text>
                 <Switch
                   value={formData.activo}
-                  onValueChange={(value) => setFormData({ ...formData, activo: value })}
-                  trackColor={{ false: '#767577', true: '#81b0ff' }}
-                  thumbColor={formData.activo ? '#2196F3' : '#f4f3f4'}
+                  onValueChange={(v) => setFormData({ ...formData, activo: v })}
+                  trackColor={{ false: '#D1D5DB', true: '#93C5FD' }}
+                  thumbColor={formData.activo ? '#2563EB' : '#F3F4F6'}
                 />
               </View>
+            </ScrollView>
 
-              <Text style={styles.requiredText}>* Campos obligatorios</Text>
-
-              <View style={styles.modalActions}>
-                <TouchableOpacity
-                  onPress={() => setModalVisible(false)}
-                  style={styles.cancelButton}
-                >
-                  <Text style={styles.cancelButtonText}>Cancelar</Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                  onPress={handleGuardar}
-                  style={[
-                    styles.saveButton,
-                    (!formData.nombre.trim() || !formData.matricula.trim() || (!editingBeneficiario && !formData.password.trim())) && styles.saveButtonDisabled
-                  ]}
-                  disabled={!formData.nombre.trim() || !formData.matricula.trim() || (!editingBeneficiario && !formData.password.trim())}
-                >
-                  <Text style={styles.saveButtonText}>
-                    {editingBeneficiario ? 'Actualizar' : 'Guardar'}
-                  </Text>
-                </TouchableOpacity>
-              </View>
+            <View style={styles.modalFooter}>
+              <TouchableOpacity style={styles.cancelBtn} onPress={() => setModalVisible(false)}>
+                <Text style={styles.cancelBtnText}>Cancelar</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.saveBtn} onPress={handleGuardar}>
+                <Text style={styles.saveBtnText}>Guardar</Text>
+              </TouchableOpacity>
             </View>
-          </View>
+          </Animated.View>
         </View>
       </Modal>
     </View>
@@ -334,186 +288,182 @@ export default function BeneficiariosScreen() {
 }
 
 const styles = StyleSheet.create({
-  helperText: {
-    fontSize: 12,
-    color: '#666',
-    marginTop: 4,
-    fontStyle: 'italic',
-  },
-  requiredText: {
-    fontSize: 12,
-    color: '#666',
-    marginBottom: 20,
-    fontStyle: 'italic',
-  },
-  saveButtonDisabled: {
-    backgroundColor: '#ccc',
-  },
   container: {
     flex: 1,
-    backgroundColor: '#f8f9fa',
+    backgroundColor: '#F9FAFB',
   },
   header: {
+    backgroundColor: 'white',
+    paddingTop: 60,
+    paddingBottom: 20,
+    paddingHorizontal: 20,
+    borderBottomLeftRadius: 24,
+    borderBottomRightRadius: 24,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 10,
+    elevation: 4,
+    zIndex: 10,
+  },
+  headerTop: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    backgroundColor: '#1a237e',
-    padding: 20,
-    paddingTop: 60,
+    marginBottom: 20,
+  },
+  headerTitle: {
+    fontSize: 20,
+    fontWeight: '700',
+    color: '#111827',
   },
   backButton: {
-    padding: 4,
-  },
-  title: {
-    color: 'white',
-    fontSize: 20,
-    fontWeight: 'bold',
-    flex: 1,
-    textAlign: 'center',
+    padding: 8,
+    borderRadius: 12,
+    backgroundColor: '#F3F4F6',
   },
   addButton: {
-    padding: 4,
+    padding: 8,
+    borderRadius: 12,
+    backgroundColor: '#2563EB',
   },
   searchContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: 'white',
-    margin: 15,
-    padding: 12,
+    backgroundColor: '#F3F4F6',
     borderRadius: 12,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
+    paddingHorizontal: 12,
+    height: 48,
   },
   searchInput: {
     flex: 1,
-    marginLeft: 8,
-    marginRight: 8,
+    marginLeft: 10,
     fontSize: 16,
+    color: '#1F2937',
   },
-  statsContainer: {
+  content: {
+    padding: 20,
+  },
+  statsRow: {
     flexDirection: 'row',
-    backgroundColor: 'white',
-    marginHorizontal: 15,
-    padding: 15,
-    borderRadius: 12,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
+    gap: 12,
+    marginBottom: 24,
   },
-  statItem: {
+  statChip: {
     flex: 1,
+    backgroundColor: 'white',
+    padding: 12,
+    borderRadius: 12,
     alignItems: 'center',
+    borderWidth: 1,
+    borderColor: '#E5E7EB',
   },
-  statNumber: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: '#333',
-    marginBottom: 4,
+  statValue: {
+    fontSize: 18,
+    fontWeight: '700',
+    color: '#1F2937',
   },
   statLabel: {
     fontSize: 12,
-    color: '#666',
+    color: '#6B7280',
+    marginTop: 2,
   },
-  content: {
-    flex: 1,
-    padding: 15,
+  listContainer: {
+    gap: 16,
   },
-  beneficiariosList: {
-    gap: 12,
-  },
-  beneficiarioCard: {
-    flexDirection: 'row',
-    alignItems: 'center',
+  card: {
     backgroundColor: 'white',
+    borderRadius: 16,
     padding: 16,
-    borderRadius: 12,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
+    shadowOpacity: 0.03,
+    shadowRadius: 8,
+    elevation: 2,
   },
-  avatar: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: '#f5f5f5',
+  cardHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 16,
+  },
+  avatarContainer: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    backgroundColor: '#EFF6FF',
     justifyContent: 'center',
     alignItems: 'center',
     marginRight: 12,
   },
-  beneficiarioInfo: {
+  avatarText: {
+    fontSize: 18,
+    fontWeight: '700',
+    color: '#2563EB',
+  },
+  cardInfo: {
     flex: 1,
   },
-  nombre: {
+  cardName: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#333',
-    marginBottom: 4,
+    color: '#1F2937',
   },
-  matricula: {
+  cardMatricula: {
     fontSize: 14,
-    color: '#666',
+    color: '#6B7280',
   },
-  actions: {
+  statusDot: {
+    width: 10,
+    height: 10,
+    borderRadius: 5,
+  },
+  cardActions: {
+    flexDirection: 'row',
+    gap: 12,
+  },
+  actionBtn: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,
-  },
-  statusBadge: {
-    paddingHorizontal: 8,
-    paddingVertical: 4,
+    paddingVertical: 8,
+    paddingHorizontal: 12,
     borderRadius: 8,
+    gap: 6,
   },
-  statusText: {
-    color: 'white',
-    fontSize: 12,
-    fontWeight: 'bold',
-  },
-  editButton: {
-    padding: 6,
-  },
-  deleteButton: {
-    padding: 6,
+  actionText: {
+    fontSize: 14,
+    fontWeight: '500',
   },
   emptyState: {
     alignItems: 'center',
-    justifyContent: 'center',
-    padding: 40,
+    marginTop: 60,
   },
-  emptyStateText: {
+  emptyTitle: {
     fontSize: 18,
-    color: '#666',
+    fontWeight: '600',
+    color: '#374151',
     marginTop: 16,
-    marginBottom: 8,
-    textAlign: 'center',
   },
-  emptyStateSubtext: {
+  emptySubtitle: {
     fontSize: 14,
-    color: '#999',
+    color: '#9CA3AF',
     textAlign: 'center',
+    marginTop: 8,
+    maxWidth: 250,
   },
-  modalContainer: {
+  modalOverlay: {
     flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.4)',
     justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    padding: 20,
   },
   modalContent: {
     backgroundColor: 'white',
-    borderRadius: 16,
-    padding: 0,
-    width: '90%',
-    maxWidth: 400,
+    borderRadius: 24,
+    maxHeight: '80%',
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
+    shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 0.2,
+    shadowRadius: 20,
     elevation: 10,
   },
   modalHeader: {
@@ -522,17 +472,14 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     padding: 20,
     borderBottomWidth: 1,
-    borderBottomColor: '#f0f0f0',
+    borderBottomColor: '#F3F4F6',
   },
   modalTitle: {
     fontSize: 18,
-    fontWeight: 'bold',
-    color: '#333',
+    fontWeight: '700',
+    color: '#111827',
   },
-  closeButton: {
-    padding: 4,
-  },
-  form: {
+  formContainer: {
     padding: 20,
   },
   inputGroup: {
@@ -540,50 +487,57 @@ const styles = StyleSheet.create({
   },
   label: {
     fontSize: 14,
-    fontWeight: '600',
-    color: '#333',
+    fontWeight: '500',
+    color: '#374151',
     marginBottom: 8,
   },
   input: {
+    backgroundColor: '#F9FAFB',
     borderWidth: 1,
-    borderColor: '#ddd',
-    borderRadius: 8,
+    borderColor: '#E5E7EB',
+    borderRadius: 12,
     padding: 12,
     fontSize: 16,
-    backgroundColor: '#fafafa',
+    color: '#1F2937',
   },
-  switchGroup: {
+  helperText: {
+    fontSize: 12,
+    color: '#6B7280',
+    marginTop: 4,
+  },
+  switchRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 30,
+    marginBottom: 10,
   },
-  modalActions: {
+  modalFooter: {
     flexDirection: 'row',
+    padding: 20,
+    borderTopWidth: 1,
+    borderTopColor: '#F3F4F6',
     gap: 12,
   },
-  cancelButton: {
+  cancelBtn: {
     flex: 1,
-    padding: 15,
-    borderRadius: 8,
-    backgroundColor: '#f5f5f5',
+    padding: 14,
+    borderRadius: 12,
+    backgroundColor: '#F3F4F6',
     alignItems: 'center',
   },
-  cancelButtonText: {
-    color: '#666',
-    fontSize: 16,
+  cancelBtnText: {
+    color: '#4B5563',
     fontWeight: '600',
   },
-  saveButton: {
+  saveBtn: {
     flex: 1,
-    padding: 15,
-    borderRadius: 8,
-    backgroundColor: '#1a237e',
+    padding: 14,
+    borderRadius: 12,
+    backgroundColor: '#2563EB',
     alignItems: 'center',
   },
-  saveButtonText: {
+  saveBtnText: {
     color: 'white',
-    fontSize: 16,
     fontWeight: '600',
   },
 });

@@ -5,8 +5,25 @@ import { Ionicons } from '@expo/vector-icons';
 import { Camera, CameraView } from 'expo-camera';
 import { useRouter } from 'expo-router';
 import React, { useEffect, useState } from 'react';
-import { Alert, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import {
+  Alert,
+  Dimensions,
+  StatusBar,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View
+} from 'react-native';
+import Animated, {
+  useAnimatedStyle,
+  useSharedValue,
+  withRepeat,
+  withSequence,
+  withTiming
+} from 'react-native-reanimated';
 
+const { width } = Dimensions.get('window');
+const SCAN_SIZE = width * 0.7;
 
 export default function AdminQRScannerScreen() {
   const [hasPermission, setHasPermission] = useState<boolean | null>(null);
@@ -15,7 +32,9 @@ export default function AdminQRScannerScreen() {
   const router = useRouter();
   const { registrarAsistencia, obtenerBeneficiarioPorMatricula } = useStorage();
 
-  // Solicitar permisos de cámara
+  // Animation for the scanner line
+  const translateY = useSharedValue(0);
+
   useEffect(() => {
     const getCameraPermissions = async () => {
       const { status } = await Camera.requestCameraPermissionsAsync();
@@ -23,73 +42,89 @@ export default function AdminQRScannerScreen() {
     };
 
     getCameraPermissions();
+
+    // Start scanning animation
+    translateY.value = withRepeat(
+      withSequence(
+        withTiming(SCAN_SIZE, { duration: 2000 }),
+        withTiming(0, { duration: 2000 })
+      ),
+      -1,
+      true
+    );
   }, []);
 
-  // Función cuando se escanea un QR de beneficiario
+  const animatedLineStyle = useAnimatedStyle(() => ({
+    transform: [{ translateY: translateY.value }],
+  }));
+
   const handleBarCodeScanned = async ({ type, data }: { type: string; data: string }) => {
-  if (scanned) return;
-  
-  setScanned(true);
-  
-  try {
-    // Validar QR usando el nuevo sistema
-    const validacion = QRGenerator.validarQR(data);
-    
-    if (!validacion.valido) {
+    if (scanned) return;
+
+    setScanned(true);
+
+    try {
+      // Validar QR usando el nuevo sistema
+      const validacion = QRGenerator.validarQR(data);
+
+      if (!validacion.valido) {
+        Alert.alert(
+          '❌ QR Inválido',
+          validacion.error || 'Este código QR no es válido',
+          [{ text: 'Intentar de nuevo', onPress: () => setScanned(false) }]
+        );
+        return;
+      }
+
+      const { datos } = validacion;
+      const beneficiario = obtenerBeneficiarioPorMatricula(datos!.matricula);
+
+      if (beneficiario) {
+        // Determinar tipo de comida basado en la hora
+        const horaActual = new Date().getHours();
+        const tipo = horaActual < 15 ? 'comida' : 'cena';
+
+        // Registrar asistencia
+        const asistencia = await registrarAsistencia(beneficiario.id, tipo);
+
+        Alert.alert(
+          '✅ Asistencia Registrada',
+          'Beneficiario: ' + beneficiario.nombre + '\nMatrícula: ' + beneficiario.matricula + '\nTipo: ' + tipo + '\nHora: ' + asistencia.hora,
+          [
+            {
+              text: 'Registrar siguiente',
+              onPress: () => setScanned(false),
+            },
+            {
+              text: 'Finalizar',
+              onPress: () => router.back(),
+              style: 'cancel',
+            },
+          ]
+        );
+      } else {
+        Alert.alert(
+          '❌ Beneficiario No Encontrado',
+          'El código QR es válido pero no se encontró al beneficiario con matrícula ' + datos!.matricula,
+          [{ text: 'Intentar de nuevo', onPress: () => setScanned(false) }]
+        );
+      }
+    } catch (error) {
       Alert.alert(
-        '❌ QR Inválido',
-        validacion.error || 'Este código QR no es válido',
+        '❌ Error',
+        'Hubo un problema al registrar la asistencia',
         [{ text: 'Intentar de nuevo', onPress: () => setScanned(false) }]
       );
-      return;
     }
-
-    const { datos } = validacion;
-    const beneficiario = obtenerBeneficiarioPorMatricula(datos!.matricula);
-
-    if (beneficiario) {
-      // Determinar tipo de comida basado en la hora
-      const horaActual = new Date().getHours();
-      const tipo = horaActual < 15 ? 'comida' : 'cena';
-      
-      // Registrar asistencia
-      const asistencia = await registrarAsistencia(beneficiario.id, tipo);
-      
-      Alert.alert(
-        '✅ Asistencia Registrada',
-        `Beneficiario: ${beneficiario.nombre}\nMatrícula: ${beneficiario.matricula}\nTipo: ${tipo}\nHora: ${asistencia.hora}`,
-        [
-          {
-            text: 'Registrar siguiente',
-            onPress: () => setScanned(false),
-          },
-          {
-            text: 'Finalizar',
-            onPress: () => router.back(),
-          },
-        ]
-      );
-    } else {
-      Alert.alert(
-        '❌ Beneficiario No Encontrado',
-        `El código QR es válido pero no se encontró al beneficiario con matrícula ${datos!.matricula}`,
-        [{ text: 'Intentar de nuevo', onPress: () => setScanned(false) }]
-      );
-    }
-  } catch (error) {
-    Alert.alert(
-      '❌ Error',
-      'Hubo un problema al registrar la asistencia',
-      [{ text: 'Intentar de nuevo', onPress: () => setScanned(false) }]
-    );
-  }
-};
-
+  };
 
   if (hasPermission === null) {
     return (
       <View style={styles.container}>
-        <Text style={styles.message}>Solicitando permiso para la cámara...</Text>
+        <StatusBar barStyle="light-content" />
+        <View style={styles.loadingContainer}>
+          <Text style={styles.message}>Solicitando acceso a la cámara...</Text>
+        </View>
       </View>
     );
   }
@@ -97,197 +132,252 @@ export default function AdminQRScannerScreen() {
   if (hasPermission === false) {
     return (
       <View style={styles.container}>
-        <Text style={styles.errorMessage}>Sin acceso a la cámara</Text>
-        <Text style={styles.message}>El administrador necesita acceso a la cámara para escanear QR.</Text>
-        <TouchableOpacity style={styles.button} onPress={() => router.back()}>
-          <Text style={styles.buttonText}>Volver al Panel</Text>
-        </TouchableOpacity>
+        <StatusBar barStyle="light-content" />
+        <View style={styles.permissionContainer}>
+          <Ionicons name="alert-circle-outline" size={64} color="#EF4444" />
+          <Text style={styles.errorMessage}>Sin acceso a la cámara</Text>
+          <Text style={styles.message}>
+            El administrador necesita acceso a la cámara para escanear QR.
+          </Text>
+          <TouchableOpacity style={styles.button} onPress={() => router.back()}>
+            <Text style={styles.buttonText}>Volver al Panel</Text>
+          </TouchableOpacity>
+        </View>
       </View>
     );
   }
 
   return (
     <View style={styles.container}>
-      {/* Header */}
-      <View style={styles.header}>
-        <Text style={styles.title}>Escanear QR de Beneficiarios</Text>
-        <Text style={styles.subtitle}>Administrador - CHA&apos;A KASKUA</Text>
-      </View>
+      <StatusBar barStyle="light-content" />
 
-      {/* Cámara/Scanner */}
-      <View style={styles.cameraContainer}>
-        <CameraView
-          style={styles.camera}
-          facing="back"
-          onBarcodeScanned={scanned ? undefined : handleBarCodeScanned}
-          barcodeScannerSettings={{
-            barcodeTypes: ['qr'],
-          }}
-          flash={flashOn ? 'on' : 'off'}
-        />
-
-        {/* Overlay para guía de escaneo */}
+      <CameraView
+        style={styles.camera}
+        facing="back"
+        onBarcodeScanned={scanned ? undefined : handleBarCodeScanned}
+        barcodeScannerSettings={{
+          barcodeTypes: ['qr'],
+        }}
+        flash={flashOn ? 'on' : 'off'}
+      >
+        {/* Dark Overlay with Cutout */}
         <View style={styles.overlay}>
-          <View style={styles.scanFrame}>
-            <View style={[styles.corner, styles.cornerTopLeft]} />
-            <View style={[styles.corner, styles.cornerTopRight]} />
-            <View style={[styles.corner, styles.cornerBottomLeft]} />
-            <View style={[styles.corner, styles.cornerBottomRight]} />
+          <View style={styles.overlayTop}>
+            <View style={styles.header}>
+              <TouchableOpacity
+                style={styles.backButton}
+                onPress={() => router.back()}
+              >
+                <Ionicons name="close" size={24} color="white" />
+              </TouchableOpacity>
+              <Text style={styles.headerTitle}>Escanear Beneficiario</Text>
+              <View style={{ width: 40 }} />
+            </View>
+            <Text style={styles.instructionText}>
+              Encuadra el código QR del beneficiario
+            </Text>
           </View>
-          <Text style={styles.scanText}>Escanea el QR del beneficiario</Text>
+
+          <View style={styles.scanRow}>
+            <View style={styles.overlaySide} />
+            <View style={styles.scanFrame}>
+              {/* Corner Markers */}
+              <View style={[styles.corner, styles.topLeft]} />
+              <View style={[styles.corner, styles.topRight]} />
+              <View style={[styles.corner, styles.bottomLeft]} />
+              <View style={[styles.corner, styles.bottomRight]} />
+
+              {/* Scanning Line Animation */}
+              {!scanned && (
+                <Animated.View style={[styles.scanLine, animatedLineStyle]} />
+              )}
+            </View>
+            <View style={styles.overlaySide} />
+          </View>
+
+          <View style={styles.overlayBottom}>
+            <View style={styles.controlsContainer}>
+              <TouchableOpacity
+                style={[styles.controlButton, flashOn && styles.controlButtonActive]}
+                onPress={() => setFlashOn(!flashOn)}
+              >
+                <Ionicons
+                  name={flashOn ? 'flash' : 'flash-off'}
+                  size={24}
+                  color={flashOn ? '#FFD700' : 'white'}
+                />
+              </TouchableOpacity>
+              <Text style={styles.controlLabel}>Flash</Text>
+            </View>
+
+            {scanned && (
+              <TouchableOpacity
+                style={styles.rescanButton}
+                onPress={() => setScanned(false)}
+              >
+                <Ionicons name="refresh" size={20} color="white" />
+                <Text style={styles.rescanText}>Escanear siguiente</Text>
+              </TouchableOpacity>
+            )}
+          </View>
         </View>
-      </View>
-
-      {/* Controles */}
-      <View style={styles.controls}>
-        <TouchableOpacity
-          style={styles.controlButton}
-          onPress={() => setFlashOn(!flashOn)}
-        >
-          <Ionicons
-            name={flashOn ? 'flash' : 'flash-off'}
-            size={28}
-            color={flashOn ? '#FFD700' : 'white'}
-          />
-          <Text style={styles.controlText}>{flashOn ? 'Flash On' : 'Flash Off'}</Text>
-        </TouchableOpacity>
-
-        {scanned && (
-          <TouchableOpacity
-            style={styles.rescanButton}
-            onPress={() => setScanned(false)}
-          >
-            <Ionicons name="refresh" size={24} color="white" />
-            <Text style={styles.rescanText}>Escanear siguiente</Text>
-          </TouchableOpacity>
-        )}
-
-        <TouchableOpacity
-          style={styles.cancelButton}
-          onPress={() => router.back()}
-        >
-          <Ionicons name="arrow-back" size={24} color="white" />
-          <Text style={styles.cancelText}>Volver al Panel</Text>
-        </TouchableOpacity>
-      </View>
-
-      {/* Información para administrador */}
-      <View style={styles.infoContainer}>
-        <Text style={styles.infoTitle}>Instrucciones para Administrador:</Text>
-        <Text style={styles.infoText}>• Pide a cada beneficiario que muestre su QR</Text>
-        <Text style={styles.infoText}>• Escanea un código a la vez</Text>
-        <Text style={styles.infoText}>• La asistencia se registra automáticamente</Text>
-        <Text style={styles.infoText}>• Verifica en reportes las asistencias del día</Text>
-      </View>
+      </CameraView>
     </View>
   );
 }
 
-// Los estilos permanecen igual...
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#000',
+    backgroundColor: 'black',
   },
-  header: {
-    paddingTop: 60,
-    paddingHorizontal: 20,
-    paddingBottom: 20,
-    backgroundColor: '#1a237e',
-  },
-  title: {
-    color: 'white',
-    fontSize: 22,
-    fontWeight: 'bold',
-    textAlign: 'center',
-    marginBottom: 5,
-  },
-  subtitle: {
-    color: 'rgba(255,255,255,0.8)',
-    fontSize: 16,
-    textAlign: 'center',
-  },
-  cameraContainer: {
+  loadingContainer: {
     flex: 1,
-    position: 'relative',
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#111827',
+  },
+  permissionContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 24,
+    backgroundColor: '#111827',
   },
   camera: {
     flex: 1,
   },
   overlay: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    justifyContent: 'center',
+    flex: 1,
+  },
+  overlayTop: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.7)',
     alignItems: 'center',
-    backgroundColor: 'rgba(0,0,0,0.4)',
+    justifyContent: 'flex-start',
+    paddingTop: 50,
+  },
+  overlayBottom: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.7)',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingBottom: 30,
+  },
+  overlaySide: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.7)',
+  },
+  scanRow: {
+    flexDirection: 'row',
+    height: SCAN_SIZE,
   },
   scanFrame: {
-    width: 250,
-    height: 250,
+    width: SCAN_SIZE,
+    height: SCAN_SIZE,
     position: 'relative',
+  },
+  header: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    width: '100%',
+    paddingHorizontal: 20,
+    marginBottom: 40,
+  },
+  backButton: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: 'rgba(255,255,255,0.2)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  headerTitle: {
+    color: 'white',
+    fontSize: 18,
+    fontWeight: '600',
+  },
+  instructionText: {
+    color: 'rgba(255,255,255,0.8)',
+    fontSize: 14,
+    textAlign: 'center',
+    marginTop: 20,
   },
   corner: {
     position: 'absolute',
-    width: 30,
-    height: 30,
-    borderColor: '#4CAF50',
+    width: 40,
+    height: 40,
+    borderColor: '#4F46E5', // Indigo 600
+    borderWidth: 4,
   },
-  cornerTopLeft: {
+  topLeft: {
     top: 0,
     left: 0,
-    borderTopWidth: 4,
-    borderLeftWidth: 4,
+    borderBottomWidth: 0,
+    borderRightWidth: 0,
+    borderTopLeftRadius: 20,
   },
-  cornerTopRight: {
+  topRight: {
     top: 0,
     right: 0,
-    borderTopWidth: 4,
-    borderRightWidth: 4,
+    borderBottomWidth: 0,
+    borderLeftWidth: 0,
+    borderTopRightRadius: 20,
   },
-  cornerBottomLeft: {
+  bottomLeft: {
     bottom: 0,
     left: 0,
-    borderBottomWidth: 4,
-    borderLeftWidth: 4,
+    borderTopWidth: 0,
+    borderRightWidth: 0,
+    borderBottomLeftRadius: 20,
   },
-  cornerBottomRight: {
+  bottomRight: {
     bottom: 0,
     right: 0,
-    borderBottomWidth: 4,
-    borderRightWidth: 4,
+    borderTopWidth: 0,
+    borderLeftWidth: 0,
+    borderBottomRightRadius: 20,
   },
-  scanText: {
-    color: 'white',
-    fontSize: 16,
-    marginTop: 30,
-    textAlign: 'center',
-    fontWeight: '500',
+  scanLine: {
+    position: 'absolute',
+    width: '100%',
+    height: 2,
+    backgroundColor: '#4F46E5',
+    shadowColor: '#4F46E5',
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 1,
+    shadowRadius: 10,
+    elevation: 5,
   },
-  controls: {
-    padding: 20,
-    backgroundColor: 'rgba(0,0,0,0.8)',
-    alignItems: 'center',
-  },
-  controlButton: {
+  controlsContainer: {
     alignItems: 'center',
     marginBottom: 20,
   },
-  controlText: {
+  controlButton: {
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+    backgroundColor: 'rgba(255,255,255,0.2)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 8,
+  },
+  controlButtonActive: {
+    backgroundColor: 'rgba(255, 215, 0, 0.3)',
+  },
+  controlLabel: {
     color: 'white',
     fontSize: 12,
-    marginTop: 5,
   },
   rescanButton: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#4CAF50',
-    paddingHorizontal: 20,
+    backgroundColor: '#4F46E5',
+    paddingHorizontal: 24,
     paddingVertical: 12,
     borderRadius: 25,
-    marginBottom: 15,
+    marginTop: 20,
   },
   rescanText: {
     color: 'white',
@@ -295,57 +385,29 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     marginLeft: 8,
   },
-  cancelButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#ff9800',
-    paddingHorizontal: 20,
-    paddingVertical: 12,
-    borderRadius: 25,
-  },
-  cancelText: {
-    color: 'white',
-    fontSize: 16,
-    fontWeight: '600',
-    marginLeft: 8,
-  },
-  infoContainer: {
-    padding: 20,
-    backgroundColor: 'rgba(255,255,255,0.1)',
-  },
-  infoTitle: {
-    color: 'white',
-    fontSize: 16,
-    fontWeight: 'bold',
-    marginBottom: 10,
-  },
-  infoText: {
-    color: 'rgba(255,255,255,0.8)',
-    fontSize: 14,
-    marginBottom: 5,
-  },
   message: {
-    color: 'white',
+    color: 'rgba(255,255,255,0.7)',
     fontSize: 16,
     textAlign: 'center',
-    marginBottom: 20,
+    marginTop: 12,
+    paddingHorizontal: 40,
   },
   errorMessage: {
-    color: '#f44336',
-    fontSize: 18,
+    color: 'white',
+    fontSize: 20,
     fontWeight: 'bold',
-    textAlign: 'center',
-    marginBottom: 10,
+    marginTop: 20,
   },
   button: {
-    backgroundColor: '#4CAF50',
-    padding: 15,
-    borderRadius: 10,
-    alignItems: 'center',
+    marginTop: 30,
+    backgroundColor: '#4F46E5',
+    paddingHorizontal: 30,
+    paddingVertical: 12,
+    borderRadius: 12,
   },
   buttonText: {
     color: 'white',
     fontSize: 16,
-    fontWeight: 'bold',
+    fontWeight: '600',
   },
 });
