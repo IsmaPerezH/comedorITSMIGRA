@@ -1,19 +1,28 @@
-// app/(tabs)/_layout.tsx - REEMPLAZAR roles por recordatorios
 import { Ionicons } from '@expo/vector-icons';
 import { Tabs } from 'expo-router';
+import React from 'react';
 
 export default function TabLayout() {
   return (
     <Tabs
       screenOptions={{
-        tabBarActiveTintColor: '#1a237e',
+        tabBarActiveTintColor: '#2563EB',
+        tabBarInactiveTintColor: '#9CA3AF',
         headerShown: false,
-        headerStyle: {
-          backgroundColor: '#1a237e',
+        tabBarStyle: {
+          borderTopWidth: 0,
+          elevation: 10,
+          shadowColor: '#000',
+          shadowOffset: { width: 0, height: -2 },
+          shadowOpacity: 0.1,
+          shadowRadius: 4,
+          height: 60,
+          paddingBottom: 10,
+          paddingTop: 10,
         },
-        headerTintColor: '#fff',
-        headerTitleStyle: {
-          fontWeight: 'bold',
+        tabBarLabelStyle: {
+          fontSize: 12,
+          fontWeight: '500',
         },
       }}>
       <Tabs.Screen
@@ -26,41 +35,31 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
-        name="mi-qr"
+        name="actividades"
         options={{
-          title: 'Mi QR',
-          tabBarIcon: ({ color, focused }) => (
-            <Ionicons name={focused ? 'qr-code' : 'qr-code-outline'} color={color} size={24} />
-          ),
-        }}
-      />
-      <Tabs.Screen
-        name="pdfs"
-        options={{
-          title: 'Documentos',
-          tabBarIcon: ({ color, focused }) => (
-            <Ionicons name={focused ? 'document' : 'document-outline'} color={color} size={24} />
-          ),
-        }}
-      />
-      <Tabs.Screen
-        name="asistencia"
-        options={{
-          title: 'Asistencia',
+          title: 'Actividades',
           tabBarIcon: ({ color, focused }) => (
             <Ionicons name={focused ? 'calendar' : 'calendar-outline'} color={color} size={24} />
           ),
         }}
       />
       <Tabs.Screen
-        name="recordatorios"
+        name="perfil"
         options={{
-          title: 'Recordatorios',
+          title: 'Perfil',
           tabBarIcon: ({ color, focused }) => (
-            <Ionicons name={focused ? 'notifications' : 'notifications-outline'} color={color} size={24} />
+            <Ionicons name={focused ? 'person' : 'person-outline'} color={color} size={24} />
           ),
         }}
       />
+
+      {/* Pantallas ocultas del menú pero accesibles */}
+      <Tabs.Screen name="mi-qr" options={{ href: null }} />
+      <Tabs.Screen name="pdfs" options={{ href: null }} />
+      <Tabs.Screen name="asistencia" options={{ href: null }} />
+      <Tabs.Screen name="recordatorios" options={{ href: null }} />
+      <Tabs.Screen name="roles" options={{ href: null }} />
+      <Tabs.Screen name="permisos" options={{ href: null }} />
     </Tabs>
   );
 }

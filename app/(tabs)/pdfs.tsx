@@ -1,6 +1,7 @@
 // app/(tabs)/pdfs.tsx
 import { useStorage } from '@/hooks/useStorage';
 import { Ionicons } from '@expo/vector-icons';
+import { useRouter } from 'expo-router';
 import React, { useState } from 'react';
 import {
   Alert,
@@ -14,6 +15,7 @@ import {
 import Animated, { FadeInDown } from 'react-native-reanimated';
 
 export default function PDFsScreen() {
+  const router = useRouter();
   const { obtenerPDFsPorTipo } = useStorage();
   const [tipoFiltro, setTipoFiltro] = useState<'cocina' | 'aseo' | 'todos'>('todos');
 
@@ -79,20 +81,19 @@ export default function PDFsScreen() {
 
   return (
     <View style={styles.container}>
-      <StatusBar barStyle="light-content" />
+      <StatusBar barStyle="dark-content" />
 
-      {/* Header Moderno */}
+      {/* Header Estilo Admin */}
       <View style={styles.header}>
-        <View style={styles.headerContent}>
-          <View style={styles.headerLeft}>
-            <View style={styles.headerIcon}>
-              <Ionicons name="document-text" size={28} color="white" />
-            </View>
-            <View>
-              <Text style={styles.headerTitle}>Documentos</Text>
-              <Text style={styles.headerSubtitle}>PDFs de roles</Text>
-            </View>
+        <View style={styles.headerTop}>
+          <TouchableOpacity onPress={() => router.back()} style={styles.iconButton}>
+            <Ionicons name="arrow-back" size={24} color="#1F2937" />
+          </TouchableOpacity>
+          <View style={styles.headerTitleContainer}>
+            <Text style={styles.headerTitle}>Documentos</Text>
+            <Text style={styles.headerSubtitle}>Roles y normativas</Text>
           </View>
+          <View style={{ width: 40 }} />
         </View>
       </View>
 
@@ -139,11 +140,6 @@ export default function PDFsScreen() {
               style={[styles.filterButton, tipoFiltro === 'todos' && styles.filterActive]}
               onPress={() => setTipoFiltro('todos')}
             >
-              <Ionicons
-                name="apps"
-                size={16}
-                color={tipoFiltro === 'todos' ? 'white' : '#6B7280'}
-              />
               <Text style={[styles.filterText, tipoFiltro === 'todos' && styles.filterTextActive]}>
                 Todos
               </Text>
@@ -153,11 +149,6 @@ export default function PDFsScreen() {
               style={[styles.filterButton, tipoFiltro === 'cocina' && styles.filterActive]}
               onPress={() => setTipoFiltro('cocina')}
             >
-              <Ionicons
-                name="restaurant"
-                size={16}
-                color={tipoFiltro === 'cocina' ? 'white' : '#F59E0B'}
-              />
               <Text style={[styles.filterText, tipoFiltro === 'cocina' && styles.filterTextActive]}>
                 Cocina
               </Text>
@@ -167,11 +158,6 @@ export default function PDFsScreen() {
               style={[styles.filterButton, tipoFiltro === 'aseo' && styles.filterActive]}
               onPress={() => setTipoFiltro('aseo')}
             >
-              <Ionicons
-                name="sparkles"
-                size={16}
-                color={tipoFiltro === 'aseo' ? 'white' : '#3B82F6'}
-              />
               <Text style={[styles.filterText, tipoFiltro === 'aseo' && styles.filterTextActive]}>
                 Aseo
               </Text>
@@ -185,7 +171,6 @@ export default function PDFsScreen() {
             {tipoFiltro === 'todos' ? 'Todos los Documentos' :
               tipoFiltro === 'cocina' ? 'Roles de Cocina' : 'Roles de Aseo'}
           </Text>
-          <Text style={styles.listCount}>{pdfsFiltrados.length} documentos</Text>
         </View>
 
         {pdfsFiltrados.length > 0 ? (
@@ -203,49 +188,25 @@ export default function PDFsScreen() {
                   ]}>
                     <Ionicons
                       name="document-text"
-                      size={32}
+                      size={28}
                       color={pdf.tipo === 'cocina' ? '#F59E0B' : '#3B82F6'}
                     />
                   </View>
 
                   <View style={styles.pdfInfo}>
                     <Text style={styles.pdfTitulo}>{pdf.titulo}</Text>
-
-                    <View style={styles.pdfDetails}>
-                      <View style={[
-                        styles.tipoBadge,
-                        { backgroundColor: pdf.tipo === 'cocina' ? '#FEF3C7' : '#DBEAFE' }
-                      ]}>
-                        <Ionicons
-                          name={pdf.tipo === 'cocina' ? 'restaurant' : 'sparkles'}
-                          size={12}
-                          color={pdf.tipo === 'cocina' ? '#F59E0B' : '#3B82F6'}
-                        />
-                        <Text style={[
-                          styles.tipoText,
-                          { color: pdf.tipo === 'cocina' ? '#F59E0B' : '#3B82F6' }
-                        ]}>
-                          {pdf.tipo.charAt(0).toUpperCase() + pdf.tipo.slice(1)}
-                        </Text>
-                      </View>
-                      <View style={styles.fechaContainer}>
-                        <Ionicons name="calendar-outline" size={12} color="#6B7280" />
-                        <Text style={styles.pdfFecha}>{formatearFecha(pdf.fecha)}</Text>
-                      </View>
-                    </View>
-
                     <Text style={styles.pdfDescripcion} numberOfLines={2}>
                       {pdf.descripcion}
                     </Text>
 
                     <View style={styles.pdfMeta}>
                       <View style={styles.metaItem}>
-                        <Ionicons name="document-outline" size={14} color="#6B7280" />
-                        <Text style={styles.pdfTamaño}>{formatearTamaño(pdf.tamaño)}</Text>
+                        <Ionicons name="calendar-outline" size={14} color="#6B7280" />
+                        <Text style={styles.metaText}>{formatearFecha(pdf.fecha)}</Text>
                       </View>
-                      <View style={styles.estadoBadge}>
-                        <Ionicons name="checkmark-circle" size={12} color="#059669" />
-                        <Text style={styles.pdfEstado}>Disponible</Text>
+                      <View style={styles.metaItem}>
+                        <Ionicons name="document-outline" size={14} color="#6B7280" />
+                        <Text style={styles.metaText}>{formatearTamaño(pdf.tamaño)}</Text>
                       </View>
                     </View>
                   </View>
@@ -256,20 +217,18 @@ export default function PDFsScreen() {
                     style={styles.accionButton}
                     onPress={() => abrirPDF(pdf)}
                   >
-                    <View style={[styles.accionIcon, { backgroundColor: '#EFF6FF' }]}>
-                      <Ionicons name="eye-outline" size={20} color="#2563EB" />
-                    </View>
-                    <Text style={styles.accionText}>Ver</Text>
+                    <Text style={[styles.accionText, { color: '#2563EB' }]}>Ver PDF</Text>
+                    <Ionicons name="eye-outline" size={18} color="#2563EB" />
                   </TouchableOpacity>
+
+                  <View style={styles.verticalDivider} />
 
                   <TouchableOpacity
                     style={styles.accionButton}
                     onPress={() => descargarPDF(pdf)}
                   >
-                    <View style={[styles.accionIcon, { backgroundColor: '#ECFDF5' }]}>
-                      <Ionicons name="download-outline" size={20} color="#059669" />
-                    </View>
-                    <Text style={styles.accionText}>Descargar</Text>
+                    <Text style={[styles.accionText, { color: '#059669' }]}>Descargar</Text>
+                    <Ionicons name="download-outline" size={18} color="#059669" />
                   </TouchableOpacity>
                 </View>
               </Animated.View>
@@ -278,13 +237,13 @@ export default function PDFsScreen() {
         ) : (
           <Animated.View entering={FadeInDown} style={styles.emptyState}>
             <View style={styles.emptyIcon}>
-              <Ionicons name="document-text-outline" size={48} color="#9CA3AF" />
+              <Ionicons name="document-text" size={40} color="#9CA3AF" />
             </View>
             <Text style={styles.emptyTitle}>
-              {tipoFiltro === 'todos' ? 'No hay documentos disponibles' : `No hay documentos de ${tipoFiltro}`}
+              No hay documentos
             </Text>
             <Text style={styles.emptySubtitle}>
-              Los administradores cargarán los roles próximamente
+              No se encontraron documentos con el filtro seleccionado.
             </Text>
           </Animated.View>
         )}
@@ -299,45 +258,44 @@ const styles = StyleSheet.create({
     backgroundColor: '#F9FAFB',
   },
   header: {
-    backgroundColor: '#2563EB',
+    backgroundColor: 'white',
     paddingTop: 60,
-    paddingBottom: 24,
+    paddingBottom: 20,
     paddingHorizontal: 20,
     borderBottomLeftRadius: 24,
     borderBottomRightRadius: 24,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.1,
+    shadowOpacity: 0.08,
     shadowRadius: 12,
     elevation: 5,
+    zIndex: 10,
   },
-  headerContent: {
+  headerTop: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
   },
-  headerLeft: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 12,
-  },
-  headerIcon: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
-    backgroundColor: 'rgba(255,255,255,0.2)',
-    justifyContent: 'center',
+  headerTitleContainer: {
     alignItems: 'center',
   },
   headerTitle: {
     fontSize: 20,
     fontWeight: '700',
-    color: 'white',
+    color: '#111827',
   },
   headerSubtitle: {
-    fontSize: 13,
-    color: 'rgba(255,255,255,0.8)',
+    fontSize: 12,
+    color: '#6B7280',
     marginTop: 2,
+  },
+  iconButton: {
+    width: 40,
+    height: 40,
+    borderRadius: 12,
+    backgroundColor: '#F3F4F6',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   content: {
     flex: 1,
@@ -355,7 +313,7 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: 'white',
     padding: 16,
-    borderRadius: 16,
+    borderRadius: 20,
     alignItems: 'center',
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
@@ -364,27 +322,27 @@ const styles = StyleSheet.create({
     elevation: 2,
   },
   statIcon: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
+    width: 40,
+    height: 40,
+    borderRadius: 12,
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: 8,
   },
   statValue: {
-    fontSize: 24,
+    fontSize: 20,
     fontWeight: '700',
     color: '#1F2937',
   },
   statLabel: {
     fontSize: 12,
     color: '#6B7280',
-    marginTop: 4,
+    marginTop: 2,
     fontWeight: '500',
   },
   filtersCard: {
     backgroundColor: 'white',
-    borderRadius: 16,
+    borderRadius: 20,
     padding: 16,
     marginBottom: 20,
     shadowColor: '#000',
@@ -400,9 +358,9 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   filtersTitle: {
-    fontSize: 16,
+    fontSize: 14,
     fontWeight: '600',
-    color: '#1F2937',
+    color: '#374151',
   },
   filters: {
     flexDirection: 'row',
@@ -410,14 +368,11 @@ const styles = StyleSheet.create({
   },
   filterButton: {
     flex: 1,
-    flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
     paddingVertical: 10,
-    paddingHorizontal: 12,
-    borderRadius: 10,
+    borderRadius: 12,
     backgroundColor: '#F3F4F6',
-    gap: 6,
   },
   filterActive: {
     backgroundColor: '#2563EB',
@@ -431,9 +386,6 @@ const styles = StyleSheet.create({
     color: 'white',
   },
   listHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
     marginBottom: 16,
   },
   listTitle: {
@@ -441,17 +393,12 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     color: '#1F2937',
   },
-  listCount: {
-    fontSize: 14,
-    color: '#6B7280',
-    fontWeight: '500',
-  },
   pdfsList: {
-    gap: 12,
+    gap: 16,
   },
   pdfCard: {
     backgroundColor: 'white',
-    borderRadius: 16,
+    borderRadius: 20,
     padding: 16,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
@@ -461,51 +408,25 @@ const styles = StyleSheet.create({
   },
   pdfHeader: {
     flexDirection: 'row',
-    marginBottom: 12,
+    marginBottom: 16,
+    gap: 16,
   },
   pdfIcon: {
     width: 56,
     height: 56,
-    borderRadius: 28,
+    borderRadius: 16,
     justifyContent: 'center',
     alignItems: 'center',
-    marginRight: 12,
   },
   pdfInfo: {
     flex: 1,
+    justifyContent: 'center',
   },
   pdfTitulo: {
     fontSize: 16,
     fontWeight: '700',
     color: '#1F2937',
-    marginBottom: 8,
-  },
-  pdfDetails: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-    marginBottom: 8,
-  },
-  tipoBadge: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 4,
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 8,
-  },
-  tipoText: {
-    fontSize: 12,
-    fontWeight: '600',
-  },
-  fechaContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 4,
-  },
-  pdfFecha: {
-    fontSize: 12,
-    color: '#6B7280',
+    marginBottom: 4,
   },
   pdfDescripcion: {
     fontSize: 14,
@@ -515,50 +436,37 @@ const styles = StyleSheet.create({
   },
   pdfMeta: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+    gap: 12,
   },
   metaItem: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 4,
   },
-  pdfTamaño: {
+  metaText: {
     fontSize: 12,
-    color: '#6B7280',
-  },
-  estadoBadge: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 4,
-  },
-  pdfEstado: {
-    fontSize: 12,
-    color: '#059669',
-    fontWeight: '600',
+    color: '#9CA3AF',
   },
   pdfActions: {
     flexDirection: 'row',
-    gap: 8,
     borderTopWidth: 1,
     borderTopColor: '#F3F4F6',
     paddingTop: 12,
   },
   accionButton: {
     flex: 1,
+    flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,
-  },
-  accionIcon: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
     justifyContent: 'center',
-    alignItems: 'center',
+    gap: 8,
+    paddingVertical: 4,
+  },
+  verticalDivider: {
+    width: 1,
+    backgroundColor: '#F3F4F6',
   },
   accionText: {
-    fontSize: 13,
-    color: '#6B7280',
+    fontSize: 14,
     fontWeight: '600',
   },
   emptyState: {
@@ -566,13 +474,13 @@ const styles = StyleSheet.create({
     paddingVertical: 60,
   },
   emptyIcon: {
-    width: 96,
-    height: 96,
-    borderRadius: 48,
+    width: 80,
+    height: 80,
+    borderRadius: 40,
     backgroundColor: '#F3F4F6',
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: 20,
+    marginBottom: 16,
   },
   emptyTitle: {
     fontSize: 18,
@@ -584,42 +492,5 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#9CA3AF',
     textAlign: 'center',
-  },
-  infoCard: {
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-    backgroundColor: '#EFF6FF',
-    padding: 16,
-    borderRadius: 12,
-    borderLeftWidth: 4,
-    borderLeftColor: '#2563EB',
-    gap: 12,
-    marginTop: 20,
-  },
-  infoContent: {
-    flex: 1,
-  },
-  infoTitle: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#1E40AF',
-    marginBottom: 12,
-  },
-  instruccionesList: {
-    gap: 8,
-  },
-  instruccionItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-  },
-  instruccionText: {
-    flex: 1,
-    fontSize: 13,
-    color: '#1E40AF',
-    lineHeight: 18,
-  },
-  instruccionBold: {
-    fontWeight: '600',
   },
 });

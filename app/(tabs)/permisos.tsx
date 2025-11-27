@@ -1,4 +1,3 @@
-// app/(tabs)/permisos.tsx
 import { useAuth } from '@/context/AuthContext';
 import { useStorage } from '@/hooks/useStorage';
 import { Ionicons } from '@expo/vector-icons';
@@ -87,20 +86,23 @@ export default function PermisosScreen() {
         <View style={styles.container}>
             <StatusBar barStyle="dark-content" />
 
-            {/* Header Moderno */}
+            {/* Header Estilo Admin */}
             <View style={styles.header}>
                 <View style={styles.headerTop}>
-                    <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
+                    <TouchableOpacity onPress={() => router.back()} style={styles.iconButton}>
                         <Ionicons name="arrow-back" size={24} color="#1F2937" />
                     </TouchableOpacity>
-                    <Text style={styles.headerTitle}>Mis Permisos</Text>
-                    <TouchableOpacity onPress={() => setModalVisible(true)} style={styles.addButton}>
-                        <Ionicons name="add" size={24} color="white" />
+                    <View style={styles.headerTitleContainer}>
+                        <Text style={styles.headerTitle}>Mis Permisos</Text>
+                        <Text style={styles.headerSubtitle}>Solicitudes de inasistencia</Text>
+                    </View>
+                    <TouchableOpacity onPress={() => setModalVisible(true)} style={[styles.iconButton, { backgroundColor: '#EFF6FF' }]}>
+                        <Ionicons name="add" size={24} color="#2563EB" />
                     </TouchableOpacity>
                 </View>
             </View>
 
-            <ScrollView style={styles.content} contentContainerStyle={{ paddingBottom: 100 }}>
+            <ScrollView style={styles.content} contentContainerStyle={{ paddingBottom: 100 }} showsVerticalScrollIndicator={false}>
                 {permisosOrdenados.length > 0 ? (
                     permisosOrdenados.map((permiso, index) => (
                         <Animated.View
@@ -110,7 +112,9 @@ export default function PermisosScreen() {
                         >
                             <View style={styles.cardHeader}>
                                 <View style={styles.dateContainer}>
-                                    <Ionicons name="calendar-outline" size={16} color="#6B7280" />
+                                    <View style={styles.calendarIcon}>
+                                        <Ionicons name="calendar" size={18} color="#6B7280" />
+                                    </View>
                                     <Text style={styles.dateText}>
                                         {new Date(permiso.fecha).toLocaleDateString('es-MX', {
                                             weekday: 'long',
@@ -119,7 +123,7 @@ export default function PermisosScreen() {
                                         })}
                                     </Text>
                                 </View>
-                                <View style={[styles.statusBadge, { backgroundColor: getStatusColor(permiso.estado) + '20' }]}>
+                                <View style={[styles.statusBadge, { backgroundColor: getStatusColor(permiso.estado) + '15' }]}>
                                     <Ionicons name={getStatusIcon(permiso.estado) as any} size={14} color={getStatusColor(permiso.estado)} />
                                     <Text style={[styles.statusText, { color: getStatusColor(permiso.estado) }]}>
                                         {permiso.estado.charAt(0).toUpperCase() + permiso.estado.slice(1)}
@@ -127,13 +131,17 @@ export default function PermisosScreen() {
                                 </View>
                             </View>
 
-                            <Text style={styles.motivoLabel}>Motivo:</Text>
+                            <View style={styles.divider} />
+
+                            <Text style={styles.motivoLabel}>Motivo de la solicitud:</Text>
                             <Text style={styles.motivoText}>{permiso.motivo}</Text>
                         </Animated.View>
                     ))
                 ) : (
                     <View style={styles.emptyState}>
-                        <Ionicons name="document-text-outline" size={64} color="#E5E7EB" />
+                        <View style={styles.emptyIconContainer}>
+                            <Ionicons name="document-text" size={40} color="#9CA3AF" />
+                        </View>
                         <Text style={styles.emptyTitle}>Sin solicitudes</Text>
                         <Text style={styles.emptySubtitle}>No has solicitado permisos de inasistencia.</Text>
                     </View>
@@ -151,19 +159,22 @@ export default function PermisosScreen() {
                     <Animated.View entering={FadeInUp.springify()} style={styles.modalContent}>
                         <View style={styles.modalHeader}>
                             <Text style={styles.modalTitle}>Solicitar Permiso</Text>
-                            <TouchableOpacity onPress={() => setModalVisible(false)}>
-                                <Ionicons name="close" size={24} color="#6B7280" />
+                            <TouchableOpacity onPress={() => setModalVisible(false)} style={styles.closeButton}>
+                                <Ionicons name="close" size={20} color="#6B7280" />
                             </TouchableOpacity>
                         </View>
 
                         <View style={styles.formContainer}>
-                            <Text style={styles.infoText}>
-                                Puedes solicitar permiso para faltar al comedor (almuerzo, comida o cena).
-                                {'\n\n'}
-                                <Text style={{ fontWeight: 'bold', color: '#EF4444' }}>
-                                    Nota: No aplica para roles de Aseo o Cocina.
+                            <View style={styles.infoBox}>
+                                <Ionicons name="information-circle" size={20} color="#2563EB" style={{ marginTop: 2 }} />
+                                <Text style={styles.infoText}>
+                                    Puedes solicitar permiso para faltar al comedor.
+                                    {'\n'}
+                                    <Text style={{ fontWeight: '700', color: '#DC2626' }}>
+                                        Nota: No aplica para roles de Aseo o Cocina.
+                                    </Text>
                                 </Text>
-                            </Text>
+                            </View>
 
                             <View style={styles.inputGroup}>
                                 <Text style={styles.label}>Fecha</Text>
@@ -171,8 +182,11 @@ export default function PermisosScreen() {
                                     style={styles.dateButton}
                                     onPress={() => setShowDatePicker(true)}
                                 >
-                                    <Ionicons name="calendar" size={20} color="#6B7280" />
-                                    <Text style={styles.dateButtonText}>{formData.fecha}</Text>
+                                    <Ionicons name="calendar-outline" size={20} color="#6B7280" />
+                                    <Text style={styles.dateButtonText}>
+                                        {new Date(formData.fecha).toLocaleDateString('es-MX', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
+                                    </Text>
+                                    <Ionicons name="chevron-down" size={16} color="#9CA3AF" />
                                 </TouchableOpacity>
                             </View>
 
@@ -181,6 +195,7 @@ export default function PermisosScreen() {
                                 <TextInput
                                     style={[styles.input, styles.textArea]}
                                     placeholder="Explica brevemente por qué no podrás asistir..."
+                                    placeholderTextColor="#9CA3AF"
                                     multiline
                                     numberOfLines={4}
                                     value={formData.motivo}
@@ -190,6 +205,7 @@ export default function PermisosScreen() {
 
                             <TouchableOpacity style={styles.submitBtn} onPress={handleSolicitar}>
                                 <Text style={styles.submitBtnText}>Enviar Solicitud</Text>
+                                <Ionicons name="send" size={18} color="white" />
                             </TouchableOpacity>
                         </View>
                     </Animated.View>
@@ -222,10 +238,10 @@ const styles = StyleSheet.create({
         borderBottomLeftRadius: 24,
         borderBottomRightRadius: 24,
         shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.05,
-        shadowRadius: 10,
-        elevation: 4,
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.08,
+        shadowRadius: 12,
+        elevation: 5,
         zIndex: 10,
     },
     headerTop: {
@@ -233,32 +249,38 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'space-between',
     },
+    headerTitleContainer: {
+        alignItems: 'center',
+    },
     headerTitle: {
         fontSize: 20,
         fontWeight: '700',
         color: '#111827',
     },
-    backButton: {
-        padding: 8,
+    headerSubtitle: {
+        fontSize: 12,
+        color: '#6B7280',
+        marginTop: 2,
+    },
+    iconButton: {
+        width: 40,
+        height: 40,
         borderRadius: 12,
         backgroundColor: '#F3F4F6',
-    },
-    addButton: {
-        padding: 8,
-        borderRadius: 12,
-        backgroundColor: '#2563EB',
+        justifyContent: 'center',
+        alignItems: 'center',
     },
     content: {
         padding: 20,
     },
     card: {
         backgroundColor: 'white',
-        borderRadius: 16,
-        padding: 16,
-        marginBottom: 12,
+        borderRadius: 20,
+        padding: 20,
+        marginBottom: 16,
         shadowColor: '#000',
         shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.03,
+        shadowOpacity: 0.05,
         shadowRadius: 8,
         elevation: 2,
     },
@@ -266,12 +288,20 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
-        marginBottom: 12,
+        marginBottom: 16,
     },
     dateContainer: {
         flexDirection: 'row',
         alignItems: 'center',
-        gap: 6,
+        gap: 10,
+    },
+    calendarIcon: {
+        width: 32,
+        height: 32,
+        borderRadius: 10,
+        backgroundColor: '#F3F4F6',
+        justifyContent: 'center',
+        alignItems: 'center',
     },
     dateText: {
         fontSize: 14,
@@ -282,34 +312,48 @@ const styles = StyleSheet.create({
     statusBadge: {
         flexDirection: 'row',
         alignItems: 'center',
-        gap: 4,
-        paddingHorizontal: 8,
-        paddingVertical: 4,
-        borderRadius: 8,
+        gap: 6,
+        paddingHorizontal: 10,
+        paddingVertical: 6,
+        borderRadius: 10,
     },
     statusText: {
         fontSize: 12,
-        fontWeight: '600',
+        fontWeight: '700',
+    },
+    divider: {
+        height: 1,
+        backgroundColor: '#F3F4F6',
+        marginBottom: 12,
     },
     motivoLabel: {
         fontSize: 12,
+        fontWeight: '600',
         color: '#6B7280',
         marginBottom: 4,
     },
     motivoText: {
         fontSize: 14,
         color: '#1F2937',
-        lineHeight: 20,
+        lineHeight: 22,
     },
     emptyState: {
         alignItems: 'center',
         marginTop: 60,
     },
+    emptyIconContainer: {
+        width: 80,
+        height: 80,
+        borderRadius: 40,
+        backgroundColor: '#F3F4F6',
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginBottom: 16,
+    },
     emptyTitle: {
         fontSize: 18,
-        fontWeight: '600',
+        fontWeight: '700',
         color: '#374151',
-        marginTop: 16,
     },
     emptySubtitle: {
         fontSize: 14,
@@ -319,7 +363,7 @@ const styles = StyleSheet.create({
     },
     modalOverlay: {
         flex: 1,
-        backgroundColor: 'rgba(0,0,0,0.5)',
+        backgroundColor: 'rgba(0,0,0,0.4)',
         justifyContent: 'center',
         padding: 20,
     },
@@ -329,8 +373,8 @@ const styles = StyleSheet.create({
         padding: 0,
         shadowColor: '#000',
         shadowOffset: { width: 0, height: 10 },
-        shadowOpacity: 0.25,
-        shadowRadius: 20,
+        shadowOpacity: 0.2,
+        shadowRadius: 24,
         elevation: 10,
     },
     modalHeader: {
@@ -346,60 +390,79 @@ const styles = StyleSheet.create({
         fontWeight: '700',
         color: '#111827',
     },
+    closeButton: {
+        padding: 8,
+        backgroundColor: '#F3F4F6',
+        borderRadius: 10,
+    },
     formContainer: {
         padding: 20,
     },
-    infoText: {
-        fontSize: 14,
-        color: '#4B5563',
-        marginBottom: 20,
-        lineHeight: 20,
+    infoBox: {
+        flexDirection: 'row',
+        gap: 12,
         backgroundColor: '#EFF6FF',
-        padding: 12,
-        borderRadius: 12,
+        padding: 16,
+        borderRadius: 16,
+        marginBottom: 20,
+    },
+    infoText: {
+        flex: 1,
+        fontSize: 13,
+        color: '#1E40AF',
+        lineHeight: 20,
     },
     inputGroup: {
-        marginBottom: 16,
+        marginBottom: 20,
     },
     label: {
         fontSize: 14,
-        fontWeight: '500',
+        fontWeight: '600',
         color: '#374151',
         marginBottom: 8,
     },
     dateButton: {
         flexDirection: 'row',
         alignItems: 'center',
-        gap: 8,
+        justifyContent: 'space-between',
         backgroundColor: '#F9FAFB',
         borderWidth: 1,
         borderColor: '#E5E7EB',
-        borderRadius: 12,
-        padding: 12,
+        borderRadius: 14,
+        padding: 14,
     },
     dateButtonText: {
-        fontSize: 16,
+        fontSize: 15,
         color: '#1F2937',
+        textTransform: 'capitalize',
+        fontWeight: '500',
     },
     input: {
         backgroundColor: '#F9FAFB',
         borderWidth: 1,
         borderColor: '#E5E7EB',
-        borderRadius: 12,
-        padding: 12,
-        fontSize: 16,
+        borderRadius: 14,
+        padding: 14,
+        fontSize: 15,
         color: '#1F2937',
     },
     textArea: {
-        height: 100,
+        height: 120,
         textAlignVertical: 'top',
     },
     submitBtn: {
         backgroundColor: '#2563EB',
         padding: 16,
-        borderRadius: 12,
+        borderRadius: 16,
         alignItems: 'center',
-        marginTop: 8,
+        flexDirection: 'row',
+        justifyContent: 'center',
+        gap: 10,
+        shadowColor: '#2563EB',
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.2,
+        shadowRadius: 8,
+        elevation: 4,
     },
     submitBtnText: {
         color: 'white',

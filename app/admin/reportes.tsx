@@ -1,111 +1,208 @@
-// app/admin/reportes.tsx
 import { useStorage } from '@/hooks/useStorage';
 import { Ionicons } from '@expo/vector-icons';
+import DateTimePicker from '@react-native-community/datetimepicker';
 import { useRouter } from 'expo-router';
-import React from 'react';
-import { Dimensions, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import React, { useState } from 'react';
+import {
+  Platform,
+  ScrollView,
+  StatusBar,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View
+} from 'react-native';
 import Animated, { FadeInDown } from 'react-native-reanimated';
 
-const { width } = Dimensions.get('window');
-
-export default function ReportesScreen() {
+export default function AdminReportesScreen() {
   const router = useRouter();
-  const { asistencias, beneficiarios } = useStorage();
+  const { beneficiarios, asistencias, permisos } = useStorage();
+  const [fechaSeleccionada, setFechaSeleccionada] = useState(new Date());
+  const [showDatePicker, setShowDatePicker] = useState(false);
 
-  const estadisticas = {
-    totalAsistencias: asistencias.length,
-    asistenciasHoy: asistencias.filter(a => a.fecha === new Date().toISOString().split('T')[0]).length,
-    totalBeneficiarios: beneficiarios.length,
-    promedioDiario: asistencias.length > 0 ? Math.round(asistencias.length / 30) : 0,
+  const onDateChange = (event: any, selectedDate?: Date) => {
+    setShowDatePicker(false);
+    if (selectedDate) {
+      setFechaSeleccionada(selectedDate);
+    }
   };
 
-  const MetricCard = ({ icon, number, label, color, delay }: any) => (
-    <Animated.View
-      entering={FadeInDown.delay(delay).springify()}
-      style={styles.metricCard}
-    >
-      <View style={[styles.iconContainer, { backgroundColor: color + '15' }]}>
-        <Ionicons name={icon} size={24} color={color} />
-      </View>
-      <Text style={styles.metricNumber}>{number}</Text>
-      <Text style={styles.metricLabel}>{label}</Text>
-    </Animated.View>
-  );
+  const formatearFecha = (fecha: Date) => {
+    return fecha.toISOString().split('T')[0];
+  };
+
+  const fechaStr = formatearFecha(fechaSeleccionada);
+
+  // Obtener datos filtrados
+  const obtenerEstadoAsistencia = (beneficiarioId: string) => {
+    const asistenciasDia = asistencias.filter(
+      a => a.beneficiarioId === beneficiarioId && a.fecha === fechaStr
+    );
+
+    const permisoDia = permisos.find(
+      p => p.beneficiarioId === beneficiarioId && p.fecha === fechaStr && p.estado === 'aprobado'
+    );
+
+    return {
+      almuerzo: asistenciasDia.some(a => a.tipo === 'almuerzo'),
+      comida: asistenciasDia.some(a => a.tipo === 'comida'),
+      cena: asistenciasDia.some(a => a.tipo === 'cena'),
+      permiso: !!permisoDia,
+      motivoPermiso: permisoDia?.motivo
+    };
+  };
+
+  const datosReporte = beneficiarios.map(beneficiario => ({
+    ...beneficiario,
+    estado: obtenerEstadoAsistencia(beneficiario.id)
+  }));
+
+  // Estadísticas del día
+  const estadisticas = {
+    totalBeneficiarios: beneficiarios.length,
+    asistenciasAlmuerzo: datosReporte.filter(d => d.estado.almuerzo).length,
+    asistenciasComida: datosReporte.filter(d => d.estado.comida).length,
+    asistenciasCena: datosReporte.filter(d => d.estado.cena).length,
+    permisos: datosReporte.filter(d => d.estado.permiso).length
+  };
 
   return (
     <View style={styles.container}>
-      {/* Header Moderno */}
+      <StatusBar barStyle="dark-content" />
+
+      {/* Header Moderno (Consistente con Beneficiarios) */}
       <View style={styles.header}>
         <View style={styles.headerTop}>
           <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
             <Ionicons name="arrow-back" size={24} color="#1F2937" />
           </TouchableOpacity>
-          <Text style={styles.headerTitle}>Reportes</Text>
-          <View style={{ width: 40 }} />
+          <View style={styles.headerCenter}>
+            <Text style={styles.headerTitle}>Reporte Diario</Text>
+            <Text style={styles.headerSubtitle}>Control de Asistencias</Text>
+          </View>
+          <TouchableOpacity
+            style={styles.dateButton}
+            onPress={() => setShowDatePicker(true)}
+          >
+            <Ionicons name="calendar" size={20} color="#2563EB" />
+          </TouchableOpacity>
+        </View>
+
+        {/* Selector de Fecha Visual */}
+        <View style={styles.dateDisplayContainer}>
+          <Text style={styles.dateDisplayText}>
+            {fechaSeleccionada.toLocaleDateString('es-MX', {
+              weekday: 'long',
+              year: 'numeric',
+              month: 'long',
+              day: 'numeric'
+            })}
+          </Text>
         </View>
       </View>
 
-      <ScrollView style={styles.content} contentContainerStyle={{ paddingBottom: 100 }}>
-        <Text style={styles.sectionTitle}>Métricas Clave</Text>
+      {showDatePicker && (
+        <DateTimePicker
+          value={fechaSeleccionada}
+          mode="date"
+          display={Platform.OS === 'ios' ? 'spinner' : 'default'}
+          onChange={onDateChange}
+        />
+      )}
 
-        <View style={styles.metricsGrid}>
-          <MetricCard
-            icon="bar-chart"
-            number={estadisticas.totalAsistencias}
-            label="Total Asistencias"
-            color="#2563EB"
-            delay={100}
-          />
-          <MetricCard
-            icon="today"
-            number={estadisticas.asistenciasHoy}
-            label="Asistencias Hoy"
-            color="#10B981"
-            delay={200}
-          />
-          <MetricCard
-            icon="people"
-            number={estadisticas.totalBeneficiarios}
-            label="Beneficiarios"
-            color="#F59E0B"
-            delay={300}
-          />
-          <MetricCard
-            icon="trending-up"
-            number={estadisticas.promedioDiario}
-            label="Promedio Diario"
-            color="#8B5CF6"
-            delay={400}
-          />
+      <ScrollView style={styles.content} contentContainerStyle={styles.contentContainer} showsVerticalScrollIndicator={false}>
+        {/* Resumen Estadístico */}
+        <View style={styles.statsRow}>
+          <Animated.View entering={FadeInDown.delay(100)} style={styles.statCard}>
+            <View style={[styles.statIcon, { backgroundColor: '#EFF6FF' }]}>
+              <Ionicons name="people" size={24} color="#2563EB" />
+            </View>
+            <Text style={styles.statValue}>{estadisticas.totalBeneficiarios}</Text>
+            <Text style={styles.statLabel}>Total</Text>
+          </Animated.View>
+
+          <Animated.View entering={FadeInDown.delay(200)} style={[styles.statCard, { backgroundColor: '#FEF3C7' }]}>
+            <View style={[styles.statIcon, { backgroundColor: '#FDE68A' }]}>
+              <Ionicons name="sunny" size={24} color="#D97706" />
+            </View>
+            <Text style={[styles.statValue, { color: '#D97706' }]}>{estadisticas.asistenciasAlmuerzo}</Text>
+            <Text style={[styles.statLabel, { color: '#D97706' }]}>Almuerzo</Text>
+          </Animated.View>
+
+          <Animated.View entering={FadeInDown.delay(300)} style={[styles.statCard, { backgroundColor: '#FCE7F3' }]}>
+            <View style={[styles.statIcon, { backgroundColor: '#FBCFE8' }]}>
+              <Ionicons name="restaurant" size={24} color="#DB2777" />
+            </View>
+            <Text style={[styles.statValue, { color: '#DB2777' }]}>{estadisticas.asistenciasComida}</Text>
+            <Text style={[styles.statLabel, { color: '#DB2777' }]}>Comida</Text>
+          </Animated.View>
         </View>
 
-        <Animated.View
-          entering={FadeInDown.delay(500).springify()}
-          style={styles.devCard}
-        >
-          <View style={styles.devHeader}>
-            <Ionicons name="construct" size={24} color="#4B5563" />
-            <Text style={styles.devTitle}>Próximamente</Text>
+        {/* Lista de Beneficiarios */}
+        <View style={styles.listContainer}>
+          <View style={styles.tableHeader}>
+            <Text style={[styles.columnHeader, { flex: 2, textAlign: 'left', paddingLeft: 16 }]}>Beneficiario</Text>
+            <Text style={styles.columnHeader}>Alm.</Text>
+            <Text style={styles.columnHeader}>Com.</Text>
+            <Text style={styles.columnHeader}>Cena</Text>
+            <Text style={styles.columnHeader}>Perm.</Text>
           </View>
-          <Text style={styles.devDescription}>
-            Estamos trabajando en nuevas herramientas de análisis para ti.
-          </Text>
 
-          <View style={styles.featuresList}>
-            <View style={styles.featureItem}>
-              <Ionicons name="checkmark-circle" size={18} color="#10B981" />
-              <Text style={styles.featureText}>Gráficos mensuales</Text>
-            </View>
-            <View style={styles.featureItem}>
-              <Ionicons name="checkmark-circle" size={18} color="#10B981" />
-              <Text style={styles.featureText}>Exportación a Excel</Text>
-            </View>
-            <View style={styles.featureItem}>
-              <Ionicons name="checkmark-circle" size={18} color="#10B981" />
-              <Text style={styles.featureText}>Reportes individuales</Text>
-            </View>
-          </View>
-        </Animated.View>
+          {datosReporte.map((item, index) => (
+            <Animated.View
+              key={item.id}
+              entering={FadeInDown.delay(index * 50).springify()}
+              style={styles.tableRow}
+            >
+              <View style={[styles.cell, { flex: 2, alignItems: 'flex-start', paddingLeft: 16 }]}>
+                <Text style={styles.nameText} numberOfLines={1}>{item.nombre}</Text>
+                <Text style={styles.matriculaText}>{item.matricula}</Text>
+              </View>
+
+              <View style={styles.cell}>
+                {item.estado.almuerzo ? (
+                  <View style={[styles.checkCircle, { backgroundColor: '#D1FAE5' }]}>
+                    <Ionicons name="checkmark" size={14} color="#059669" />
+                  </View>
+                ) : (
+                  <View style={styles.dash} />
+                )}
+              </View>
+
+              <View style={styles.cell}>
+                {item.estado.comida ? (
+                  <View style={[styles.checkCircle, { backgroundColor: '#FCE7F3' }]}>
+                    <Ionicons name="checkmark" size={14} color="#DB2777" />
+                  </View>
+                ) : (
+                  <View style={styles.dash} />
+                )}
+              </View>
+
+              <View style={styles.cell}>
+                {item.estado.cena ? (
+                  <View style={[styles.checkCircle, { backgroundColor: '#E0E7FF' }]}>
+                    <Ionicons name="checkmark" size={14} color="#4F46E5" />
+                  </View>
+                ) : (
+                  <View style={styles.dash} />
+                )}
+              </View>
+
+              <View style={styles.cell}>
+                {item.estado.permiso ? (
+                  <TouchableOpacity onPress={() => alert(`Motivo: ${item.estado.motivoPermiso}`)}>
+                    <View style={[styles.checkCircle, { backgroundColor: '#FEF3C7' }]}>
+                      <Ionicons name="document-text" size={14} color="#D97706" />
+                    </View>
+                  </TouchableOpacity>
+                ) : (
+                  <View style={styles.dash} />
+                )}
+              </View>
+            </Animated.View>
+          ))}
+        </View>
       </ScrollView>
     </View>
   );
@@ -124,109 +221,163 @@ const styles = StyleSheet.create({
     borderBottomLeftRadius: 24,
     borderBottomRightRadius: 24,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05,
-    shadowRadius: 10,
-    elevation: 4,
-    zIndex: 10,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.08,
+    shadowRadius: 12,
+    elevation: 5,
   },
   headerTop: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
+    marginBottom: 16,
+  },
+  headerCenter: {
+    flex: 1,
+    alignItems: 'center',
   },
   headerTitle: {
-    fontSize: 20,
+    fontSize: 22,
     fontWeight: '700',
     color: '#111827',
   },
+  headerSubtitle: {
+    fontSize: 13,
+    color: '#6B7280',
+    marginTop: 2,
+  },
   backButton: {
-    padding: 8,
-    borderRadius: 12,
-    backgroundColor: '#F3F4F6',
-  },
-  content: {
-    padding: 20,
-  },
-  sectionTitle: {
-    fontSize: 18,
-    fontWeight: '700',
-    color: '#374151',
-    marginBottom: 16,
-    marginTop: 8,
-  },
-  metricsGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 16,
-    marginBottom: 32,
-  },
-  metricCard: {
-    width: (width - 56) / 2,
-    backgroundColor: 'white',
-    padding: 16,
-    borderRadius: 20,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.03,
-    shadowRadius: 8,
-    elevation: 2,
-  },
-  iconContainer: {
     width: 40,
     height: 40,
     borderRadius: 12,
+    backgroundColor: '#F3F4F6',
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: 12,
   },
-  metricNumber: {
+  dateButton: {
+    width: 40,
+    height: 40,
+    borderRadius: 12,
+    backgroundColor: '#EFF6FF',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  dateDisplayContainer: {
+    alignItems: 'center',
+    backgroundColor: '#F3F4F6',
+    paddingVertical: 8,
+    borderRadius: 12,
+    marginHorizontal: 40,
+  },
+  dateDisplayText: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#374151',
+    textTransform: 'capitalize',
+  },
+  content: {
+    flex: 1,
+  },
+  contentContainer: {
+    padding: 20,
+    paddingBottom: 100,
+  },
+  statsRow: {
+    flexDirection: 'row',
+    gap: 12,
+    marginBottom: 24,
+  },
+  statCard: {
+    flex: 1,
+    backgroundColor: 'white',
+    padding: 16,
+    borderRadius: 16,
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 8,
+    elevation: 2,
+  },
+  statIcon: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 8,
+  },
+  statValue: {
     fontSize: 24,
-    fontWeight: '800',
+    fontWeight: '700',
     color: '#1F2937',
-    marginBottom: 4,
   },
-  metricLabel: {
+  statLabel: {
     fontSize: 12,
     color: '#6B7280',
+    marginTop: 4,
     fontWeight: '500',
   },
-  devCard: {
+  listContainer: {
     backgroundColor: 'white',
-    padding: 24,
-    borderRadius: 24,
-    borderWidth: 1,
-    borderColor: '#E5E7EB',
-    borderStyle: 'dashed',
+    borderRadius: 16,
+    paddingVertical: 16,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 8,
+    elevation: 2,
   },
-  devHeader: {
+  tableHeader: {
     flexDirection: 'row',
-    alignItems: 'center',
-    gap: 12,
-    marginBottom: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: '#F3F4F6',
+    paddingBottom: 12,
+    marginBottom: 8,
+    paddingHorizontal: 8,
   },
-  devTitle: {
-    fontSize: 18,
+  columnHeader: {
+    flex: 1,
+    fontSize: 12,
     fontWeight: '700',
-    color: '#374151',
-  },
-  devDescription: {
-    fontSize: 14,
     color: '#6B7280',
-    marginBottom: 20,
-    lineHeight: 20,
+    textAlign: 'center',
+    textTransform: 'uppercase',
   },
-  featuresList: {
-    gap: 12,
-  },
-  featureItem: {
+  tableRow: {
     flexDirection: 'row',
+    paddingVertical: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: '#F9FAFB',
     alignItems: 'center',
-    gap: 10,
+    paddingHorizontal: 8,
   },
-  featureText: {
+  cell: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  nameText: {
     fontSize: 14,
-    color: '#4B5563',
-    fontWeight: '500',
+    fontWeight: '600',
+    color: '#1F2937',
+  },
+  matriculaText: {
+    fontSize: 12,
+    color: '#6B7280',
+    marginTop: 2,
+  },
+  checkCircle: {
+    width: 24,
+    height: 24,
+    borderRadius: 12,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  dash: {
+    width: 6,
+    height: 6,
+    borderRadius: 3,
+    backgroundColor: '#F3F4F6',
   },
 });
