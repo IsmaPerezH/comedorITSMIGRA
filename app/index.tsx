@@ -1,31 +1,43 @@
 // app/index.tsx
+import { Ionicons } from '@expo/vector-icons';
 import { Link } from 'expo-router';
-import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { StatusBar, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
 export default function RoleSelectionScreen() {
   return (
     <View style={styles.container}>
+      <StatusBar barStyle="light-content" />
       <Text style={styles.title}>CHA&apos;A KASKUA</Text>
       <Text style={styles.subtitle}>Sistema de Gestión del Comedor</Text>
 
       <View style={styles.logoContainer}>
         <View style={styles.logoPlaceholder}>
-          <Text style={styles.logoText}>🍽️</Text>
+          <Ionicons name="restaurant" size={64} color="white" />
         </View>
       </View>
 
       <View style={styles.buttonContainer}>
         <Link href="/login" asChild>
           <TouchableOpacity style={styles.primaryButton}>
-            <Text style={styles.buttonText}>👤 Soy Beneficiario</Text>
-            <Text style={styles.buttonSubtext}>Registrar asistencia y ver roles</Text>
+            <View style={styles.buttonContent}>
+              <Ionicons name="person" size={24} color="white" style={styles.buttonIcon} />
+              <View style={styles.textContainer}>
+                <Text style={styles.buttonText}>Soy Beneficiario</Text>
+                <Text style={styles.buttonSubtext}>Registrar asistencia y ver roles</Text>
+              </View>
+            </View>
           </TouchableOpacity>
         </Link>
 
         <Link href="/login" asChild>
           <TouchableOpacity style={styles.secondaryButton}>
-            <Text style={styles.buttonText}>⚙️ Soy Administrador</Text>
-            <Text style={styles.buttonSubtext}>Gestionar comedor y reportes</Text>
+            <View style={styles.buttonContent}>
+              <Ionicons name="settings-sharp" size={24} color="white" style={styles.buttonIcon} />
+              <View style={styles.textContainer}>
+                <Text style={styles.buttonText}>Soy Administrador</Text>
+                <Text style={styles.buttonSubtext}>Gestionar comedor y reportes</Text>
+              </View>
+            </View>
           </TouchableOpacity>
         </Link>
       </View>
@@ -73,9 +85,6 @@ const styles = StyleSheet.create({
     borderWidth: 3,
     borderColor: 'rgba(255,255,255,0.3)',
   },
-  logoText: {
-    fontSize: 48,
-  },
   buttonContainer: {
     width: '100%',
     gap: 16,
@@ -84,7 +93,6 @@ const styles = StyleSheet.create({
     backgroundColor: '#4CAF50',
     padding: 20,
     borderRadius: 15,
-    alignItems: 'center',
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.3,
@@ -92,15 +100,26 @@ const styles = StyleSheet.create({
     elevation: 6,
   },
   secondaryButton: {
-    backgroundColor: '#4CAF50',
+    backgroundColor: '#2E7D32', // Darker green for admin
     padding: 20,
     borderRadius: 15,
-    alignItems: 'center',
-    shadowColor: '#11349B',
+    shadowColor: '#000',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.3,
     shadowRadius: 8,
     elevation: 6,
+  },
+  buttonContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'flex-start', // Align to left to keep text aligned
+    paddingHorizontal: 10,
+  },
+  buttonIcon: {
+    marginRight: 20,
+  },
+  textContainer: {
+    flex: 1,
   },
   buttonText: {
     color: 'white',

@@ -1,9 +1,12 @@
 // app/(tabs)/index.tsx
 import { Ionicons } from '@expo/vector-icons';
-import { Link } from 'expo-router';
-import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { useRouter } from 'expo-router';
+import { ScrollView, StatusBar, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import Animated, { FadeInDown } from 'react-native-reanimated';
 
 export default function UserHomeScreen() {
+  const router = useRouter();
+
   const userInfo = {
     name: 'Brenda Vásquez',
     studentId: '22105081',
@@ -17,209 +20,288 @@ export default function UserHomeScreen() {
   ];
 
   return (
-    <ScrollView style={styles.container}>
-      {/* Header */}
+    <View style={styles.container}>
+      <StatusBar barStyle="light-content" />
+
+      {/* Header Moderno */}
       <View style={styles.header}>
-        <View style={styles.userInfo}>
-          <Text style={styles.greeting}>¡Hola, {userInfo.name}!</Text>
-          <Text style={styles.userId}>Matrícula: {userInfo.studentId}</Text>
-        </View>
-        <View style={styles.avatar}>
-          <Ionicons name="person-circle" size={50} color="#fff" />
-        </View>
-      </View>
-
-      {/* Botón de QR Principal */}
-      <Link href="/qr-scanner" asChild>
-        <TouchableOpacity style={styles.qrButton}>
-          <Ionicons name="qr-code" size={32} color="#fff" />
-          <View style={styles.qrTextContainer}>
-            <Text style={styles.qrMainText}>Escanear QR Asistencia</Text>
-            <Text style={styles.qrSubText}>Registro rápido y seguro</Text>
-          </View>
-          <Ionicons name="chevron-forward" size={24} color="#fff" />
-        </TouchableOpacity>
-      </Link>
-
-      {/* Estadísticas Rápidas */}
-      <View style={styles.statsContainer}>
-        <View style={styles.statItem}>
-          <Text style={styles.statNumber}>{userInfo.asistencias}</Text>
-          <Text style={styles.statLabel}>Asistencias</Text>
-        </View>
-        <View style={styles.statDivider} />
-        <View style={styles.statItem}>
-          <Text style={styles.statNumber}>{userInfo.rolesPendientes}</Text>
-          <Text style={styles.statLabel}>Roles Pendientes</Text>
-        </View>
-      </View>
-
-      {/* Próximos Roles */}
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Próximos Roles</Text>
-        {proximosRoles.map((rol, index) => (
-          <View key={index} style={styles.roleItem}>
-            <View style={styles.roleIcon}>
-              <Ionicons 
-                name={rol.tipo === 'Cocina' ? 'restaurant' : 'sparkles'} 
-                size={20} 
-                color="#1a237e" 
-              />
-            </View>
-            <View style={styles.roleInfo}>
-              <Text style={styles.roleType}>{rol.tipo}</Text>
-              <Text style={styles.roleDate}>{rol.fecha}</Text>
-            </View>
-            <View style={[styles.statusBadge, !rol.completado && styles.pendingBadge]}>
-              <Text style={styles.statusText}>
-                {rol.completado ? 'Completado' : 'Pendiente'}
-              </Text>
+        <View style={styles.headerContent}>
+          <View style={styles.userInfo}>
+            <Text style={styles.userName}>{userInfo.name}</Text>
+            <View style={styles.userIdContainer}>
+              <Ionicons name="card-outline" size={14} color="rgba(255,255,255,0.8)" />
+              <Text style={styles.userId}>{userInfo.studentId}</Text>
             </View>
           </View>
-        ))}
-      </View>
-
-      {/* Acciones Rápidas */}
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Acciones Rápidas</Text>
-        <View style={styles.actionsGrid}>
-          <TouchableOpacity style={styles.actionButton}>
-            <Ionicons name="time" size={24} color="#1a237e" />
-            <Text style={styles.actionText}>Historial</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.actionButton}>
-            <Ionicons name="notifications" size={24} color="#1a237e" />
-            <Text style={styles.actionText}>Recordatorios</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.actionButton}>
-            <Ionicons name="help-circle" size={24} color="#1a237e" />
-            <Text style={styles.actionText}>Ayuda</Text>
-          </TouchableOpacity>
+          <View style={styles.avatarContainer}>
+            <View style={styles.avatar}>
+              <Text style={styles.avatarText}>{userInfo.name.charAt(0)}</Text>
+            </View>
+          </View>
         </View>
       </View>
-    </ScrollView>
+
+      <ScrollView
+        style={styles.content}
+        contentContainerStyle={styles.contentContainer}
+        showsVerticalScrollIndicator={false}
+      >
+        {/* Botón de QR Principal */}
+
+
+        {/* Estadísticas Rápidas */}
+        <View style={styles.statsContainer}>
+          <Animated.View entering={FadeInDown.delay(200)} style={styles.statCard}>
+            <View style={[styles.statIcon, { backgroundColor: '#ECFDF5' }]}>
+              <Ionicons name="checkmark-done" size={28} color="#059669" />
+            </View>
+            <Text style={styles.statNumber}>{userInfo.asistencias}</Text>
+            <Text style={styles.statLabel}>Asistencias</Text>
+          </Animated.View>
+
+          <Animated.View entering={FadeInDown.delay(300)} style={styles.statCard}>
+            <View style={[styles.statIcon, { backgroundColor: '#FEF3C7' }]}>
+              <Ionicons name="time" size={28} color="#F59E0B" />
+            </View>
+            <Text style={styles.statNumber}>{userInfo.rolesPendientes}</Text>
+            <Text style={styles.statLabel}>Roles Pendientes</Text>
+          </Animated.View>
+        </View>
+
+        {/* Próximos Roles */}
+
+
+        {/* Acciones Rápidas */}
+        <Animated.View entering={FadeInDown.delay(500)} style={styles.section}>
+          <Text style={styles.sectionTitle}>Acciones Rápidas</Text>
+          <View style={styles.actionsGrid}>
+            <TouchableOpacity
+              style={styles.actionButton}
+              onPress={() => router.push('/asistencia')}
+            >
+              <View style={[styles.actionIcon, { backgroundColor: '#EFF6FF' }]}>
+                <Ionicons name="time-outline" size={28} color="#2563EB" />
+              </View>
+              <Text style={styles.actionText}>Historial</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={styles.actionButton}
+              onPress={() => router.push('/recordatorios')}
+            >
+              <View style={[styles.actionIcon, { backgroundColor: '#FEF3C7' }]}>
+                <Ionicons name="notifications-outline" size={28} color="#F59E0B" />
+              </View>
+              <Text style={styles.actionText}>Recordatorios</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={styles.actionButton}
+              onPress={() => router.push('/mi-qr')}
+            >
+              <View style={[styles.actionIcon, { backgroundColor: '#F3E8FF' }]}>
+                <Ionicons name="qr-code-outline" size={28} color="#9333EA" />
+              </View>
+              <Text style={styles.actionText}>Mi QR</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={styles.actionButton}
+              onPress={() => router.push('/pdfs')}
+            >
+              <View style={[styles.actionIcon, { backgroundColor: '#FEE2E2' }]}>
+                <Ionicons name="document-text-outline" size={28} color="#DC2626" />
+              </View>
+              <Text style={styles.actionText}>Documentos</Text>
+            </TouchableOpacity>
+          </View>
+        </Animated.View>
+      </ScrollView>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f8f9fa',
+    backgroundColor: '#F9FAFB',
   },
   header: {
-    backgroundColor: '#1a237e',
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    padding: 20,
+    backgroundColor: '#2563EB',
     paddingTop: 60,
+    paddingBottom: 24,
+    paddingHorizontal: 20,
+    borderBottomLeftRadius: 24,
+    borderBottomRightRadius: 24,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 12,
+    elevation: 5,
+  },
+  headerContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
   },
   userInfo: {
     flex: 1,
   },
   greeting: {
-    color: 'white',
-    fontSize: 20,
-    fontWeight: 'bold',
+    fontSize: 16,
+    color: 'rgba(255,255,255,0.9)',
     marginBottom: 4,
   },
-  userId: {
-    color: 'rgba(255,255,255,0.8)',
-    fontSize: 14,
+  userName: {
+    fontSize: 24,
+    fontWeight: '700',
+    color: 'white',
+    marginBottom: 6,
   },
-  avatar: {
-    marginLeft: 10,
-  },
-  qrButton: {
-    backgroundColor: '#4CAF50',
-    margin: 20,
-    padding: 20,
-    borderRadius: 15,
+  userIdContainer: {
     flexDirection: 'row',
     alignItems: 'center',
+    gap: 4,
+  },
+  userId: {
+    fontSize: 14,
+    color: 'rgba(255,255,255,0.8)',
+  },
+  avatarContainer: {
+    marginLeft: 16,
+  },
+  avatar: {
+    width: 56,
+    height: 56,
+    borderRadius: 28,
+    backgroundColor: 'rgba(255,255,255,0.2)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 2,
+    borderColor: 'rgba(255,255,255,0.3)',
+  },
+  avatarText: {
+    fontSize: 24,
+    fontWeight: '700',
+    color: 'white',
+  },
+  content: {
+    flex: 1,
+  },
+  contentContainer: {
+    padding: 20,
+    paddingBottom: 100,
+  },
+  qrButton: {
+    backgroundColor: '#059669',
+    padding: 20,
+    borderRadius: 20,
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 20,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
+    shadowOpacity: 0.15,
+    shadowRadius: 12,
     elevation: 6,
+  },
+  qrIconContainer: {
+    width: 56,
+    height: 56,
+    borderRadius: 28,
+    backgroundColor: 'rgba(255,255,255,0.2)',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   qrTextContainer: {
     flex: 1,
-    marginLeft: 15,
+    marginLeft: 16,
   },
   qrMainText: {
     color: 'white',
     fontSize: 18,
-    fontWeight: 'bold',
-    marginBottom: 2,
+    fontWeight: '700',
+    marginBottom: 4,
   },
   qrSubText: {
     color: 'rgba(255,255,255,0.9)',
-    fontSize: 12,
+    fontSize: 13,
   },
   statsContainer: {
-    backgroundColor: 'white',
-    margin: 20,
-    marginTop: 0,
-    borderRadius: 15,
     flexDirection: 'row',
+    gap: 12,
+    marginBottom: 20,
+  },
+  statCard: {
+    flex: 1,
+    backgroundColor: 'white',
     padding: 20,
+    borderRadius: 16,
+    alignItems: 'center',
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
+    shadowOpacity: 0.05,
+    shadowRadius: 8,
+    elevation: 2,
   },
-  statItem: {
-    flex: 1,
+  statIcon: {
+    width: 56,
+    height: 56,
+    borderRadius: 28,
+    justifyContent: 'center',
     alignItems: 'center',
+    marginBottom: 12,
   },
   statNumber: {
-    fontSize: 28,
-    fontWeight: 'bold',
-    color: '#1a237e',
+    fontSize: 32,
+    fontWeight: '700',
+    color: '#1F2937',
     marginBottom: 4,
   },
   statLabel: {
-    fontSize: 12,
-    color: '#666',
+    fontSize: 13,
+    color: '#6B7280',
     textAlign: 'center',
-  },
-  statDivider: {
-    width: 1,
-    backgroundColor: '#e0e0e0',
-    marginHorizontal: 10,
+    fontWeight: '500',
   },
   section: {
     backgroundColor: 'white',
-    margin: 20,
-    marginTop: 0,
-    borderRadius: 15,
+    borderRadius: 16,
     padding: 20,
+    marginBottom: 20,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
+    shadowOpacity: 0.05,
+    shadowRadius: 8,
+    elevation: 2,
+  },
+  sectionHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 16,
   },
   sectionTitle: {
     fontSize: 18,
-    fontWeight: 'bold',
-    color: '#333',
-    marginBottom: 15,
+    fontWeight: '700',
+    color: '#1F2937',
+  },
+  seeAllText: {
+    fontSize: 14,
+    color: '#2563EB',
+    fontWeight: '600',
   },
   roleItem: {
     flexDirection: 'row',
     alignItems: 'center',
     paddingVertical: 12,
     borderBottomWidth: 1,
-    borderBottomColor: '#f0f0f0',
+    borderBottomColor: '#F3F4F6',
   },
   roleIcon: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: '#e8eaf6',
+    width: 48,
+    height: 48,
+    borderRadius: 24,
     justifyContent: 'center',
     alignItems: 'center',
     marginRight: 12,
@@ -230,40 +312,74 @@ const styles = StyleSheet.create({
   roleType: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#333',
-    marginBottom: 2,
+    color: '#1F2937',
+    marginBottom: 4,
+  },
+  roleMeta: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
   },
   roleDate: {
     fontSize: 14,
-    color: '#666',
+    color: '#6B7280',
   },
   statusBadge: {
-    paddingHorizontal: 8,
-    paddingVertical: 4,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
     borderRadius: 12,
-    backgroundColor: '#4CAF50',
-  },
-  pendingBadge: {
-    backgroundColor: '#ff9800',
   },
   statusText: {
-    color: 'white',
-    fontSize: 10,
-    fontWeight: 'bold',
+    fontSize: 12,
+    fontWeight: '600',
   },
   actionsGrid: {
     flexDirection: 'row',
-    justifyContent: 'space-around',
-    marginTop: 10,
+    flexWrap: 'wrap',
+    gap: 12,
+    marginTop: 8,
   },
   actionButton: {
+    width: '47%',
     alignItems: 'center',
-    padding: 10,
+    padding: 16,
+  },
+  actionIcon: {
+    width: 64,
+    height: 64,
+    borderRadius: 32,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 12,
   },
   actionText: {
-    marginTop: 8,
-    fontSize: 12,
-    color: '#333',
+    fontSize: 14,
+    color: '#1F2937',
+    fontWeight: '600',
     textAlign: 'center',
+  },
+  infoCard: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    backgroundColor: '#EFF6FF',
+    padding: 16,
+    borderRadius: 12,
+    borderLeftWidth: 4,
+    borderLeftColor: '#2563EB',
+    gap: 12,
+  },
+  infoContent: {
+    flex: 1,
+  },
+  infoTitle: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#1E40AF',
+    marginBottom: 4,
+  },
+  infoText: {
+    fontSize: 13,
+    color: '#1E40AF',
+    lineHeight: 18,
   },
 });

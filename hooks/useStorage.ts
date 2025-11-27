@@ -286,6 +286,38 @@ export const useStorage = () => {
         return recordatorios.filter(r => r.beneficiarioId === beneficiarioId);
     };
 
+    // ---------- CRUD Recordatorios ----------
+    const agregarRecordatorio = async (recordatorio: Omit<Recordatorio, 'id'>) => {
+        const nuevo: Recordatorio = {
+            ...recordatorio,
+            id: Date.now().toString(),
+        };
+        const nuevos = [...recordatorios, nuevo];
+        setRecordatorios(nuevos);
+        await AsyncStorage.setItem(STORAGE_KEYS.RECORDATORIOS, JSON.stringify(nuevos));
+
+        if (nuevo.activo) {
+            await programarRecordatorio(nuevo.tipo, nuevo.fecha, nuevo.horaRecordatorio);
+        }
+
+        return nuevo;
+    };
+
+    const actualizarRecordatorio = async (id: string, datosActualizados: Partial<Recordatorio>) => {
+        const recordatorioAnterior = recordatorios.find(r => r.id === id);
+        if (!recordatorioAnterior) return;
+
+        const actualizados = recordatorios.map(r => (r.id === id ? { ...r, ...datosActualizados } : r));
+        setRecordatorios(actualizados);
+        await AsyncStorage.setItem(STORAGE_KEYS.RECORDATORIOS, JSON.stringify(actualizados));
+
+        const recordatorioNuevo = { ...recordatorioAnterior, ...datosActualizados };
+
+        if (recordatorioNuevo.activo) {
+            await programarRecordatorio(recordatorioNuevo.tipo, recordatorioNuevo.fecha, recordatorioNuevo.horaRecordatorio);
+        }
+    };
+
     // ---------- Función de desarrollo para limpiar datos ----------
     const limpiarDatos = async () => {
         try {
@@ -368,6 +400,8 @@ export const useStorage = () => {
         obtenerEstadisticasCompletas,
         obtenerPDFsPorTipo,
         obtenerRecordatoriosPorBeneficiario,
+        agregarRecordatorio,
+        actualizarRecordatorio,
         limpiarDatos,
         programarRecordatorio,
         cancelarNotificacion,

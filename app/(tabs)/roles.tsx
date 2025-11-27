@@ -1,426 +1,332 @@
-// app/(tabs)/roles.tsx
-import React, { useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
 import { useStorage } from '@/hooks/useStorage';
-
-// Definir tipos para TypeScript
-interface Rol {
-  id: string;
-  tipo: 'cocina' | 'aseo';
-  fecha: string;
-  horario: string;
-  estado: 'pendiente' | 'completado' | 'proximo';
-  compañeros: string[];
-  descripcion: string;
-}
+import { Ionicons } from '@expo/vector-icons';
+import React, { useState } from 'react';
+import {
+    ScrollView,
+    StatusBar,
+    StyleSheet,
+    Text,
+    TouchableOpacity,
+    View
+} from 'react-native';
+import Animated, { FadeInDown } from 'react-native-reanimated';
 
 export default function RolesScreen() {
+    const { roles } = useStorage();
+    const beneficiarioActualId = '1'; // Simulado
+    const [filtro, setFiltro] = useState<'todos' | 'pendiente' | 'completado'>('todos');
 
-  // Datos de ejemplo de roles
-  const [filtroActivo, setFiltroActivo] = useState<'todos' | 'cocina' | 'aseo'>('todos');
-  const { obtenerRolesPorBeneficiario, actualizarEstadoRol } = useStorage();
+    const misRoles = roles.filter(r => r.beneficiarioId === beneficiarioActualId);
 
-  const beneficiarioActualId = '1';
-  
-  const roles = obtenerRolesPorBeneficiario(beneficiarioActualId);
+    const rolesFiltrados = misRoles.filter(r => {
+        if (filtro === 'todos') return true;
+        if (filtro === 'pendiente') return r.estado === 'pendiente' || r.estado === 'proximo';
+        return r.estado === filtro;
+    });
 
-  // Filtrar roles según el filtro activo
-  const rolesFiltrados = filtroActivo === 'todos' 
-    ? roles 
-    : roles.filter(rol => rol.tipo === filtroActivo);
+    const getIconoTipo = (tipo: string) => {
+        return tipo === 'cocina' ? 'restaurant' : 'sparkles';
+    };
 
-  const getTipoColor = (tipo: string) => {
-    return tipo === 'cocina' ? '#FF9800' : '#2196F3';
-  };
+    const getColorTipo = (tipo: string) => {
+        return tipo === 'cocina' ? '#F59E0B' : '#3B82F6';
+    };
 
-  const getTipoIcon = (tipo: string) => {
-    return tipo === 'cocina' ? 'restaurant' : 'sparkles';
-  };
+    const getBgTipo = (tipo: string) => {
+        return tipo === 'cocina' ? '#FEF3C7' : '#DBEAFE';
+    };
 
-  const getEstadoColor = (estado: string) => {
-    switch (estado) {
-      case 'completado': return '#4CAF50';
-      case 'proximo': return '#FF9800';
-      case 'pendiente': return '#2196F3';
-      default: return '#666';
-    }
-  };
+    return (
+        <View style={styles.container}>
+            <StatusBar barStyle="light-content" />
 
-  const getEstadoText = (estado: string) => {
-    switch (estado) {
-      case 'completado': return 'Completado';
-      case 'proximo': return 'Próximo';
-      case 'pendiente': return 'Pendiente';
-      default: return estado;
-    }
-  };
-
-  // Estadísticas
-  const estadisticas = {
-    total: roles.length,
-    completados: roles.filter(r => r.estado === 'completado').length,
-    pendientes: roles.filter(r => r.estado === 'pendiente').length,
-    proximos: roles.filter(r => r.estado === 'proximo').length,
-  };
-
-  return (
-    <ScrollView style={styles.container}>
-      {/* Header */}
-      <View style={styles.header}>
-        <Text style={styles.title}>Mis Roles</Text>
-        <Text style={styles.subtitle}>Turnos de cocina y aseo</Text>
-      </View>
-
-      {/* Estadísticas */}
-      <View style={styles.statsContainer}>
-        <View style={styles.statCard}>
-          <Ionicons name="list" size={20} color="#1a237e" />
-          <Text style={styles.statNumber}>{estadisticas.total}</Text>
-          <Text style={styles.statLabel}>Total</Text>
-        </View>
-        <View style={styles.statCard}>
-          <Ionicons name="checkmark-done" size={20} color="#4CAF50" />
-          <Text style={styles.statNumber}>{estadisticas.completados}</Text>
-          <Text style={styles.statLabel}>Completados</Text>
-        </View>
-        <View style={styles.statCard}>
-          <Ionicons name="time" size={20} color="#FF9800" />
-          <Text style={styles.statNumber}>{estadisticas.pendientes}</Text>
-          <Text style={styles.statLabel}>Pendientes</Text>
-        </View>
-      </View>
-
-      {/* Filtros */}
-      <View style={styles.filtersContainer}>
-        <Text style={styles.sectionTitle}>Filtrar por tipo:</Text>
-        <View style={styles.filters}>
-          <TouchableOpacity 
-            style={[styles.filterButton, filtroActivo === 'todos' && styles.filterActive]}
-            onPress={() => setFiltroActivo('todos')}
-          >
-            <Text style={[styles.filterText, filtroActivo === 'todos' && styles.filterTextActive]}>
-              Todos
-            </Text>
-          </TouchableOpacity>
-          <TouchableOpacity 
-            style={[styles.filterButton, filtroActivo === 'cocina' && styles.filterActive]}
-            onPress={() => setFiltroActivo('cocina')}
-          >
-            <Ionicons name="restaurant" size={16} color={filtroActivo === 'cocina' ? 'white' : '#FF9800'} />
-            <Text style={[styles.filterText, filtroActivo === 'cocina' && styles.filterTextActive]}>
-              Cocina
-            </Text>
-          </TouchableOpacity>
-          <TouchableOpacity 
-            style={[styles.filterButton, filtroActivo === 'aseo' && styles.filterActive]}
-            onPress={() => setFiltroActivo('aseo')}
-          >
-            <Ionicons name="sparkles" size={16} color={filtroActivo === 'aseo' ? 'white' : '#2196F3'} />
-            <Text style={[styles.filterText, filtroActivo === 'aseo' && styles.filterTextActive]}>
-              Aseo
-            </Text>
-          </TouchableOpacity>
-        </View>
-      </View>
-
-      {/* Lista de Roles */}
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>
-          {filtroActivo === 'todos' ? 'Todos mis roles' : 
-           filtroActivo === 'cocina' ? 'Roles de cocina' : 'Roles de aseo'}
-        </Text>
-        
-        {rolesFiltrados.map((rol) => (
-          <View key={rol.id} style={styles.rolCard}>
-            {/* Header del rol */}
-            <View style={styles.rolHeader}>
-              <View style={styles.tipoContainer}>
-                <View style={[styles.tipoIcon, { backgroundColor: getTipoColor(rol.tipo) }]}>
-                  <Ionicons name={getTipoIcon(rol.tipo)} size={20} color="white" />
+            {/* Header */}
+            <View style={styles.header}>
+                <View style={styles.headerContent}>
+                    <View style={styles.headerLeft}>
+                        <View style={styles.headerIcon}>
+                            <Ionicons name="calendar" size={28} color="white" />
+                        </View>
+                        <View>
+                            <Text style={styles.headerTitle}>Mis Roles</Text>
+                            <Text style={styles.headerSubtitle}>Gestión de turnos y actividades</Text>
+                        </View>
+                    </View>
                 </View>
-                <View>
-                  <Text style={styles.tipoText}>
-                    {rol.tipo.charAt(0).toUpperCase() + rol.tipo.slice(1)}
-                  </Text>
-                  <Text style={styles.fecha}>
-                    {new Date(rol.fecha).toLocaleDateString('es-MX', { 
-                      weekday: 'long', 
-                      day: 'numeric', 
-                      month: 'long' 
-                    })}
-                  </Text>
-                </View>
-              </View>
-              <View style={[styles.estadoBadge, { backgroundColor: getEstadoColor(rol.estado) }]}>
-                <Text style={styles.estadoText}>{getEstadoText(rol.estado)}</Text>
-              </View>
             </View>
 
-            {/* Detalles del rol */}
-            <View style={styles.rolDetails}>
-              <View style={styles.detailItem}>
-                <Ionicons name="time" size={16} color="#666" />
-                <Text style={styles.detailText}>{rol.horario}</Text>
-              </View>
-              
-              <View style={styles.detailItem}>
-                <Ionicons name="people" size={16} color="#666" />
-                <Text style={styles.detailText}>
-                  {rol.compañeros.join(', ')}
-                </Text>
-              </View>
-
-              <View style={styles.detailItem}>
-                <Ionicons name="document-text" size={16} color="#666" />
-                <Text style={styles.detailText}>{rol.descripcion}</Text>
-              </View>
+            {/* Filtros */}
+            <View style={styles.filtrosContainer}>
+                <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.filtrosContent}>
+                    {['todos', 'pendiente', 'completado'].map((f) => (
+                        <TouchableOpacity
+                            key={f}
+                            style={[styles.filtroChip, filtro === f && styles.filtroChipActive]}
+                            onPress={() => setFiltro(f as any)}
+                        >
+                            <Text style={[styles.filtroText, filtro === f && styles.filtroTextActive]}>
+                                {f.charAt(0).toUpperCase() + f.slice(1)}
+                            </Text>
+                        </TouchableOpacity>
+                    ))}
+                </ScrollView>
             </View>
 
-            {/* Acciones */}
-            {rol.estado === 'proximo' && (
-              <View style={styles.actions}>
-                <TouchableOpacity style={styles.recordatorioButton}>
-                  <Ionicons name="notifications" size={16} color="#2196F3" />
-                  <Text style={styles.recordatorioText}>Recordatorio</Text>
-                </TouchableOpacity>
-                <TouchableOpacity style={styles.detallesButton}>
-                  <Text style={styles.detallesText}>Ver detalles</Text>
-                </TouchableOpacity>
-              </View>
-            )}
-          </View>
-        ))}
-      </View>
+            {/* Lista de Roles */}
+            <ScrollView
+                style={styles.content}
+                contentContainerStyle={styles.contentContainer}
+                showsVerticalScrollIndicator={false}
+            >
+                {rolesFiltrados.length > 0 ? (
+                    rolesFiltrados.map((rol, index) => (
+                        <Animated.View
+                            key={rol.id}
+                            entering={FadeInDown.delay(index * 100).springify()}
+                            style={styles.card}
+                        >
+                            <View style={styles.cardHeader}>
+                                <View style={[styles.iconContainer, { backgroundColor: getBgTipo(rol.tipo) }]}>
+                                    <Ionicons name={getIconoTipo(rol.tipo)} size={24} color={getColorTipo(rol.tipo)} />
+                                </View>
+                                <View style={styles.headerInfo}>
+                                    <Text style={styles.cardTitle}>
+                                        Turno de {rol.tipo.charAt(0).toUpperCase() + rol.tipo.slice(1)}
+                                    </Text>
+                                    <View style={styles.badgeContainer}>
+                                        <View style={[
+                                            styles.badge,
+                                            { backgroundColor: rol.estado === 'completado' ? '#D1FAE5' : '#FEF3C7' }
+                                        ]}>
+                                            <Text style={[
+                                                styles.badgeText,
+                                                { color: rol.estado === 'completado' ? '#059669' : '#D97706' }
+                                            ]}>
+                                                {rol.estado.toUpperCase()}
+                                            </Text>
+                                        </View>
+                                    </View>
+                                </View>
+                            </View>
 
-      {/* Información adicional */}
-      <View style={styles.infoBox}>
-        <Ionicons name="information-circle" size={20} color="#2196F3" />
-        <View style={styles.infoContent}>
-          <Text style={styles.infoTitle}>Importante</Text>
-          <Text style={styles.infoText}>
-            Los roles son asignados automáticamente por el sistema. 
-            Si no puedes asistir, notifica con anticipación al administrador.
-          </Text>
+                            <View style={styles.cardBody}>
+                                <View style={styles.row}>
+                                    <Ionicons name="calendar-outline" size={16} color="#6B7280" />
+                                    <Text style={styles.rowText}>{new Date(rol.fecha).toLocaleDateString('es-MX', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</Text>
+                                </View>
+                                <View style={styles.row}>
+                                    <Ionicons name="time-outline" size={16} color="#6B7280" />
+                                    <Text style={styles.rowText}>{rol.horario}</Text>
+                                </View>
+                                <View style={styles.row}>
+                                    <Ionicons name="information-circle-outline" size={16} color="#6B7280" />
+                                    <Text style={styles.rowText}>{rol.descripcion}</Text>
+                                </View>
+
+                                {rol.compañeros && rol.compañeros.length > 0 && (
+                                    <View style={styles.compañerosContainer}>
+                                        <Text style={styles.compañerosLabel}>Compañeros:</Text>
+                                        <View style={styles.compañerosList}>
+                                            {rol.compañeros.map((comp, idx) => (
+                                                <View key={idx} style={styles.compañeroChip}>
+                                                    <Ionicons name="person-circle-outline" size={16} color="#4B5563" />
+                                                    <Text style={styles.compañeroText}>{comp}</Text>
+                                                </View>
+                                            ))}
+                                        </View>
+                                    </View>
+                                )}
+                            </View>
+                        </Animated.View>
+                    ))
+                ) : (
+                    <View style={styles.emptyState}>
+                        <Ionicons name="calendar-clear-outline" size={64} color="#9CA3AF" />
+                        <Text style={styles.emptyText}>No hay roles {filtro === 'todos' ? '' : filtro}s</Text>
+                    </View>
+                )}
+            </ScrollView>
         </View>
-      </View>
-    </ScrollView>
-  );
+    );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#f8f9fa',
-  },
-  header: {
-    backgroundColor: '#1a237e',
-    padding: 20,
-    paddingTop: 60,
-  },
-  title: {
-    color: 'white',
-    fontSize: 24,
-    fontWeight: 'bold',
-    marginBottom: 5,
-  },
-  subtitle: {
-    color: 'rgba(255,255,255,0.8)',
-    fontSize: 16,
-  },
-  statsContainer: {
-    flexDirection: 'row',
-    padding: 15,
-    gap: 10,
-  },
-  statCard: {
-    flex: 1,
-    backgroundColor: 'white',
-    padding: 15,
-    borderRadius: 12,
-    alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
-  },
-  statNumber: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: '#333',
-    marginVertical: 5,
-  },
-  statLabel: {
-    fontSize: 12,
-    color: '#666',
-    textAlign: 'center',
-  },
-  filtersContainer: {
-    backgroundColor: 'white',
-    padding: 20,
-    marginHorizontal: 15,
-    borderRadius: 12,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
-  },
-  sectionTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: '#333',
-    marginBottom: 15,
-  },
-  filters: {
-    flexDirection: 'row',
-    gap: 10,
-  },
-  filterButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    borderRadius: 20,
-    backgroundColor: '#f5f5f5',
-    borderWidth: 1,
-    borderColor: '#e0e0e0',
-  },
-  filterActive: {
-    backgroundColor: '#1a237e',
-    borderColor: '#1a237e',
-  },
-  filterText: {
-    fontSize: 14,
-    color: '#666',
-    fontWeight: '500',
-  },
-  filterTextActive: {
-    color: 'white',
-  },
-  section: {
-    padding: 20,
-  },
-  rolCard: {
-    backgroundColor: 'white',
-    padding: 16,
-    borderRadius: 12,
-    marginBottom: 16,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
-  },
-  rolHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'flex-start',
-    marginBottom: 12,
-  },
-  tipoContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    flex: 1,
-    gap: 12,
-  },
-  tipoIcon: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  tipoText: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: '#333',
-    marginBottom: 2,
-  },
-  fecha: {
-    fontSize: 14,
-    color: '#666',
-  },
-  estadoBadge: {
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 12,
-  },
-  estadoText: {
-    color: 'white',
-    fontSize: 12,
-    fontWeight: 'bold',
-  },
-  rolDetails: {
-    gap: 8,
-    marginBottom: 12,
-  },
-  detailItem: {
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-    gap: 8,
-  },
-  detailText: {
-    fontSize: 14,
-    color: '#666',
-    flex: 1,
-    lineHeight: 18,
-  },
-  actions: {
-    flexDirection: 'row',
-    gap: 12,
-    borderTopWidth: 1,
-    borderTopColor: '#f0f0f0',
-    paddingTop: 12,
-  },
-  recordatorioButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 8,
-    backgroundColor: '#e3f2fd',
-  },
-  recordatorioText: {
-    fontSize: 12,
-    color: '#2196F3',
-    fontWeight: '500',
-  },
-  detallesButton: {
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 8,
-    backgroundColor: '#f5f5f5',
-  },
-  detallesText: {
-    fontSize: 12,
-    color: '#666',
-    fontWeight: '500',
-  },
-  infoBox: {
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-    backgroundColor: '#e3f2fd',
-    margin: 20,
-    padding: 15,
-    borderRadius: 10,
-    gap: 12,
-  },
-  infoContent: {
-    flex: 1,
-  },
-  infoTitle: {
-    fontSize: 14,
-    fontWeight: 'bold',
-    color: '#1976d2',
-    marginBottom: 4,
-  },
-  infoText: {
-    fontSize: 14,
-    color: '#1976d2',
-    lineHeight: 18,
-  },
+    container: {
+        flex: 1,
+        backgroundColor: '#F9FAFB',
+    },
+    header: {
+        backgroundColor: '#2563EB',
+        paddingTop: 60,
+        paddingBottom: 24,
+        paddingHorizontal: 20,
+        borderBottomLeftRadius: 24,
+        borderBottomRightRadius: 24,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.1,
+        shadowRadius: 12,
+        elevation: 5,
+    },
+    headerContent: {
+        flexDirection: 'row',
+        alignItems: 'center',
+    },
+    headerLeft: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 12,
+    },
+    headerIcon: {
+        width: 48,
+        height: 48,
+        borderRadius: 24,
+        backgroundColor: 'rgba(255,255,255,0.2)',
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    headerTitle: {
+        fontSize: 24,
+        fontWeight: '700',
+        color: 'white',
+    },
+    headerSubtitle: {
+        fontSize: 14,
+        color: 'rgba(255,255,255,0.8)',
+        marginTop: 2,
+    },
+    filtrosContainer: {
+        marginTop: 20,
+        paddingHorizontal: 20,
+    },
+    filtrosContent: {
+        gap: 10,
+        paddingRight: 20,
+    },
+    filtroChip: {
+        paddingHorizontal: 20,
+        paddingVertical: 8,
+        borderRadius: 20,
+        backgroundColor: 'white',
+        borderWidth: 1,
+        borderColor: '#E5E7EB',
+    },
+    filtroChipActive: {
+        backgroundColor: '#2563EB',
+        borderColor: '#2563EB',
+    },
+    filtroText: {
+        fontSize: 14,
+        fontWeight: '600',
+        color: '#6B7280',
+    },
+    filtroTextActive: {
+        color: 'white',
+    },
+    content: {
+        flex: 1,
+    },
+    contentContainer: {
+        padding: 20,
+        paddingBottom: 100,
+    },
+    card: {
+        backgroundColor: 'white',
+        borderRadius: 16,
+        padding: 16,
+        marginBottom: 16,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.05,
+        shadowRadius: 8,
+        elevation: 2,
+    },
+    cardHeader: {
+        flexDirection: 'row',
+        alignItems: 'flex-start',
+        marginBottom: 16,
+    },
+    iconContainer: {
+        width: 48,
+        height: 48,
+        borderRadius: 24,
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginRight: 12,
+    },
+    headerInfo: {
+        flex: 1,
+    },
+    cardTitle: {
+        fontSize: 16,
+        fontWeight: '700',
+        color: '#1F2937',
+        marginBottom: 4,
+    },
+    badgeContainer: {
+        flexDirection: 'row',
+    },
+    badge: {
+        paddingHorizontal: 8,
+        paddingVertical: 2,
+        borderRadius: 6,
+    },
+    badgeText: {
+        fontSize: 12,
+        fontWeight: '600',
+    },
+    cardBody: {
+        gap: 8,
+    },
+    row: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 8,
+    },
+    rowText: {
+        fontSize: 14,
+        color: '#4B5563',
+        flex: 1,
+    },
+    compañerosContainer: {
+        marginTop: 8,
+        paddingTop: 8,
+        borderTopWidth: 1,
+        borderTopColor: '#F3F4F6',
+    },
+    compañerosLabel: {
+        fontSize: 12,
+        fontWeight: '600',
+        color: '#6B7280',
+        marginBottom: 6,
+    },
+    compañerosList: {
+        flexDirection: 'row',
+        flexWrap: 'wrap',
+        gap: 8,
+    },
+    compañeroChip: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        backgroundColor: '#F3F4F6',
+        paddingHorizontal: 8,
+        paddingVertical: 4,
+        borderRadius: 12,
+        gap: 4,
+    },
+    compañeroText: {
+        fontSize: 12,
+        color: '#4B5563',
+    },
+    emptyState: {
+        alignItems: 'center',
+        justifyContent: 'center',
+        paddingVertical: 60,
+    },
+    emptyText: {
+        marginTop: 16,
+        fontSize: 16,
+        color: '#9CA3AF',
+        fontWeight: '500',
+    },
 });
