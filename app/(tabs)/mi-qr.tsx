@@ -3,7 +3,6 @@ import { useAuth } from '@/context/AuthContext';
 import { useStorage } from '@/hooks/useStorage';
 import { QRGenerator } from '@/services/qrGenerator';
 import { Ionicons } from '@expo/vector-icons';
-import * as MediaLibrary from 'expo-media-library';
 import { useRouter } from 'expo-router';
 import React, { useEffect, useRef, useState } from 'react';
 import {
@@ -34,7 +33,6 @@ export default function MiQRScreen() {
   const [qrWebDataUrl, setQrWebDataUrl] = useState<string>('');
   const [cargando, setCargando] = useState(true);
   const [guardando, setGuardando] = useState(false);
-  const [permisosMedia, setPermisosMedia] = useState(false);
 
   let qrRef: any = useRef(null);
 
@@ -44,15 +42,9 @@ export default function MiQRScreen() {
     if (!loading && beneficiario) {
       generarQR();
     }
-    solicitarPermisosMedia();
   }, [loading, beneficiario]);
 
-  const solicitarPermisosMedia = async () => {
-    if (Platform.OS !== 'web') {
-      const { status } = await MediaLibrary.requestPermissionsAsync();
-      setPermisosMedia(status === 'granted');
-    }
-  };
+
 
   const generarQR = async () => {
     if (!beneficiario) return;

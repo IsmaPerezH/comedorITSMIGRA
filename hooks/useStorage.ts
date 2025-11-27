@@ -18,8 +18,16 @@ export interface Asistencia {
     beneficiarioId: string;
     fecha: string;
     hora: string;
-    tipo: 'comida' | 'cena';
+    tipo: 'almuerzo' | 'comida' | 'cena';
     comedor: string;
+}
+
+export interface Permiso {
+    id: string;
+    beneficiarioId: string;
+    fecha: string;
+    motivo: string;
+    estado: 'pendiente' | 'aprobado' | 'rechazado';
 }
 
 export interface Rol {
@@ -59,6 +67,7 @@ const STORAGE_KEYS = {
     ROLES: 'roles',
     PDFS: 'pdfs',
     RECORDATORIOS: 'recordatorios',
+    PERMISOS: 'permisos',
 };
 
 // Generador de contraseña de 6 dígitos
@@ -154,6 +163,7 @@ export const useStorage = () => {
     const [roles, setRoles] = useState<Rol[]>([]);
     const [pdfs, setPdfs] = useState<PDFDocument[]>([]);
     const [recordatorios, setRecordatorios] = useState<Recordatorio[]>([]);
+    const [permisos, setPermisos] = useState<Permiso[]>([]);
     const { programarRecordatorio, cancelarNotificacion, isExpoGo } = useNotifications();
 
     // Cargar datos una sola vez al montar el hook
@@ -211,8 +221,52 @@ export const useStorage = () => {
         await AsyncStorage.setItem(STORAGE_KEYS.PDFS, JSON.stringify(filtrados));
     };
 
+    // ---------- CRUD Roles ----------
+    const agregarRol = async (rol: Omit<Rol, 'id'>) => {
+        const nuevo: Rol = { ...rol, id: Date.now().toString() };
+        const nuevos = [...roles, nuevo];
+        setRoles(nuevos);
+        await AsyncStorage.setItem(STORAGE_KEYS.ROLES, JSON.stringify(nuevos));
+        return nuevo;
+    };
+
+    const actualizarRol = async (id: string, datosActualizados: Partial<Rol>) => {
+        const actualizados = roles.map(r => (r.id === id ? { ...r, ...datosActualizados } : r));
+        setRoles(actualizados);
+        await AsyncStorage.setItem(STORAGE_KEYS.ROLES, JSON.stringify(actualizados));
+    };
+
+    const eliminarRol = async (id: string) => {
+        const filtrados = roles.filter(r => r.id !== id);
+        setRoles(filtrados);
+        await AsyncStorage.setItem(STORAGE_KEYS.ROLES, JSON.stringify(filtrados));
+    };
+
+    // ---------- CRUD Permisos ----------
+    const solicitarPermiso = async (permiso: Omit<Permiso, 'id' | 'estado'>) => {
+        const nuevo: Permiso = {
+            ...permiso,
+            id: Date.now().toString(),
+            estado: 'pendiente'
+        };
+        const nuevos = [...permisos, nuevo];
+        setPermisos(nuevos);
+        await AsyncStorage.setItem(STORAGE_KEYS.PERMISOS, JSON.stringify(nuevos));
+        return nuevo;
+    };
+
+    const actualizarEstadoPermiso = async (id: string, estado: 'aprobado' | 'rechazado') => {
+        const actualizados = permisos.map(p => (p.id === id ? { ...p, estado } : p));
+        setPermisos(actualizados);
+        await AsyncStorage.setItem(STORAGE_KEYS.PERMISOS, JSON.stringify(actualizados));
+    };
+
+    const obtenerPermisosPorBeneficiario = (beneficiarioId: string) => {
+        return permisos.filter(p => p.beneficiarioId === beneficiarioId);
+    };
+
     // ---------- CRUD Asistencias ----------
-    const registrarAsistencia = async (beneficiarioId: string, tipo: 'comida' | 'cena') => {
+    const registrarAsistencia = async (beneficiarioId: string, tipo: 'almuerzo' | 'comida' | 'cena') => {
         const ahora = new Date();
         const fecha = ahora.toISOString().split('T')[0];
         const hora = ahora.toTimeString().split(' ')[0].substring(0, 5);
@@ -248,6 +302,7 @@ export const useStorage = () => {
     const obtenerEstadisticasCompletas = (beneficiarioId: string) => {
         const asistenciasBeneficiario = asistencias.filter(a => a.beneficiarioId === beneficiarioId);
         const totalAsistencias = asistenciasBeneficiario.length;
+        const asistenciasAlmuerzo = asistenciasBeneficiario.filter(a => a.tipo === 'almuerzo').length;
         const asistenciasComida = asistenciasBeneficiario.filter(a => a.tipo === 'comida').length;
         const asistenciasCena = asistenciasBeneficiario.filter(a => a.tipo === 'cena').length;
 
@@ -269,6 +324,7 @@ export const useStorage = () => {
 
         return {
             totalAsistencias,
+            asistenciasAlmuerzo,
             asistenciasComida,
             asistenciasCena,
             rachaActual,
@@ -327,12 +383,14 @@ export const useStorage = () => {
                 STORAGE_KEYS.ROLES,
                 STORAGE_KEYS.PDFS,
                 STORAGE_KEYS.RECORDATORIOS,
+                STORAGE_KEYS.PERMISOS,
             ]);
             setBeneficiarios([]);
             setAsistencias([]);
             setRoles([]);
             setPdfs([]);
             setRecordatorios([]);
+            setPermisos([]);
         } catch (e) {
             console.error('Error limpiando datos:', e);
         }
@@ -349,6 +407,7 @@ export const useStorage = () => {
                     AsyncStorage.setItem(STORAGE_KEYS.ROLES, JSON.stringify(DATOS_INICIALES.roles)),
                     AsyncStorage.setItem(STORAGE_KEYS.PDFS, JSON.stringify(DATOS_INICIALES.pdfs)),
                     AsyncStorage.setItem(STORAGE_KEYS.RECORDATORIOS, JSON.stringify(DATOS_INICIALES.recordatorios)),
+                    AsyncStorage.setItem(STORAGE_KEYS.PERMISOS, JSON.stringify([])),
                 ]);
             }
             await cargarDatos();
@@ -361,18 +420,20 @@ export const useStorage = () => {
 
     const cargarDatos = async () => {
         try {
-            const [benefData, asistData, rolData, pdfData, recData] = await Promise.all([
+            const [benefData, asistData, rolData, pdfData, recData, permData] = await Promise.all([
                 AsyncStorage.getItem(STORAGE_KEYS.BENEFICIARIOS),
                 AsyncStorage.getItem(STORAGE_KEYS.ASISTENCIAS),
                 AsyncStorage.getItem(STORAGE_KEYS.ROLES),
                 AsyncStorage.getItem(STORAGE_KEYS.PDFS),
                 AsyncStorage.getItem(STORAGE_KEYS.RECORDATORIOS),
+                AsyncStorage.getItem(STORAGE_KEYS.PERMISOS),
             ]);
             if (benefData) setBeneficiarios(JSON.parse(benefData));
             if (asistData) setAsistencias(JSON.parse(asistData));
             if (rolData) setRoles(JSON.parse(rolData));
             if (pdfData) setPdfs(JSON.parse(pdfData));
             if (recData) setRecordatorios(JSON.parse(recData));
+            if (permData) setPermisos(JSON.parse(permData));
         } catch (e) {
             console.error('Error cargando datos:', e);
         }
@@ -386,10 +447,14 @@ export const useStorage = () => {
         roles,
         pdfs,
         recordatorios,
+        permisos,
         agregarBeneficiario,
         actualizarBeneficiario,
         eliminarBeneficiario,
         matriculaExiste,
+        agregarRol,
+        actualizarRol,
+        eliminarRol,
         agregarPDF,
         eliminarPDF,
         registrarAsistencia,
@@ -402,6 +467,9 @@ export const useStorage = () => {
         obtenerRecordatoriosPorBeneficiario,
         agregarRecordatorio,
         actualizarRecordatorio,
+        solicitarPermiso,
+        actualizarEstadoPermiso,
+        obtenerPermisosPorBeneficiario,
         limpiarDatos,
         programarRecordatorio,
         cancelarNotificacion,

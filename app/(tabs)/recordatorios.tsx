@@ -1,4 +1,5 @@
 
+import { useAuth } from '@/context/AuthContext';
 import { useStorage } from '@/hooks/useStorage';
 import { Ionicons } from '@expo/vector-icons';
 import DateTimePicker from '@react-native-community/datetimepicker';
@@ -20,6 +21,7 @@ import {
 import Animated, { FadeInDown } from 'react-native-reanimated';
 
 export default function RecordatoriosScreen() {
+  const { user } = useAuth();
   const {
     roles,
     recordatorios,
@@ -28,7 +30,7 @@ export default function RecordatoriosScreen() {
     obtenerRecordatoriosPorBeneficiario
   } = useStorage();
 
-  const beneficiarioActualId = '1';
+  const beneficiarioActualId = user?.role === 'student' ? user.beneficiarioId : '';
 
   const [modalVisible, setModalVisible] = useState(false);
   const [recordatorioEditando, setRecordatorioEditando] = useState<any>(null);

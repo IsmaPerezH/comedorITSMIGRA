@@ -39,7 +39,13 @@
           }
         }
       ],
-      "expo-barcode-scanner"
+      "expo-barcode-scanner",
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "Permite a ComedorITSMIGRA acceder a tu cámara para escanear códigos QR."
+        }
+      ]
     ],
     "experiments": {
       "typedRoutes": true,

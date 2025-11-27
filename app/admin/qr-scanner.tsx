@@ -60,11 +60,9 @@ export default function AdminQRScannerScreen() {
 
   const handleBarCodeScanned = async ({ type, data }: { type: string; data: string }) => {
     if (scanned) return;
-
-    setScanned(true);
+    setScanned(true); // Set scanned to true to prevent multiple scans
 
     try {
-      // Validar QR usando el nuevo sistema
       const validacion = QRGenerator.validarQR(data);
 
       if (!validacion.valido) {
@@ -82,7 +80,15 @@ export default function AdminQRScannerScreen() {
       if (beneficiario) {
         // Determinar tipo de comida basado en la hora
         const horaActual = new Date().getHours();
-        const tipo = horaActual < 15 ? 'comida' : 'cena';
+        let tipo: 'almuerzo' | 'comida' | 'cena' = 'comida';
+
+        if (horaActual >= 8 && horaActual < 12) {
+          tipo = 'almuerzo';
+        } else if (horaActual >= 12 && horaActual < 18) {
+          tipo = 'comida';
+        } else {
+          tipo = 'cena';
+        }
 
         // Registrar asistencia
         const asistencia = await registrarAsistencia(beneficiario.id, tipo);
@@ -118,31 +124,25 @@ export default function AdminQRScannerScreen() {
     }
   };
 
+  // Render UI based on camera permissions
   if (hasPermission === null) {
     return (
-      <View style={styles.container}>
-        <StatusBar barStyle="light-content" />
-        <View style={styles.loadingContainer}>
-          <Text style={styles.message}>Solicitando acceso a la cámara...</Text>
-        </View>
+      <View style={styles.loadingContainer}>
+        <Text style={styles.message}>Solicitando permiso de cámara...</Text>
       </View>
     );
   }
-
   if (hasPermission === false) {
     return (
-      <View style={styles.container}>
-        <StatusBar barStyle="light-content" />
-        <View style={styles.permissionContainer}>
-          <Ionicons name="alert-circle-outline" size={64} color="#EF4444" />
-          <Text style={styles.errorMessage}>Sin acceso a la cámara</Text>
-          <Text style={styles.message}>
-            El administrador necesita acceso a la cámara para escanear QR.
-          </Text>
-          <TouchableOpacity style={styles.button} onPress={() => router.back()}>
-            <Text style={styles.buttonText}>Volver al Panel</Text>
-          </TouchableOpacity>
-        </View>
+      <View style={styles.permissionContainer}>
+        <Ionicons name="camera-off" size={100} color="white" />
+        <Text style={styles.errorMessage}>No hay acceso a la cámara</Text>
+        <Text style={styles.message}>
+          Por favor, habilita los permisos de la cámara en la configuración de tu dispositivo.
+        </Text>
+        <TouchableOpacity style={styles.button} onPress={() => router.back()}>
+          <Text style={styles.buttonText}>Volver</Text>
+        </TouchableOpacity>
       </View>
     );
   }
@@ -150,78 +150,50 @@ export default function AdminQRScannerScreen() {
   return (
     <View style={styles.container}>
       <StatusBar barStyle="light-content" />
-
       <CameraView
-        style={styles.camera}
-        facing="back"
         onBarcodeScanned={scanned ? undefined : handleBarCodeScanned}
-        barcodeScannerSettings={{
-          barcodeTypes: ['qr'],
-        }}
-        flash={flashOn ? 'on' : 'off'}
-      >
-        {/* Dark Overlay with Cutout */}
-        <View style={styles.overlay}>
-          <View style={styles.overlayTop}>
-            <View style={styles.header}>
-              <TouchableOpacity
-                style={styles.backButton}
-                onPress={() => router.back()}
-              >
-                <Ionicons name="close" size={24} color="white" />
-              </TouchableOpacity>
-              <Text style={styles.headerTitle}>Escanear Beneficiario</Text>
-              <View style={{ width: 40 }} />
-            </View>
-            <Text style={styles.instructionText}>
-              Encuadra el código QR del beneficiario
-            </Text>
-          </View>
+        style={StyleSheet.absoluteFillObject}
+        enableTorch={flashOn}
+      />
 
-          <View style={styles.scanRow}>
-            <View style={styles.overlaySide} />
-            <View style={styles.scanFrame}>
-              {/* Corner Markers */}
-              <View style={[styles.corner, styles.topLeft]} />
-              <View style={[styles.corner, styles.topRight]} />
-              <View style={[styles.corner, styles.bottomLeft]} />
-              <View style={[styles.corner, styles.bottomRight]} />
-
-              {/* Scanning Line Animation */}
-              {!scanned && (
-                <Animated.View style={[styles.scanLine, animatedLineStyle]} />
-              )}
-            </View>
-            <View style={styles.overlaySide} />
-          </View>
-
-          <View style={styles.overlayBottom}>
-            <View style={styles.controlsContainer}>
-              <TouchableOpacity
-                style={[styles.controlButton, flashOn && styles.controlButtonActive]}
-                onPress={() => setFlashOn(!flashOn)}
-              >
-                <Ionicons
-                  name={flashOn ? 'flash' : 'flash-off'}
-                  size={24}
-                  color={flashOn ? '#FFD700' : 'white'}
-                />
-              </TouchableOpacity>
-              <Text style={styles.controlLabel}>Flash</Text>
-            </View>
-
-            {scanned && (
-              <TouchableOpacity
-                style={styles.rescanButton}
-                onPress={() => setScanned(false)}
-              >
-                <Ionicons name="refresh" size={20} color="white" />
-                <Text style={styles.rescanText}>Escanear siguiente</Text>
-              </TouchableOpacity>
-            )}
-          </View>
+      <View style={styles.overlay}>
+        <View style={styles.header}>
+          <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
+            <Ionicons name="arrow-back" size={28} color="white" />
+          </TouchableOpacity>
+          <Text style={styles.title}>Escanear QR</Text>
+          <TouchableOpacity
+            onPress={() => setFlashOn(!flashOn)}
+            style={[styles.controlButton, flashOn && styles.controlButtonActive]}
+          >
+            <Ionicons name={flashOn ? 'flash' : 'flash-off'} size={24} color="white" />
+          </TouchableOpacity>
         </View>
-      </CameraView>
+
+        <View style={styles.scannerContainer}>
+          <View style={styles.maskTop} />
+          <View style={styles.maskCenter}>
+            <View style={styles.maskSide} />
+            <View style={styles.scannerFrame}>
+              <Animated.View style={[styles.scannerLine, animatedLineStyle]} />
+            </View>
+            <View style={styles.maskSide} />
+          </View>
+          <View style={styles.maskBottom} />
+        </View>
+
+        <View style={styles.footer}>
+          <Text style={styles.instructionText}>
+            Apunta la cámara al código QR para escanearlo.
+          </Text>
+          {scanned && (
+            <TouchableOpacity onPress={() => setScanned(false)} style={styles.rescanButton}>
+              <Ionicons name="scan-circle-outline" size={24} color="white" />
+              <Text style={styles.rescanText}>Escanear de nuevo</Text>
+            </TouchableOpacity>
+          )}
+        </View>
+      </View>
     </View>
   );
 }
@@ -244,115 +216,28 @@ const styles = StyleSheet.create({
     padding: 24,
     backgroundColor: '#111827',
   },
-  camera: {
-    flex: 1,
-  },
   overlay: {
-    flex: 1,
-  },
-  overlayTop: {
-    flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.7)',
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    justifyContent: 'space-between',
     alignItems: 'center',
-    justifyContent: 'flex-start',
-    paddingTop: 50,
-  },
-  overlayBottom: {
-    flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.7)',
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingBottom: 30,
-  },
-  overlaySide: {
-    flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.7)',
-  },
-  scanRow: {
-    flexDirection: 'row',
-    height: SCAN_SIZE,
-  },
-  scanFrame: {
-    width: SCAN_SIZE,
-    height: SCAN_SIZE,
-    position: 'relative',
   },
   header: {
+    width: '100%',
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    width: '100%',
     paddingHorizontal: 20,
-    marginBottom: 40,
+    paddingTop: 50,
+    paddingBottom: 20,
   },
   backButton: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: 'rgba(255,255,255,0.2)',
-    justifyContent: 'center',
-    alignItems: 'center',
+    padding: 10,
   },
-  headerTitle: {
+  title: {
     color: 'white',
-    fontSize: 18,
-    fontWeight: '600',
-  },
-  instructionText: {
-    color: 'rgba(255,255,255,0.8)',
-    fontSize: 14,
-    textAlign: 'center',
-    marginTop: 20,
-  },
-  corner: {
-    position: 'absolute',
-    width: 40,
-    height: 40,
-    borderColor: '#4F46E5', // Indigo 600
-    borderWidth: 4,
-  },
-  topLeft: {
-    top: 0,
-    left: 0,
-    borderBottomWidth: 0,
-    borderRightWidth: 0,
-    borderTopLeftRadius: 20,
-  },
-  topRight: {
-    top: 0,
-    right: 0,
-    borderBottomWidth: 0,
-    borderLeftWidth: 0,
-    borderTopRightRadius: 20,
-  },
-  bottomLeft: {
-    bottom: 0,
-    left: 0,
-    borderTopWidth: 0,
-    borderRightWidth: 0,
-    borderBottomLeftRadius: 20,
-  },
-  bottomRight: {
-    bottom: 0,
-    right: 0,
-    borderTopWidth: 0,
-    borderLeftWidth: 0,
-    borderBottomRightRadius: 20,
-  },
-  scanLine: {
-    position: 'absolute',
-    width: '100%',
-    height: 2,
-    backgroundColor: '#4F46E5',
-    shadowColor: '#4F46E5',
-    shadowOffset: { width: 0, height: 0 },
-    shadowOpacity: 1,
-    shadowRadius: 10,
-    elevation: 5,
-  },
-  controlsContainer: {
-    alignItems: 'center',
-    marginBottom: 20,
+    fontSize: 22,
+    fontWeight: 'bold',
   },
   controlButton: {
     width: 50,
@@ -361,7 +246,6 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(255,255,255,0.2)',
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: 8,
   },
   controlButtonActive: {
     backgroundColor: 'rgba(255, 215, 0, 0.3)',
@@ -369,6 +253,62 @@ const styles = StyleSheet.create({
   controlLabel: {
     color: 'white',
     fontSize: 12,
+  },
+  scannerContainer: {
+    flex: 1,
+    width: '100%',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  maskTop: {
+    flex: 1,
+    width: '100%',
+    backgroundColor: 'rgba(0,0,0,0.6)',
+  },
+  maskCenter: {
+    flexDirection: 'row',
+    width: '100%',
+    height: SCAN_SIZE,
+  },
+  maskSide: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.6)',
+  },
+  scannerFrame: {
+    width: SCAN_SIZE,
+    height: SCAN_SIZE,
+    borderColor: 'white',
+    borderWidth: 2,
+    overflow: 'hidden',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  scannerLine: {
+    width: '100%',
+    height: 3,
+    backgroundColor: 'red',
+    shadowColor: 'red',
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 1,
+    shadowRadius: 5,
+    elevation: 5,
+  },
+  maskBottom: {
+    flex: 1,
+    width: '100%',
+    backgroundColor: 'rgba(0,0,0,0.6)',
+  },
+  footer: {
+    width: '100%',
+    padding: 20,
+    alignItems: 'center',
+    backgroundColor: 'rgba(0,0,0,0.6)',
+  },
+  instructionText: {
+    color: 'white',
+    fontSize: 16,
+    textAlign: 'center',
+    marginBottom: 10,
   },
   rescanButton: {
     flexDirection: 'row',

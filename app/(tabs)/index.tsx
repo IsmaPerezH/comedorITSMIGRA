@@ -11,9 +11,11 @@ export default function UserHomeScreen() {
   const { obtenerEstadisticasCompletas, roles } = useStorage();
 
   const stats = user && user.role === 'student' ? obtenerEstadisticasCompletas(user.beneficiarioId) : { totalAsistencias: 0 };
-  const rolesPendientesCount = user && user.role === 'student'
-    ? roles.filter(r => r.beneficiarioId === user.beneficiarioId && (r.estado === 'pendiente' || r.estado === 'proximo')).length
-    : 0;
+  const rolesPendientes = user && user.role === 'student'
+    ? roles.filter(r => r.beneficiarioId === user.beneficiarioId && (r.estado === 'pendiente' || r.estado === 'proximo'))
+    : [];
+
+  const rolesPendientesCount = rolesPendientes.length;
 
   const userInfo = {
     name: user && user.role === 'student' ? user.nombre : 'Invitado',
@@ -95,9 +97,53 @@ export default function UserHomeScreen() {
         </View>
 
         {/* Próximos Roles */}
+        <View style={styles.section}>
+          <View style={styles.sectionHeader}>
+            <Text style={styles.sectionTitle}>Próximo Rol</Text>
+            <TouchableOpacity onPress={() => router.push('/recordatorios')}>
+              <Text style={styles.seeAllText}>Ver todos</Text>
+            </TouchableOpacity>
+          </View>
 
-
-        {/* Acciones Rápidas */}
+          {rolesPendientes.length > 0 ? (
+            (() => {
+              const proximoRol = [...rolesPendientes].sort((a, b) => new Date(a.fecha).getTime() - new Date(b.fecha).getTime())[0];
+              return (
+                <View style={styles.roleItem}>
+                  <View style={[styles.roleIcon, { backgroundColor: proximoRol.tipo === 'cocina' ? '#FEF3C7' : '#DBEAFE' }]}>
+                    <Ionicons
+                      name={proximoRol.tipo === 'cocina' ? 'restaurant' : 'sparkles'}
+                      size={24}
+                      color={proximoRol.tipo === 'cocina' ? '#F59E0B' : '#3B82F6'}
+                    />
+                  </View>
+                  <View style={styles.roleInfo}>
+                    <Text style={styles.roleType}>
+                      {proximoRol.tipo.charAt(0).toUpperCase() + proximoRol.tipo.slice(1)}
+                    </Text>
+                    <View style={styles.roleMeta}>
+                      <Ionicons name="calendar-outline" size={14} color="#6B7280" />
+                      <Text style={styles.roleDate}>
+                        {new Date(proximoRol.fecha).toLocaleDateString('es-MX', { weekday: 'long', day: 'numeric', month: 'long' })}
+                      </Text>
+                    </View>
+                  </View>
+                  <View style={[styles.statusBadge, { backgroundColor: '#EFF6FF' }]}>
+                    <Text style={[styles.statusText, { color: '#2563EB' }]}>
+                      {proximoRol.horario}
+                    </Text>
+                  </View>
+                </View>
+              );
+            })()
+          ) : (
+            <View style={styles.emptyState}>
+              <Ionicons name="calendar-outline" size={48} color="#9CA3AF" />
+              <Text style={styles.emptyTitle}>No tienes roles pendientes</Text>
+              <Text style={styles.emptySubtitle}>¡Estás al día con tus asignaciones!</Text>
+            </View>
+          )}
+        </View>
         <Animated.View entering={FadeInDown.delay(500)} style={styles.section}>
           <Text style={styles.sectionTitle}>Acciones Rápidas</Text>
           <View style={styles.actionsGrid}>
@@ -139,6 +185,16 @@ export default function UserHomeScreen() {
                 <Ionicons name="document-text-outline" size={28} color="#DC2626" />
               </View>
               <Text style={styles.actionText}>Documentos</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={styles.actionButton}
+              onPress={() => router.push('/permisos')}
+            >
+              <View style={[styles.actionIcon, { backgroundColor: '#F0FDF4' }]}>
+                <Ionicons name="calendar-number-outline" size={28} color="#16A34A" />
+              </View>
+              <Text style={styles.actionText}>Permisos</Text>
             </TouchableOpacity>
           </View>
         </Animated.View>
@@ -420,5 +476,21 @@ const styles = StyleSheet.create({
     fontSize: 13,
     color: '#1E40AF',
     lineHeight: 18,
+  },
+  emptyState: {
+    alignItems: 'center',
+    paddingVertical: 20,
+  },
+  emptyTitle: {
+    fontSize: 16,
+    fontWeight: '700',
+    color: '#374151',
+    marginTop: 12,
+    marginBottom: 4,
+  },
+  emptySubtitle: {
+    fontSize: 14,
+    color: '#9CA3AF',
+    textAlign: 'center',
   },
 });
