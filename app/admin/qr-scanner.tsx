@@ -135,7 +135,7 @@ export default function AdminQRScannerScreen() {
   if (hasPermission === false) {
     return (
       <View style={styles.permissionContainer}>
-        <Ionicons name="camera-off" size={100} color="white" />
+        <Ionicons name="videocam-off" size={100} color="white" />
         <Text style={styles.errorMessage}>No hay acceso a la cámara</Text>
         <Text style={styles.message}>
           Por favor, habilita los permisos de la cámara en la configuración de tu dispositivo.

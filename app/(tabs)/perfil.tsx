@@ -47,9 +47,9 @@ export default function PerfilScreen() {
                 {/* Tarjeta de Perfil Elevada */}
                 <View style={styles.profileCard}>
                     <View style={styles.avatarContainer}>
-                        <Text style={styles.avatarText}>{user?.nombre?.charAt(0) || 'U'}</Text>
+                        <Text style={styles.avatarText}>{user && 'nombre' in user ? user.nombre.charAt(0) : 'U'}</Text>
                     </View>
-                    <Text style={styles.userName}>{user?.nombre || 'Usuario'}</Text>
+                    <Text style={styles.userName}>{user && 'nombre' in user ? user.nombre : 'Usuario'}</Text>
                     <Text style={styles.userRole}>
                         {user?.role === 'student' ? 'Beneficiario' : 'Administrador'}
                     </Text>

@@ -42,10 +42,10 @@ export default function UserHomeScreen() {
         <View style={styles.headerContent}>
           <View>
             <Text style={styles.greeting}>{saludo},</Text>
-            <Text style={styles.userName}>{user?.nombre ? user.nombre.split(' ')[0] : 'Usuario'}</Text>
+            <Text style={styles.userName}>{user && 'nombre' in user ? user.nombre.split(' ')[0] : 'Usuario'}</Text>
           </View>
           <TouchableOpacity style={styles.avatar} onPress={() => router.push('/perfil')}>
-            <Text style={styles.avatarText}>{user?.nombre ? user.nombre.charAt(0) : 'U'}</Text>
+            <Text style={styles.avatarText}>{user && 'nombre' in user ? user.nombre.charAt(0) : 'U'}</Text>
           </TouchableOpacity>
         </View>
       </View>
