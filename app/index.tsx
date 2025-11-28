@@ -1,50 +1,71 @@
 // app/index.tsx
 import { Ionicons } from '@expo/vector-icons';
 import { Link } from 'expo-router';
+import React from 'react';
 import { StatusBar, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import Animated, { FadeInDown, FadeInUp } from 'react-native-reanimated';
 
 export default function RoleSelectionScreen() {
   return (
     <View style={styles.container}>
-      <StatusBar barStyle="light-content" />
-      <Text style={styles.title}>CHA&apos;A KASKUA</Text>
-      <Text style={styles.subtitle}>Sistema de Gestión del Comedor</Text>
+      <StatusBar barStyle="dark-content" />
 
-      <View style={styles.logoContainer}>
-        <View style={styles.logoPlaceholder}>
-          <Ionicons name="restaurant" size={64} color="white" />
-        </View>
+      <View style={styles.header}>
+        <Animated.View entering={FadeInUp.delay(200)} style={styles.logoContainer}>
+          <View style={styles.logoCircle}>
+            <Ionicons name="restaurant" size={48} color="#2563EB" />
+          </View>
+        </Animated.View>
+
+        <Animated.Text entering={FadeInUp.delay(300)} style={styles.title}>
+          CHA'A KASKUA
+        </Animated.Text>
+        <Animated.Text entering={FadeInUp.delay(400)} style={styles.subtitle}>
+          Sistema de Gestión del Comedor
+        </Animated.Text>
       </View>
 
-      <View style={styles.buttonContainer}>
+      <View style={styles.content}>
         <Link href="/login" asChild>
-          <TouchableOpacity style={styles.primaryButton}>
-            <View style={styles.buttonContent}>
-              <Ionicons name="person" size={24} color="white" style={styles.buttonIcon} />
-              <View style={styles.textContainer}>
-                <Text style={styles.buttonText}>Soy Beneficiario</Text>
-                <Text style={styles.buttonSubtext}>Registrar asistencia y ver roles</Text>
+          <TouchableOpacity activeOpacity={0.9} style={styles.touchable}>
+            <Animated.View entering={FadeInDown.delay(500)} style={styles.card}>
+              <View style={[styles.iconBox, { backgroundColor: '#EFF6FF' }]}>
+                <Ionicons name="person" size={32} color="#2563EB" />
               </View>
-            </View>
+              <View style={styles.cardContent}>
+                <Text style={styles.cardTitle}>Soy Beneficiario</Text>
+                <Text style={styles.cardDescription}>
+                  Consulta tu saldo, roles y registra tu asistencia con QR.
+                </Text>
+              </View>
+              <Ionicons name="chevron-forward" size={24} color="#D1D5DB" />
+            </Animated.View>
           </TouchableOpacity>
         </Link>
 
         <Link href="/login" asChild>
-          <TouchableOpacity style={styles.secondaryButton}>
-            <View style={styles.buttonContent}>
-              <Ionicons name="settings-sharp" size={24} color="white" style={styles.buttonIcon} />
-              <View style={styles.textContainer}>
-                <Text style={styles.buttonText}>Soy Administrador</Text>
-                <Text style={styles.buttonSubtext}>Gestionar comedor y reportes</Text>
+          <TouchableOpacity activeOpacity={0.9} style={styles.touchable}>
+            <Animated.View entering={FadeInDown.delay(600)} style={styles.card}>
+              <View style={[styles.iconBox, { backgroundColor: '#ECFDF5' }]}>
+                <Ionicons name="settings" size={32} color="#059669" />
               </View>
-            </View>
+              <View style={styles.cardContent}>
+                <Text style={styles.cardTitle}>Soy Administrador</Text>
+                <Text style={styles.cardDescription}>
+                  Gestiona beneficiarios, reportes y el control del comedor.
+                </Text>
+              </View>
+              <Ionicons name="chevron-forward" size={24} color="#D1D5DB" />
+            </Animated.View>
           </TouchableOpacity>
         </Link>
       </View>
 
-      <Text style={styles.footer}>
-        Instituto Tecnológico Superior de San Miguel El Grande
-      </Text>
+      <Animated.View entering={FadeInDown.delay(800)} style={styles.footer}>
+        <Text style={styles.footerText}>
+          Instituto Tecnológico Superior de San Miguel El Grande
+        </Text>
+      </Animated.View>
     </View>
   );
 }
@@ -52,89 +73,97 @@ export default function RoleSelectionScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: '#F9FAFB',
+    padding: 24,
     justifyContent: 'space-between',
+  },
+  header: {
     alignItems: 'center',
-    backgroundColor: '#f4a942',
-    paddingVertical: 60,
-    paddingHorizontal: 20,
-  },
-  title: {
-    fontSize: 32,
-    fontWeight: 'bold',
-    color: 'white',
-    textAlign: 'center',
-    marginTop: 40,
-  },
-  subtitle: {
-    fontSize: 20,
-    color: 'rgba(255,255,255,0.8)',
-    textAlign: 'center',
-    marginTop: 10,
+    marginTop: 60,
   },
   logoContainer: {
-    alignItems: 'center',
-    marginVertical: 40,
+    marginBottom: 24,
+    shadowColor: '#2563EB',
+    shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 0.2,
+    shadowRadius: 20,
+    elevation: 10,
   },
-  logoPlaceholder: {
-    width: 120,
-    height: 120,
-    borderRadius: 60,
-    backgroundColor: 'rgba(255,255,255,0.1)',
+  logoCircle: {
+    width: 100,
+    height: 100,
+    borderRadius: 50,
+    backgroundColor: 'white',
     justifyContent: 'center',
     alignItems: 'center',
-    borderWidth: 3,
-    borderColor: 'rgba(255,255,255,0.3)',
   },
-  buttonContainer: {
+  title: {
+    fontSize: 28,
+    fontWeight: '800',
+    color: '#111827',
+    marginBottom: 8,
+    textAlign: 'center',
+    letterSpacing: -0.5,
+  },
+  subtitle: {
+    fontSize: 16,
+    color: '#6B7280',
+    textAlign: 'center',
+    fontWeight: '500',
+  },
+  content: {
+    flex: 1,
+    justifyContent: 'center',
+    gap: 20,
+  },
+  touchable: {
     width: '100%',
-    gap: 16,
   },
-  primaryButton: {
-    backgroundColor: '#4CAF50',
-    padding: 20,
-    borderRadius: 15,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
-    elevation: 6,
-  },
-  secondaryButton: {
-    backgroundColor: '#2E7D32', // Darker green for admin
-    padding: 20,
-    borderRadius: 15,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
-    elevation: 6,
-  },
-  buttonContent: {
+  card: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'flex-start', // Align to left to keep text aligned
-    paddingHorizontal: 10,
+    backgroundColor: 'white',
+    padding: 20,
+    borderRadius: 24,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.05,
+    shadowRadius: 12,
+    elevation: 4,
+    borderWidth: 1,
+    borderColor: 'rgba(0,0,0,0.02)',
   },
-  buttonIcon: {
-    marginRight: 20,
+  iconBox: {
+    width: 64,
+    height: 64,
+    borderRadius: 20,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 16,
   },
-  textContainer: {
+  cardContent: {
     flex: 1,
+    marginRight: 8,
   },
-  buttonText: {
-    color: 'white',
+  cardTitle: {
     fontSize: 18,
-    fontWeight: 'bold',
+    fontWeight: '700',
+    color: '#1F2937',
     marginBottom: 4,
   },
-  buttonSubtext: {
-    color: 'rgba(255,255,255,0.9)',
-    fontSize: 12,
+  cardDescription: {
+    fontSize: 13,
+    color: '#6B7280',
+    lineHeight: 18,
   },
   footer: {
-    color: 'rgba(255,255,255,0.6)',
+    alignItems: 'center',
+    marginBottom: 20,
+  },
+  footerText: {
     fontSize: 12,
+    color: '#9CA3AF',
     textAlign: 'center',
-    marginTop: 20,
+    fontWeight: '500',
   },
 });

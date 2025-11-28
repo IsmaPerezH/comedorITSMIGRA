@@ -6,7 +6,6 @@ import React, { useEffect, useState } from 'react';
 import {
     ActivityIndicator,
     Alert,
-    Dimensions,
     KeyboardAvoidingView,
     Platform,
     StatusBar,
@@ -17,8 +16,6 @@ import {
     View
 } from 'react-native';
 import Animated, { FadeInDown, FadeInUp } from 'react-native-reanimated';
-
-const { width } = Dimensions.get('window');
 
 export default function LoginScreen() {
     const router = useRouter();
@@ -55,11 +52,15 @@ export default function LoginScreen() {
 
     return (
         <View style={styles.container}>
-            <StatusBar barStyle="light-content" />
+            <StatusBar barStyle="dark-content" />
 
-            {/* Background Decoration */}
-            <View style={styles.backgroundCircle} />
-            <View style={styles.backgroundCircle2} />
+            {/* Botón Atrás */}
+            <TouchableOpacity
+                style={styles.backButton}
+                onPress={() => router.back()}
+            >
+                <Ionicons name="arrow-back" size={24} color="#1F2937" />
+            </TouchableOpacity>
 
             <KeyboardAvoidingView
                 behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
@@ -68,20 +69,20 @@ export default function LoginScreen() {
                 <View style={styles.headerContainer}>
                     <Animated.View entering={FadeInUp.delay(200).springify()}>
                         <View style={styles.iconContainer}>
-                            <Ionicons name="restaurant" size={40} color="white" />
+                            <Ionicons name="restaurant" size={40} color="#2563EB" />
                         </View>
                     </Animated.View>
                     <Animated.Text
                         entering={FadeInUp.delay(300).springify()}
                         style={styles.title}
                     >
-                        Comedor ITSMIGRA
+                        Bienvenido
                     </Animated.Text>
                     <Animated.Text
                         entering={FadeInUp.delay(400).springify()}
                         style={styles.subtitle}
                     >
-                        Bienvenido de nuevo
+                        Ingresa tus credenciales para continuar
                     </Animated.Text>
                 </View>
 
@@ -89,10 +90,8 @@ export default function LoginScreen() {
                     entering={FadeInDown.delay(200).springify()}
                     style={styles.formContainer}
                 >
-                    <Text style={styles.formTitle}>Iniciar Sesión</Text>
-
                     <View style={styles.inputGroup}>
-                        <Text style={styles.label}>Matrícula</Text>
+                        <Text style={styles.label}>Usuario / Matrícula</Text>
                         <View style={styles.inputContainer}>
                             <Ionicons name="person-outline" size={20} color="#6B7280" style={styles.inputIcon} />
                             <TextInput
@@ -131,6 +130,13 @@ export default function LoginScreen() {
                     </View>
 
                     <TouchableOpacity
+                        style={styles.forgotPassword}
+                        onPress={() => Alert.alert('Recuperar contraseña', 'Contacta al administrador para restablecer tu contraseña.')}
+                    >
+                        <Text style={styles.forgotPasswordText}>¿Olvidaste tu contraseña?</Text>
+                    </TouchableOpacity>
+
+                    <TouchableOpacity
                         style={styles.button}
                         onPress={handleLogin}
                         disabled={loading}
@@ -140,18 +146,11 @@ export default function LoginScreen() {
                             <ActivityIndicator color="white" />
                         ) : (
                             <View style={styles.buttonContent}>
-                                <Text style={styles.buttonText}>Entrar</Text>
+                                <Text style={styles.buttonText}>Iniciar Sesión</Text>
                                 <Ionicons name="arrow-forward" size={20} color="white" />
                             </View>
                         )}
                     </TouchableOpacity>
-
-                    <View style={styles.footer}>
-                        <Text style={styles.footerText}>¿Olvidaste tu contraseña?</Text>
-                        <TouchableOpacity>
-                            <Text style={styles.linkText}>Recuperar</Text>
-                        </TouchableOpacity>
-                    </View>
                 </Animated.View>
             </KeyboardAvoidingView>
         </View>
@@ -161,25 +160,24 @@ export default function LoginScreen() {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#1E3A8A', // Dark Blue
+        backgroundColor: '#F9FAFB',
     },
-    backgroundCircle: {
+    backButton: {
         position: 'absolute',
-        top: -100,
-        right: -100,
-        width: 300,
-        height: 300,
-        borderRadius: 150,
-        backgroundColor: 'rgba(255,255,255,0.1)',
-    },
-    backgroundCircle2: {
-        position: 'absolute',
-        top: 100,
-        left: -50,
-        width: 200,
-        height: 200,
-        borderRadius: 100,
-        backgroundColor: 'rgba(255,255,255,0.05)',
+        top: 60,
+        left: 24,
+        zIndex: 10,
+        width: 40,
+        height: 40,
+        borderRadius: 12,
+        backgroundColor: 'white',
+        justifyContent: 'center',
+        alignItems: 'center',
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.05,
+        shadowRadius: 8,
+        elevation: 2,
     },
     content: {
         flex: 1,
@@ -193,24 +191,28 @@ const styles = StyleSheet.create({
     iconContainer: {
         width: 80,
         height: 80,
-        backgroundColor: 'rgba(255,255,255,0.2)',
-        borderRadius: 25,
+        backgroundColor: 'white',
+        borderRadius: 40,
         justifyContent: 'center',
         alignItems: 'center',
-        marginBottom: 16,
-        borderWidth: 1,
-        borderColor: 'rgba(255,255,255,0.3)',
+        marginBottom: 24,
+        shadowColor: '#2563EB',
+        shadowOffset: { width: 0, height: 10 },
+        shadowOpacity: 0.15,
+        shadowRadius: 20,
+        elevation: 10,
     },
     title: {
-        fontSize: 32,
-        fontWeight: 'bold',
-        color: 'white',
+        fontSize: 28,
+        fontWeight: '800',
+        color: '#111827',
         marginBottom: 8,
-        letterSpacing: 0.5,
+        letterSpacing: -0.5,
     },
     subtitle: {
         fontSize: 16,
-        color: 'rgba(255,255,255,0.8)',
+        color: '#6B7280',
+        textAlign: 'center',
     },
     formContainer: {
         backgroundColor: 'white',
@@ -218,30 +220,23 @@ const styles = StyleSheet.create({
         padding: 30,
         shadowColor: '#000',
         shadowOffset: { width: 0, height: 10 },
-        shadowOpacity: 0.2,
+        shadowOpacity: 0.05,
         shadowRadius: 20,
-        elevation: 10,
-    },
-    formTitle: {
-        fontSize: 20,
-        fontWeight: '700',
-        color: '#1F2937',
-        marginBottom: 24,
-        textAlign: 'center',
+        elevation: 5,
     },
     inputGroup: {
         marginBottom: 20,
     },
     label: {
         fontSize: 14,
-        color: '#4B5563',
+        color: '#374151',
         marginBottom: 8,
         fontWeight: '600',
     },
     inputContainer: {
         flexDirection: 'row',
         alignItems: 'center',
-        backgroundColor: '#F3F4F6',
+        backgroundColor: '#F9FAFB',
         borderRadius: 16,
         paddingHorizontal: 16,
         height: 56,
@@ -256,13 +251,21 @@ const styles = StyleSheet.create({
         fontSize: 16,
         color: '#1F2937',
     },
+    forgotPassword: {
+        alignSelf: 'flex-end',
+        marginBottom: 24,
+    },
+    forgotPasswordText: {
+        color: '#2563EB',
+        fontSize: 14,
+        fontWeight: '600',
+    },
     button: {
         backgroundColor: '#2563EB',
         height: 56,
         borderRadius: 16,
         justifyContent: 'center',
         alignItems: 'center',
-        marginTop: 10,
         shadowColor: '#2563EB',
         shadowOffset: { width: 0, height: 4 },
         shadowOpacity: 0.3,
@@ -276,22 +279,7 @@ const styles = StyleSheet.create({
     },
     buttonText: {
         color: 'white',
-        fontSize: 18,
-        fontWeight: '600',
-    },
-    footer: {
-        flexDirection: 'row',
-        justifyContent: 'center',
-        marginTop: 24,
-        gap: 6,
-    },
-    footerText: {
-        color: '#6B7280',
-        fontSize: 14,
-    },
-    linkText: {
-        color: '#2563EB',
-        fontSize: 14,
-        fontWeight: '600',
+        fontSize: 16,
+        fontWeight: '700',
     },
 });
