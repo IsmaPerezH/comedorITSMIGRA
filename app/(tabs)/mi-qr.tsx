@@ -32,7 +32,6 @@ export default function MiQRScreen() {
   const [qrValue, setQrValue] = useState<string>('');
   const [qrWebDataUrl, setQrWebDataUrl] = useState<string>('');
   const [cargando, setCargando] = useState(true);
-  const [guardando, setGuardando] = useState(false);
 
   let qrRef: any = useRef(null);
 
@@ -43,8 +42,6 @@ export default function MiQRScreen() {
       generarQR();
     }
   }, [loading, beneficiario]);
-
-
 
   const generarQR = async () => {
     if (!beneficiario) return;
@@ -123,22 +120,20 @@ export default function MiQRScreen() {
 
   return (
     <View style={styles.container}>
-      <StatusBar barStyle="light-content" />
+      <StatusBar barStyle="dark-content" />
 
-      {/* Header Moderno */}
+      {/* Header Estilo Admin */}
       <View style={styles.header}>
-        <View style={styles.headerContent}>
-          <View style={styles.headerLeft}>
-            <View style={styles.headerIcon}>
-              <Ionicons name="qr-code" size={28} color="white" />
-            </View>
-            <View>
-              <Text style={styles.headerTitle}>Mi Código QR</Text>
-              <Text style={styles.headerSubtitle}>Identificación personal</Text>
-            </View>
+        <View style={styles.headerTop}>
+          <TouchableOpacity onPress={() => router.back()} style={styles.iconButton}>
+            <Ionicons name="arrow-back" size={24} color="#1F2937" />
+          </TouchableOpacity>
+          <View style={styles.headerTitleContainer}>
+            <Text style={styles.headerTitle}>Mi Código QR</Text>
+            <Text style={styles.headerSubtitle}>Identificación personal</Text>
           </View>
-          <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
-            <Ionicons name="log-out-outline" size={24} color="white" />
+          <TouchableOpacity style={styles.iconButton} onPress={handleLogout}>
+            <Ionicons name="log-out-outline" size={24} color="#EF4444" />
           </TouchableOpacity>
         </View>
       </View>
@@ -235,51 +230,42 @@ const styles = StyleSheet.create({
     padding: 20,
   },
   header: {
-    backgroundColor: '#2563EB',
+    backgroundColor: 'white',
     paddingTop: 60,
-    paddingBottom: 24,
+    paddingBottom: 20,
     paddingHorizontal: 20,
     borderBottomLeftRadius: 24,
     borderBottomRightRadius: 24,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.1,
+    shadowOpacity: 0.08,
     shadowRadius: 12,
     elevation: 5,
+    zIndex: 10,
   },
-  headerContent: {
+  headerTop: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
   },
-  headerLeft: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 12,
-  },
-  headerIcon: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
-    backgroundColor: 'rgba(255,255,255,0.2)',
-    justifyContent: 'center',
+  headerTitleContainer: {
     alignItems: 'center',
   },
   headerTitle: {
     fontSize: 20,
     fontWeight: '700',
-    color: 'white',
+    color: '#111827',
   },
   headerSubtitle: {
-    fontSize: 13,
-    color: 'rgba(255,255,255,0.8)',
+    fontSize: 12,
+    color: '#6B7280',
     marginTop: 2,
   },
-  logoutButton: {
+  iconButton: {
     width: 40,
     height: 40,
-    borderRadius: 20,
-    backgroundColor: 'rgba(255,255,255,0.2)',
+    borderRadius: 12,
+    backgroundColor: '#F3F4F6',
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -292,7 +278,7 @@ const styles = StyleSheet.create({
   },
   userCard: {
     backgroundColor: 'white',
-    borderRadius: 16,
+    borderRadius: 20,
     padding: 16,
     marginBottom: 20,
     shadowColor: '#000',
@@ -354,7 +340,7 @@ const styles = StyleSheet.create({
   },
   qrCard: {
     backgroundColor: 'white',
-    borderRadius: 20,
+    borderRadius: 24,
     padding: 24,
     marginBottom: 20,
     shadowColor: '#000',
@@ -386,7 +372,7 @@ const styles = StyleSheet.create({
   qrCodeContainer: {
     backgroundColor: '#F9FAFB',
     padding: 24,
-    borderRadius: 16,
+    borderRadius: 20,
     alignItems: 'center',
     justifyContent: 'center',
     borderWidth: 2,
@@ -396,45 +382,6 @@ const styles = StyleSheet.create({
   qrImage: {
     width: width * 0.6,
     height: width * 0.6,
-  },
-  qrInfo: {
-    alignItems: 'center',
-    marginBottom: 24,
-  },
-  qrCodeText: {
-    fontSize: 20,
-    fontWeight: '700',
-    color: '#2563EB',
-    marginBottom: 8,
-  },
-  qrHint: {
-    fontSize: 14,
-    color: '#6B7280',
-    textAlign: 'center',
-    lineHeight: 20,
-  },
-  actionsContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    paddingTop: 20,
-    borderTopWidth: 1,
-    borderTopColor: '#F3F4F6',
-  },
-  actionButton: {
-    alignItems: 'center',
-    gap: 8,
-  },
-  actionIcon: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  actionText: {
-    fontSize: 12,
-    color: '#6B7280',
-    fontWeight: '500',
   },
   errorContainer: {
     padding: 40,
@@ -460,87 +407,6 @@ const styles = StyleSheet.create({
     color: 'white',
     fontWeight: '600',
     fontSize: 14,
-  },
-  instructionsCard: {
-    backgroundColor: 'white',
-    borderRadius: 16,
-    padding: 20,
-    marginBottom: 20,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05,
-    shadowRadius: 8,
-    elevation: 2,
-  },
-  instructionsHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 12,
-    marginBottom: 20,
-  },
-  instructionsTitle: {
-    fontSize: 18,
-    fontWeight: '700',
-    color: '#1F2937',
-  },
-  instructionsList: {
-    gap: 16,
-  },
-  instructionItem: {
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-    gap: 12,
-  },
-  instructionNumber: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
-    backgroundColor: '#2563EB',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  instructionNumberText: {
-    color: 'white',
-    fontSize: 14,
-    fontWeight: '700',
-  },
-  instructionContent: {
-    flex: 1,
-  },
-  instructionTitle: {
-    fontSize: 15,
-    fontWeight: '600',
-    color: '#1F2937',
-    marginBottom: 4,
-  },
-  instructionText: {
-    fontSize: 14,
-    color: '#6B7280',
-    lineHeight: 20,
-  },
-  securityCard: {
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-    backgroundColor: '#ECFDF5',
-    padding: 16,
-    borderRadius: 12,
-    borderLeftWidth: 4,
-    borderLeftColor: '#059669',
-    gap: 12,
-  },
-  securityContent: {
-    flex: 1,
-  },
-  securityTitle: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#047857',
-    marginBottom: 4,
-  },
-  securityText: {
-    fontSize: 13,
-    color: '#065F46',
-    lineHeight: 18,
   },
   emptyIcon: {
     width: 96,

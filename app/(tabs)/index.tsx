@@ -35,18 +35,18 @@ export default function UserHomeScreen() {
 
   return (
     <View style={styles.container}>
-      <StatusBar barStyle="light-content" />
+      <StatusBar barStyle="dark-content" />
 
-      {/* Header Personalizado */}
+      {/* Header Estilo Admin */}
       <View style={styles.header}>
         <View style={styles.headerContent}>
           <View>
             <Text style={styles.greeting}>{saludo},</Text>
-            <Text style={styles.userName}>{user?.nombre.split(' ')[0]}</Text>
+            <Text style={styles.userName}>{user?.nombre ? user.nombre.split(' ')[0] : 'Usuario'}</Text>
           </View>
-          <View style={styles.avatar}>
-            <Text style={styles.avatarText}>{user?.nombre.charAt(0)}</Text>
-          </View>
+          <TouchableOpacity style={styles.avatar} onPress={() => router.push('/perfil')}>
+            <Text style={styles.avatarText}>{user?.nombre ? user.nombre.charAt(0) : 'U'}</Text>
+          </TouchableOpacity>
         </View>
       </View>
 
@@ -158,12 +158,17 @@ const styles = StyleSheet.create({
     backgroundColor: '#F9FAFB',
   },
   header: {
-    backgroundColor: '#2563EB',
+    backgroundColor: 'white',
     paddingTop: 60,
-    paddingBottom: 24,
-    paddingHorizontal: 24,
-    borderBottomLeftRadius: 30,
-    borderBottomRightRadius: 30,
+    paddingBottom: 20,
+    paddingHorizontal: 20,
+    borderBottomLeftRadius: 24,
+    borderBottomRightRadius: 24,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.08,
+    shadowRadius: 12,
+    elevation: 5,
   },
   headerContent: {
     flexDirection: 'row',
@@ -171,41 +176,42 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   greeting: {
-    fontSize: 16,
-    color: 'rgba(255,255,255,0.9)',
-    marginBottom: 4,
+    fontSize: 14,
+    color: '#6B7280',
+    marginBottom: 2,
   },
   userName: {
-    fontSize: 28,
-    fontWeight: 'bold',
-    color: 'white',
+    fontSize: 24,
+    fontWeight: '700',
+    color: '#111827',
   },
   avatar: {
-    width: 50,
-    height: 50,
-    borderRadius: 25,
-    backgroundColor: 'rgba(255,255,255,0.2)',
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    backgroundColor: '#EFF6FF',
     justifyContent: 'center',
     alignItems: 'center',
     borderWidth: 2,
-    borderColor: 'rgba(255,255,255,0.3)',
+    borderColor: '#DBEAFE',
   },
   avatarText: {
     fontSize: 20,
-    fontWeight: 'bold',
-    color: 'white',
+    fontWeight: '700',
+    color: '#2563EB',
   },
   content: {
     flex: 1,
   },
   contentContainer: {
-    padding: 24,
+    padding: 20,
+    paddingBottom: 100,
   },
   mainCard: {
     backgroundColor: 'white',
     borderRadius: 24,
     padding: 20,
-    marginBottom: 24,
+    marginBottom: 20,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.05,
@@ -226,7 +232,7 @@ const styles = StyleSheet.create({
   },
   mealTime: {
     fontSize: 20,
-    fontWeight: 'bold',
+    fontWeight: '700',
     color: '#1F2937',
   },
   mealIcon: {
@@ -258,7 +264,7 @@ const styles = StyleSheet.create({
   },
   qrTitle: {
     fontSize: 16,
-    fontWeight: 'bold',
+    fontWeight: '700',
     color: 'white',
   },
   qrSubtitle: {
@@ -270,7 +276,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'white',
     borderRadius: 20,
     padding: 20,
-    marginBottom: 24,
+    marginBottom: 20,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.05,
@@ -287,7 +293,7 @@ const styles = StyleSheet.create({
   },
   sectionTitle: {
     fontSize: 16,
-    fontWeight: 'bold',
+    fontWeight: '700',
     color: '#1F2937',
   },
   roleBadge: {
@@ -297,7 +303,7 @@ const styles = StyleSheet.create({
   },
   roleBadgeText: {
     fontSize: 12,
-    fontWeight: 'bold',
+    fontWeight: '700',
   },
   roleDetails: {
     gap: 12,
@@ -313,13 +319,13 @@ const styles = StyleSheet.create({
   },
   sectionLabel: {
     fontSize: 18,
-    fontWeight: 'bold',
+    fontWeight: '700',
     color: '#1F2937',
     marginBottom: 16,
   },
   quickActions: {
     flexDirection: 'row',
-    gap: 16,
+    gap: 12,
   },
   actionCard: {
     flex: 1,
