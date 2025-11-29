@@ -1,9 +1,12 @@
 import { useStorage } from '@/hooks/useStorage';
 import { Ionicons } from '@expo/vector-icons';
 import DateTimePicker from '@react-native-community/datetimepicker';
+import { printToFileAsync } from 'expo-print';
 import { useRouter } from 'expo-router';
+import { shareAsync } from 'expo-sharing';
 import React, { useState } from 'react';
 import {
+  Alert,
   Platform,
   ScrollView,
   StatusBar,
@@ -19,6 +22,7 @@ export default function AdminReportesScreen() {
   const { beneficiarios, asistencias, permisos } = useStorage();
   const [fechaSeleccionada, setFechaSeleccionada] = useState(new Date());
   const [showDatePicker, setShowDatePicker] = useState(false);
+  const [loadingPdf, setLoadingPdf] = useState(false);
 
   const onDateChange = (event: any, selectedDate?: Date) => {
     setShowDatePicker(false);
@@ -66,6 +70,96 @@ export default function AdminReportesScreen() {
     permisos: datosReporte.filter(d => d.estado.permiso).length
   };
 
+  const generarPDF = async () => {
+    setLoadingPdf(true);
+    try {
+      const fechaFormateada = fechaSeleccionada.toLocaleDateString('es-MX', {
+        weekday: 'long',
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+      });
+
+      const htmlContent = `
+        <html>
+          <head>
+            <style>
+              body { font-family: 'Helvetica', sans-serif; padding: 20px; }
+              h1 { color: #1F2937; text-align: center; margin-bottom: 10px; }
+              p.date { text-align: center; color: #6B7280; margin-bottom: 30px; font-size: 14px; }
+              .stats { display: flex; justify-content: space-between; margin-bottom: 30px; }
+              .stat-box { background: #F3F4F6; padding: 15px; border-radius: 8px; text-align: center; width: 22%; }
+              .stat-value { font-size: 20px; font-weight: bold; color: #1F2937; }
+              .stat-label { font-size: 12px; color: #6B7280; }
+              table { width: 100%; border-collapse: collapse; font-size: 12px; }
+              th { background: #E5E7EB; padding: 10px; text-align: left; color: #374151; }
+              td { border-bottom: 1px solid #E5E7EB; padding: 10px; color: #1F2937; }
+              .check { color: #059669; font-weight: bold; }
+              .dash { color: #D1D5DB; }
+              .permiso { color: #D97706; font-style: italic; }
+            </style>
+          </head>
+          <body>
+            <h1>Reporte de Asistencias</h1>
+            <p class="date">${fechaFormateada.charAt(0).toUpperCase() + fechaFormateada.slice(1)}</p>
+
+            <div class="stats">
+              <div class="stat-box">
+                <div class="stat-value">${estadisticas.totalBeneficiarios}</div>
+                <div class="stat-label">Total</div>
+              </div>
+              <div class="stat-box">
+                <div class="stat-value" style="color: #D97706">${estadisticas.asistenciasAlmuerzo}</div>
+                <div class="stat-label">Almuerzo</div>
+              </div>
+              <div class="stat-box">
+                <div class="stat-value" style="color: #DB2777">${estadisticas.asistenciasComida}</div>
+                <div class="stat-label">Comida</div>
+              </div>
+              <div class="stat-box">
+                <div class="stat-value" style="color: #4F46E5">${estadisticas.asistenciasCena}</div>
+                <div class="stat-label">Cena</div>
+              </div>
+            </div>
+
+            <table>
+              <thead>
+                <tr>
+                  <th>Beneficiario</th>
+                  <th>Matrícula</th>
+                  <th style="text-align: center">Almuerzo</th>
+                  <th style="text-align: center">Comida</th>
+                  <th style="text-align: center">Cena</th>
+                  <th style="text-align: center">Permiso</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${datosReporte.map(item => `
+                  <tr>
+                    <td>${item.nombre}</td>
+                    <td>${item.matricula}</td>
+                    <td style="text-align: center">${item.estado.almuerzo ? '<span class="check">✓</span>' : '<span class="dash">-</span>'}</td>
+                    <td style="text-align: center">${item.estado.comida ? '<span class="check">✓</span>' : '<span class="dash">-</span>'}</td>
+                    <td style="text-align: center">${item.estado.cena ? '<span class="check">✓</span>' : '<span class="dash">-</span>'}</td>
+                    <td style="text-align: center">${item.estado.permiso ? '<span class="permiso">Sí</span>' : '<span class="dash">-</span>'}</td>
+                  </tr>
+                `).join('')}
+              </tbody>
+            </table>
+          </body>
+        </html>
+      `;
+
+      const { uri } = await printToFileAsync({ html: htmlContent });
+      await shareAsync(uri, { UTI: '.pdf', mimeType: 'application/pdf' });
+    } catch (error) {
+      Alert.alert('Error', 'No se pudo generar el reporte PDF');
+      console.error(error);
+    } finally {
+      setLoadingPdf(false);
+    }
+  };
+
   return (
     <View style={styles.container}>
       <StatusBar barStyle="dark-content" />
@@ -80,12 +174,21 @@ export default function AdminReportesScreen() {
             <Text style={styles.headerTitle}>Reporte Diario</Text>
             <Text style={styles.headerSubtitle}>Control de Asistencias</Text>
           </View>
-          <TouchableOpacity
-            style={styles.dateButton}
-            onPress={() => setShowDatePicker(true)}
-          >
-            <Ionicons name="calendar" size={20} color="#2563EB" />
-          </TouchableOpacity>
+          <View style={{ flexDirection: 'row', gap: 8 }}>
+            <TouchableOpacity
+              style={styles.actionButton}
+              onPress={() => setShowDatePicker(true)}
+            >
+              <Ionicons name="calendar" size={20} color="#2563EB" />
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={[styles.actionButton, { backgroundColor: '#FEF2F2' }]}
+              onPress={generarPDF}
+              disabled={loadingPdf}
+            >
+              <Ionicons name="document-text" size={20} color="#DC2626" />
+            </TouchableOpacity>
+          </View>
         </View>
 
         {/* Selector de Fecha Visual */}
@@ -254,7 +357,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  dateButton: {
+  actionButton: {
     width: 40,
     height: 40,
     borderRadius: 12,
