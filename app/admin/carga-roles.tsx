@@ -5,14 +5,15 @@ import * as DocumentPicker from 'expo-document-picker';
 import { useRouter } from 'expo-router';
 import React, { useState } from 'react';
 import {
-    Alert,
-    FlatList,
-    ScrollView,
-    StyleSheet,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    View
+  Alert,
+  FlatList,
+  ScrollView,
+  StatusBar,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View
 } from 'react-native';
 
 // Interfaz para roles extraídos del PDF
@@ -28,7 +29,7 @@ interface RolPDF {
 export default function CargaRolesScreen() {
   const router = useRouter();
   const { beneficiarios, agregarBeneficiario, roles } = useStorage();
-  
+
   const [rolesExtraidos, setRolesExtraidos] = useState<RolPDF[]>([]);
   const [fechaInicio, setFechaInicio] = useState('');
   const [procesando, setProcesando] = useState(false);
@@ -59,8 +60,8 @@ export default function CargaRolesScreen() {
         `Archivo: ${resultado.assets[0].name}\n\n¿Procesar roles desde este PDF?`,
         [
           { text: 'Cancelar', style: 'cancel' },
-          { 
-            text: 'Procesar', 
+          {
+            text: 'Procesar',
             onPress: () => {
               setProcesando(true);
               // Simulamos procesamiento del PDF
@@ -91,7 +92,7 @@ export default function CargaRolesScreen() {
     const rolesConFechas = rolesExtraidos.map((rol, index) => {
       const fecha = new Date(fechaBase);
       fecha.setDate(fecha.getDate() + index); // Asignar fechas consecutivas
-      
+
       return {
         ...rol,
         fecha: fecha.toISOString().split('T')[0]
@@ -104,7 +105,7 @@ export default function CargaRolesScreen() {
 
   // Verificar beneficiarios existentes
   const verificarBeneficiarios = () => {
-    const beneficiariosFaltantes = rolesExtraidos.filter(rol => 
+    const beneficiariosFaltantes = rolesExtraidos.filter(rol =>
       !beneficiarios.find(b => b.matricula === rol.matricula)
     );
 
@@ -114,8 +115,8 @@ export default function CargaRolesScreen() {
         `Se encontraron ${beneficiariosFaltantes.length} beneficiarios no registrados. ¿Deseas crearlos automáticamente?`,
         [
           { text: 'Cancelar', style: 'cancel' },
-          { 
-            text: 'Crear Automáticamente', 
+          {
+            text: 'Crear Automáticamente',
             onPress: () => crearBeneficiariosFaltantes(beneficiariosFaltantes)
           },
         ]
@@ -154,11 +155,11 @@ export default function CargaRolesScreen() {
       `¿Guardar ${rolesExtraidos.length} roles en el sistema?`,
       [
         { text: 'Cancelar', style: 'cancel' },
-        { 
-          text: 'Guardar', 
+        {
+          text: 'Guardar',
           onPress: () => {
             Alert.alert(
-              'En Desarrollo', 
+              'En Desarrollo',
               'La funcionalidad de guardado de roles estará disponible en la siguiente actualización'
             );
           }
@@ -176,6 +177,7 @@ export default function CargaRolesScreen() {
 
   return (
     <View style={styles.container}>
+      <StatusBar barStyle="light-content" />
       {/* Header */}
       <View style={styles.header}>
         <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
@@ -190,11 +192,11 @@ export default function CargaRolesScreen() {
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>1. Seleccionar PDF de Roles</Text>
           <TouchableOpacity style={styles.pdfButton} onPress={seleccionarPDF}>
-            <Ionicons name="document" size={32} color="#1a237e" />
+            <Ionicons name="document" size={32} color="#ff6a1aff" />
             <Text style={styles.pdfButtonText}>Seleccionar Archivo PDF</Text>
             <Text style={styles.pdfButtonSubtext}>
-              {rolesExtraidos.length > 0 
-                ? `${rolesExtraidos.length} roles cargados` 
+              {rolesExtraidos.length > 0
+                ? `${rolesExtraidos.length} roles cargados`
                 : 'Formatos soportados: PDF'
               }
             </Text>
@@ -212,12 +214,13 @@ export default function CargaRolesScreen() {
         {rolesExtraidos.length > 0 && (
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>2. Asignar Fechas</Text>
-            
+
             <View style={styles.fechaContainer}>
               <Text style={styles.label}>Fecha de Inicio:</Text>
               <TextInput
                 style={styles.fechaInput}
                 placeholder="YYYY-MM-DD"
+                placeholderTextColor="#9CA3AF"
                 value={fechaInicio}
                 onChangeText={setFechaInicio}
               />
@@ -268,11 +271,11 @@ export default function CargaRolesScreen() {
                       </Text>
                     </View>
                   </View>
-                  
+
                   <View style={styles.rolDetails}>
                     <Text style={styles.rolMatricula}>Matrícula: {item.matricula}</Text>
                     <Text style={styles.rolHorario}>Horario: {item.horario}</Text>
-                    
+
                     <View style={styles.fechaInputContainer}>
                       <Text style={styles.fechaLabel}>Fecha:</Text>
                       <TextInput
@@ -283,6 +286,7 @@ export default function CargaRolesScreen() {
                         value={item.fecha}
                         onChangeText={(text) => editarRol(index, 'fecha', text)}
                         placeholder="YYYY-MM-DD"
+                        placeholderTextColor="#9CA3AF"
                       />
                     </View>
                   </View>
@@ -302,19 +306,19 @@ export default function CargaRolesScreen() {
         <View style={styles.infoSection}>
           <Text style={styles.infoTitle}>Instrucciones de Uso:</Text>
           <View style={styles.instruccionItem}>
-            <Ionicons name="document" size={16} color="#666" />
+            <Ionicons name="document" size={16} color="#6B7280" />
             <Text style={styles.instruccionText}>Selecciona el PDF con los roles asignados</Text>
           </View>
           <View style={styles.instruccionItem}>
-            <Ionicons name="calendar" size={16} color="#666" />
+            <Ionicons name="calendar" size={16} color="#6B7280" />
             <Text style={styles.instruccionText}>Asigna la fecha de inicio para los turnos</Text>
           </View>
           <View style={styles.instruccionItem}>
-            <Ionicons name="people" size={16} color="#666" />
+            <Ionicons name="people" size={16} color="#6B7280" />
             <Text style={styles.instruccionText}>Verifica que todos los beneficiarios existan</Text>
           </View>
           <View style={styles.instruccionItem}>
-            <Ionicons name="save" size={16} color="#666" />
+            <Ionicons name="save" size={16} color="#6B7280" />
             <Text style={styles.instruccionText}>Guarda los roles en el sistema</Text>
           </View>
         </View>
@@ -326,15 +330,22 @@ export default function CargaRolesScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f8f9fa',
+    backgroundColor: '#FFF7ED',
   },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    backgroundColor: '#1a237e',
+    backgroundColor: '#ff6a1aff',
     padding: 20,
     paddingTop: 60,
+    borderBottomLeftRadius: 24,
+    borderBottomRightRadius: 24,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.2,
+    shadowRadius: 12,
+    elevation: 5,
   },
   backButton: {
     padding: 4,
@@ -358,11 +369,13 @@ const styles = StyleSheet.create({
     padding: 20,
     borderRadius: 12,
     marginBottom: 16,
-    shadowColor: '#000',
+    shadowColor: '#ff6a1aff',
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
+    shadowOpacity: 0.05,
+    shadowRadius: 8,
+    elevation: 2,
+    borderWidth: 1,
+    borderColor: '#FED7AA',
   },
   sectionHeader: {
     flexDirection: 'row',
@@ -380,15 +393,15 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     padding: 30,
     borderWidth: 2,
-    borderColor: '#1a237e',
+    borderColor: '#ff6a1aff',
     borderStyle: 'dashed',
     borderRadius: 12,
-    backgroundColor: '#f8f9fa',
+    backgroundColor: '#FFF7ED',
   },
   pdfButtonText: {
     fontSize: 16,
     fontWeight: 'bold',
-    color: '#1a237e',
+    color: '#ff6a1aff',
     marginTop: 8,
     marginBottom: 4,
   },
@@ -422,13 +435,13 @@ const styles = StyleSheet.create({
   fechaInput: {
     flex: 1,
     borderWidth: 1,
-    borderColor: '#ddd',
+    borderColor: '#FED7AA',
     borderRadius: 8,
     padding: 12,
-    backgroundColor: '#fafafa',
+    backgroundColor: '#FFF7ED',
   },
   asignarButton: {
-    backgroundColor: '#4CAF50',
+    backgroundColor: '#ff6a1aff',
     paddingHorizontal: 16,
     paddingVertical: 12,
     borderRadius: 8,
@@ -447,7 +460,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     gap: 8,
-    backgroundColor: '#2196F3',
+    backgroundColor: '#ff6a1aff',
     padding: 16,
     borderRadius: 8,
   },
@@ -462,12 +475,12 @@ const styles = StyleSheet.create({
     fontWeight: '500',
   },
   rolCard: {
-    backgroundColor: '#f8f9fa',
+    backgroundColor: '#FFF7ED',
     padding: 16,
     borderRadius: 8,
     marginBottom: 12,
     borderWidth: 1,
-    borderColor: '#e9ecef',
+    borderColor: '#FED7AA',
   },
   rolHeader: {
     flexDirection: 'row',
@@ -516,7 +529,7 @@ const styles = StyleSheet.create({
   fechaInputSmall: {
     flex: 1,
     borderWidth: 1,
-    borderColor: '#ddd',
+    borderColor: '#FED7AA',
     borderRadius: 6,
     padding: 8,
     backgroundColor: 'white',
@@ -531,7 +544,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     gap: 8,
-    backgroundColor: '#1a237e',
+    backgroundColor: '#ff6a1aff',
     padding: 16,
     borderRadius: 8,
     marginTop: 16,
@@ -542,16 +555,17 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
   infoSection: {
-    backgroundColor: '#e3f2fd',
+    backgroundColor: '#FFF7ED',
     padding: 20,
     borderRadius: 12,
     borderLeftWidth: 4,
-    borderLeftColor: '#2196F3',
+    borderLeftColor: '#ff6a1aff',
+    marginBottom: 40,
   },
   infoTitle: {
     fontSize: 16,
     fontWeight: 'bold',
-    color: '#1976d2',
+    color: '#ff6a1aff',
     marginBottom: 12,
   },
   instruccionItem: {
@@ -562,7 +576,7 @@ const styles = StyleSheet.create({
   },
   instruccionText: {
     fontSize: 14,
-    color: '#1976d2',
+    color: '#6B7280',
     flex: 1,
   },
 });

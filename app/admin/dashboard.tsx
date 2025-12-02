@@ -4,7 +4,7 @@ import { useStorage } from '@/hooks/useStorage';
 import { Ionicons } from '@expo/vector-icons';
 import { Link, useRouter } from 'expo-router';
 import React from 'react';
-import { Alert, Dimensions, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Alert, Dimensions, ScrollView, StatusBar, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import Animated, { FadeInDown, FadeInRight } from 'react-native-reanimated';
 
 const { width } = Dimensions.get('window');
@@ -68,15 +68,17 @@ export default function AdminDashboard() {
             <Text style={styles.actionTitle}>{title}</Text>
             <Text style={styles.actionSubtitle}>{subtitle}</Text>
           </View>
-          <Ionicons name="chevron-forward" size={20} color="#ccc" />
+          <Ionicons name="chevron-forward" size={20} color="#D1D5DB" />
         </Animated.View>
       </TouchableOpacity>
     </Link>
   );
 
   return (
-    <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
-      {/* Header Moderno */}
+    <View style={styles.container}>
+      <StatusBar barStyle="light-content" />
+
+      {/* Header Fijo */}
       <View style={styles.header}>
         <View style={styles.headerContent}>
           <View>
@@ -84,7 +86,7 @@ export default function AdminDashboard() {
             <Text style={styles.headerTitle}>Comedor ITSMIGRA</Text>
           </View>
           <TouchableOpacity style={styles.logoutBtn} onPress={handleLogout}>
-            <Ionicons name="log-out-outline" size={22} color="#FF5252" />
+            <Ionicons name="log-out-outline" size={22} color="white" />
           </TouchableOpacity>
         </View>
 
@@ -107,7 +109,7 @@ export default function AdminDashboard() {
         </View>
       </View>
 
-      <View style={styles.content}>
+      <ScrollView style={styles.scrollView} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
         {/* Sección de Estadísticas Detalladas */}
         <Text style={styles.sectionTitle}>Resumen General</Text>
         <View style={styles.statsGrid}>
@@ -115,7 +117,7 @@ export default function AdminDashboard() {
             icon="people"
             number={estadisticas.totalBeneficiarios}
             label="Beneficiarios"
-            color="#4F46E5"
+            color="#ff6a1aff"
             delay={100}
           />
           <StatCard
@@ -198,7 +200,7 @@ export default function AdminDashboard() {
             </View>
           ) : (
             <View style={styles.emptyState}>
-              <Ionicons name="time-outline" size={40} color="#9CA3AF" />
+              <Ionicons name="time-outline" size={40} color="#A8A29E" />
               <Text style={styles.emptyText}>Sin actividad hoy</Text>
             </View>
           )}
@@ -208,18 +210,21 @@ export default function AdminDashboard() {
         <TouchableOpacity style={styles.devTrigger} onPress={handleLimpiarDatos} onLongPress={handleLimpiarDatos}>
           <Text style={styles.devText}>v1.0.0 • Admin Mode</Text>
         </TouchableOpacity>
-      </View>
-    </ScrollView>
+      </ScrollView>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F3F4F6',
+    backgroundColor: '#FFF7ED',
+  },
+  scrollView: {
+    flex: 1,
   },
   header: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: '#ff6a1aff',
     paddingTop: 60,
     paddingBottom: 20,
     paddingHorizontal: 24,
@@ -227,7 +232,7 @@ const styles = StyleSheet.create({
     borderBottomRightRadius: 30,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.05,
+    shadowOpacity: 0.2,
     shadowRadius: 10,
     elevation: 5,
     zIndex: 10,
@@ -241,25 +246,25 @@ const styles = StyleSheet.create({
   headerTitle: {
     fontSize: 24,
     fontWeight: '800',
-    color: '#111827',
+    color: 'white',
     letterSpacing: -0.5,
   },
   headerSubtitle: {
     fontSize: 14,
-    color: '#6B7280',
+    color: 'rgba(255,255,255,0.9)',
     fontWeight: '600',
     textTransform: 'uppercase',
     letterSpacing: 1,
   },
   logoutBtn: {
     padding: 10,
-    backgroundColor: '#FEF2F2',
+    backgroundColor: 'rgba(255,255,255,0.2)',
     borderRadius: 12,
   },
   summaryContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    backgroundColor: '#F9FAFB',
+    backgroundColor: 'rgba(255,255,255,0.2)',
     borderRadius: 16,
     padding: 16,
   },
@@ -270,26 +275,27 @@ const styles = StyleSheet.create({
   summaryValue: {
     fontSize: 18,
     fontWeight: 'bold',
-    color: '#1F2937',
+    color: 'white',
   },
   summaryLabel: {
     fontSize: 11,
-    color: '#6B7280',
+    color: 'rgba(255,255,255,0.9)',
     marginTop: 2,
   },
   summaryDivider: {
     width: 1,
-    backgroundColor: '#E5E7EB',
+    backgroundColor: 'rgba(255,255,255,0.3)',
     height: '80%',
     alignSelf: 'center',
   },
   content: {
     padding: 24,
+    paddingTop: 24,
   },
   sectionTitle: {
     fontSize: 18,
     fontWeight: '700',
-    color: '#374151',
+    color: '#1F2937',
     marginBottom: 16,
     marginTop: 8,
   },
@@ -306,11 +312,13 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 12,
-    shadowColor: '#000',
+    shadowColor: '#ff6a1aff',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.05,
     shadowRadius: 8,
     elevation: 2,
+    borderWidth: 1,
+    borderColor: '#FED7AA',
   },
   statIconContainer: {
     width: 40,
@@ -338,11 +346,13 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     flexDirection: 'row',
     alignItems: 'center',
-    shadowColor: '#000',
+    shadowColor: '#ff6a1aff',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.03,
     shadowRadius: 4,
     elevation: 2,
+    borderWidth: 1,
+    borderColor: '#FED7AA',
   },
   actionIcon: {
     width: 48,
@@ -369,12 +379,14 @@ const styles = StyleSheet.create({
     backgroundColor: 'white',
     borderRadius: 20,
     padding: 20,
-    shadowColor: '#000',
+    shadowColor: '#ff6a1aff',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.05,
     shadowRadius: 8,
     elevation: 2,
     marginBottom: 30,
+    borderWidth: 1,
+    borderColor: '#FED7AA',
   },
   recentHeader: {
     flexDirection: 'row',
@@ -423,7 +435,7 @@ const styles = StyleSheet.create({
     padding: 20,
   },
   emptyText: {
-    color: '#9CA3AF',
+    color: '#A8A29E',
     marginTop: 8,
     fontSize: 14,
   },

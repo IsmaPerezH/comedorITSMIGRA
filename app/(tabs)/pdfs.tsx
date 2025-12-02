@@ -81,13 +81,13 @@ export default function PDFsScreen() {
 
   return (
     <View style={styles.container}>
-      <StatusBar barStyle="dark-content" />
+      <StatusBar barStyle="light-content" />
 
       {/* Header Estilo Admin */}
       <View style={styles.header}>
         <View style={styles.headerTop}>
           <TouchableOpacity onPress={() => router.back()} style={styles.iconButton}>
-            <Ionicons name="arrow-back" size={24} color="#1F2937" />
+            <Ionicons name="arrow-back" size={24} color="white" />
           </TouchableOpacity>
           <View style={styles.headerTitleContainer}>
             <Text style={styles.headerTitle}>Documentos</Text>
@@ -132,7 +132,7 @@ export default function PDFsScreen() {
         {/* Filtros */}
         <Animated.View entering={FadeInDown.delay(400)} style={styles.filtersCard}>
           <View style={styles.filtersHeader}>
-            <Ionicons name="filter-outline" size={20} color="#2563EB" />
+            <Ionicons name="filter-outline" size={20} color="#ff6a1aff" />
             <Text style={styles.filtersTitle}>Filtrar por tipo</Text>
           </View>
           <View style={styles.filters}>
@@ -217,8 +217,8 @@ export default function PDFsScreen() {
                     style={styles.accionButton}
                     onPress={() => abrirPDF(pdf)}
                   >
-                    <Text style={[styles.accionText, { color: '#2563EB' }]}>Ver PDF</Text>
-                    <Ionicons name="eye-outline" size={18} color="#2563EB" />
+                    <Text style={[styles.accionText, { color: '#ff6a1aff' }]}>Ver PDF</Text>
+                    <Ionicons name="eye-outline" size={18} color="#ff6a1aff" />
                   </TouchableOpacity>
 
                   <View style={styles.verticalDivider} />
@@ -255,10 +255,10 @@ export default function PDFsScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F9FAFB',
+    backgroundColor: '#FFF7ED',
   },
   header: {
-    backgroundColor: 'white',
+    backgroundColor: '#ff6a1aff',
     paddingTop: 60,
     paddingBottom: 20,
     paddingHorizontal: 20,
@@ -266,7 +266,7 @@ const styles = StyleSheet.create({
     borderBottomRightRadius: 24,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.08,
+    shadowOpacity: 0.2,
     shadowRadius: 12,
     elevation: 5,
     zIndex: 10,
@@ -282,18 +282,18 @@ const styles = StyleSheet.create({
   headerTitle: {
     fontSize: 20,
     fontWeight: '700',
-    color: '#111827',
+    color: 'white',
   },
   headerSubtitle: {
     fontSize: 12,
-    color: '#6B7280',
+    color: 'rgba(255,255,255,0.9)',
     marginTop: 2,
   },
   iconButton: {
     width: 40,
     height: 40,
     borderRadius: 12,
-    backgroundColor: '#F3F4F6',
+    backgroundColor: 'rgba(255,255,255,0.2)',
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -315,11 +315,13 @@ const styles = StyleSheet.create({
     padding: 16,
     borderRadius: 20,
     alignItems: 'center',
-    shadowColor: '#000',
+    shadowColor: '#ff6a1aff',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.05,
     shadowRadius: 8,
     elevation: 2,
+    borderWidth: 1,
+    borderColor: '#FED7AA',
   },
   statIcon: {
     width: 40,
@@ -345,11 +347,13 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     padding: 16,
     marginBottom: 20,
-    shadowColor: '#000',
+    shadowColor: '#ff6a1aff',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.05,
     shadowRadius: 8,
     elevation: 2,
+    borderWidth: 1,
+    borderColor: '#FED7AA',
   },
   filtersHeader: {
     flexDirection: 'row',
@@ -375,7 +379,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#F3F4F6',
   },
   filterActive: {
-    backgroundColor: '#2563EB',
+    backgroundColor: '#ff6a1aff',
   },
   filterText: {
     fontSize: 13,
@@ -400,11 +404,13 @@ const styles = StyleSheet.create({
     backgroundColor: 'white',
     borderRadius: 20,
     padding: 16,
-    shadowColor: '#000',
+    shadowColor: '#ff6a1aff',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.05,
     shadowRadius: 8,
     elevation: 2,
+    borderWidth: 1,
+    borderColor: '#FED7AA',
   },
   pdfHeader: {
     flexDirection: 'row',

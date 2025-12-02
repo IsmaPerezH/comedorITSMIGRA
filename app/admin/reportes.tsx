@@ -162,13 +162,13 @@ export default function AdminReportesScreen() {
 
   return (
     <View style={styles.container}>
-      <StatusBar barStyle="dark-content" />
+      <StatusBar barStyle="light-content" />
 
       {/* Header Moderno (Consistente con Beneficiarios) */}
       <View style={styles.header}>
         <View style={styles.headerTop}>
           <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
-            <Ionicons name="arrow-back" size={24} color="#1F2937" />
+            <Ionicons name="arrow-back" size={24} color="white" />
           </TouchableOpacity>
           <View style={styles.headerCenter}>
             <Text style={styles.headerTitle}>Reporte Diario</Text>
@@ -179,14 +179,14 @@ export default function AdminReportesScreen() {
               style={styles.actionButton}
               onPress={() => setShowDatePicker(true)}
             >
-              <Ionicons name="calendar" size={20} color="#2563EB" />
+              <Ionicons name="calendar" size={20} color="white" />
             </TouchableOpacity>
             <TouchableOpacity
-              style={[styles.actionButton, { backgroundColor: '#FEF2F2' }]}
+              style={[styles.actionButton, { backgroundColor: 'rgba(255,255,255,0.2)' }]}
               onPress={generarPDF}
               disabled={loadingPdf}
             >
-              <Ionicons name="document-text" size={20} color="#DC2626" />
+              <Ionicons name="document-text" size={20} color="white" />
             </TouchableOpacity>
           </View>
         </View>
@@ -314,10 +314,10 @@ export default function AdminReportesScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F9FAFB',
+    backgroundColor: '#FFF7ED',
   },
   header: {
-    backgroundColor: 'white',
+    backgroundColor: '#ff6a1aff',
     paddingTop: 60,
     paddingBottom: 20,
     paddingHorizontal: 20,
@@ -325,7 +325,7 @@ const styles = StyleSheet.create({
     borderBottomRightRadius: 24,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.08,
+    shadowOpacity: 0.2,
     shadowRadius: 12,
     elevation: 5,
   },
@@ -342,18 +342,18 @@ const styles = StyleSheet.create({
   headerTitle: {
     fontSize: 22,
     fontWeight: '700',
-    color: '#111827',
+    color: 'white',
   },
   headerSubtitle: {
     fontSize: 13,
-    color: '#6B7280',
+    color: 'rgba(255,255,255,0.9)',
     marginTop: 2,
   },
   backButton: {
     width: 40,
     height: 40,
     borderRadius: 12,
-    backgroundColor: '#F3F4F6',
+    backgroundColor: 'rgba(255,255,255,0.2)',
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -361,13 +361,13 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 12,
-    backgroundColor: '#EFF6FF',
+    backgroundColor: 'rgba(255,255,255,0.2)',
     justifyContent: 'center',
     alignItems: 'center',
   },
   dateDisplayContainer: {
     alignItems: 'center',
-    backgroundColor: '#F3F4F6',
+    backgroundColor: 'rgba(255,255,255,0.2)',
     paddingVertical: 8,
     borderRadius: 12,
     marginHorizontal: 40,
@@ -375,7 +375,7 @@ const styles = StyleSheet.create({
   dateDisplayText: {
     fontSize: 14,
     fontWeight: '600',
-    color: '#374151',
+    color: 'white',
     textTransform: 'capitalize',
   },
   content: {

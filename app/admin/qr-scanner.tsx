@@ -248,7 +248,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   controlButtonActive: {
-    backgroundColor: 'rgba(255, 215, 0, 0.3)',
+    backgroundColor: 'rgba(255, 106, 26, 0.3)',
   },
   controlLabel: {
     color: 'white',
@@ -277,7 +277,7 @@ const styles = StyleSheet.create({
   scannerFrame: {
     width: SCAN_SIZE,
     height: SCAN_SIZE,
-    borderColor: 'white',
+    borderColor: '#ff6a1aff',
     borderWidth: 2,
     overflow: 'hidden',
     justifyContent: 'center',
@@ -286,8 +286,8 @@ const styles = StyleSheet.create({
   scannerLine: {
     width: '100%',
     height: 3,
-    backgroundColor: 'red',
-    shadowColor: 'red',
+    backgroundColor: '#ff6a1aff',
+    shadowColor: '#ff6a1aff',
     shadowOffset: { width: 0, height: 0 },
     shadowOpacity: 1,
     shadowRadius: 5,
@@ -313,7 +313,7 @@ const styles = StyleSheet.create({
   rescanButton: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#4F46E5',
+    backgroundColor: '#ff6a1aff',
     paddingHorizontal: 24,
     paddingVertical: 12,
     borderRadius: 25,
@@ -340,7 +340,7 @@ const styles = StyleSheet.create({
   },
   button: {
     marginTop: 30,
-    backgroundColor: '#4F46E5',
+    backgroundColor: '#ff6a1aff',
     paddingHorizontal: 30,
     paddingVertical: 12,
     borderRadius: 12,

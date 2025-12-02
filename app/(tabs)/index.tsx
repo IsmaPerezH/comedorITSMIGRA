@@ -37,7 +37,7 @@ export default function UserHomeScreen() {
     <View style={styles.container}>
       <StatusBar barStyle="dark-content" />
 
-      {/* Header Estilo Admin */}
+      {/* Header Estilo Terracota */}
       <View style={styles.header}>
         <View style={styles.headerContent}>
           <View>
@@ -65,7 +65,7 @@ export default function UserHomeScreen() {
               <Ionicons
                 name={comidaActual === 'Almuerzo' ? 'sunny' : comidaActual === 'Comida' ? 'restaurant' : 'moon'}
                 size={24}
-                color="#F59E0B"
+                color="#ff6a1aff"
               />
             </View>
           </View>
@@ -91,8 +91,8 @@ export default function UserHomeScreen() {
           <Animated.View entering={FadeInDown.delay(200)} style={styles.roleCard}>
             <View style={styles.roleHeader}>
               <Text style={styles.sectionTitle}>Tu Próximo Rol</Text>
-              <View style={[styles.roleBadge, { backgroundColor: proximoRol.tipo === 'cocina' ? '#FEF3C7' : '#DBEAFE' }]}>
-                <Text style={[styles.roleBadgeText, { color: proximoRol.tipo === 'cocina' ? '#D97706' : '#2563EB' }]}>
+              <View style={[styles.roleBadge, { backgroundColor: proximoRol.tipo === 'cocina' ? '#FED7AA' : '#E5E7EB' }]}>
+                <Text style={[styles.roleBadgeText, { color: proximoRol.tipo === 'cocina' ? '#C2410C' : '#1F2937' }]}>
                   {proximoRol.tipo.toUpperCase()}
                 </Text>
               </View>
@@ -100,13 +100,13 @@ export default function UserHomeScreen() {
 
             <View style={styles.roleDetails}>
               <View style={styles.roleDetailItem}>
-                <Ionicons name="calendar-outline" size={20} color="#6B7280" />
+                <Ionicons name="calendar-outline" size={20} color="#78716C" />
                 <Text style={styles.roleDetailText}>
                   {new Date(proximoRol.fecha).toLocaleDateString('es-MX', { weekday: 'long', day: 'numeric', month: 'long' })}
                 </Text>
               </View>
               <View style={styles.roleDetailItem}>
-                <Ionicons name="time-outline" size={20} color="#6B7280" />
+                <Ionicons name="time-outline" size={20} color="#78716C" />
                 <Text style={styles.roleDetailText}>{proximoRol.horario}</Text>
               </View>
             </View>
@@ -120,8 +120,8 @@ export default function UserHomeScreen() {
             style={styles.actionCard}
             onPress={() => router.push('/pdfs')}
           >
-            <View style={[styles.actionIcon, { backgroundColor: '#FEE2E2' }]}>
-              <Ionicons name="document-text" size={24} color="#DC2626" />
+            <View style={[styles.actionIcon, { backgroundColor: '#FED7AA' }]}>
+              <Ionicons name="document-text" size={24} color="#ff6a1aff" />
             </View>
             <Text style={styles.actionTitle}>Roles PDF</Text>
           </TouchableOpacity>
@@ -130,8 +130,8 @@ export default function UserHomeScreen() {
             style={styles.actionCard}
             onPress={() => router.push('/permisos')}
           >
-            <View style={[styles.actionIcon, { backgroundColor: '#ECFDF5' }]}>
-              <Ionicons name="hand-left" size={24} color="#059669" />
+            <View style={[styles.actionIcon, { backgroundColor: '#E5E7EB' }]}>
+              <Ionicons name="hand-left" size={24} color="#1F2937" />
             </View>
             <Text style={styles.actionTitle}>Pedir Permiso</Text>
           </TouchableOpacity>
@@ -140,8 +140,8 @@ export default function UserHomeScreen() {
             style={styles.actionCard}
             onPress={() => router.push('/actividades')}
           >
-            <View style={[styles.actionIcon, { backgroundColor: '#EFF6FF' }]}>
-              <Ionicons name="calendar" size={24} color="#2563EB" />
+            <View style={[styles.actionIcon, { backgroundColor: '#FDBA74' }]}>
+              <Ionicons name="calendar" size={24} color="#C2410C" />
             </View>
             <Text style={styles.actionTitle}>Mi Agenda</Text>
           </TouchableOpacity>
@@ -155,10 +155,10 @@ export default function UserHomeScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F9FAFB',
+    backgroundColor: '#FFF7ED',
   },
   header: {
-    backgroundColor: 'white',
+    backgroundColor: '#ff6a1aff',
     paddingTop: 60,
     paddingBottom: 20,
     paddingHorizontal: 20,
@@ -166,7 +166,7 @@ const styles = StyleSheet.create({
     borderBottomRightRadius: 24,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.08,
+    shadowOpacity: 0.2,
     shadowRadius: 12,
     elevation: 5,
   },
@@ -177,28 +177,28 @@ const styles = StyleSheet.create({
   },
   greeting: {
     fontSize: 14,
-    color: '#6B7280',
+    color: 'rgba(255,255,255,0.9)',
     marginBottom: 2,
   },
   userName: {
     fontSize: 24,
     fontWeight: '700',
-    color: '#111827',
+    color: 'white',
   },
   avatar: {
     width: 48,
     height: 48,
     borderRadius: 24,
-    backgroundColor: '#EFF6FF',
+    backgroundColor: 'rgba(255,255,255,0.2)',
     justifyContent: 'center',
     alignItems: 'center',
     borderWidth: 2,
-    borderColor: '#DBEAFE',
+    borderColor: 'rgba(255,255,255,0.3)',
   },
   avatarText: {
     fontSize: 20,
     fontWeight: '700',
-    color: '#2563EB',
+    color: 'white',
   },
   content: {
     flex: 1,
@@ -212,11 +212,13 @@ const styles = StyleSheet.create({
     borderRadius: 24,
     padding: 20,
     marginBottom: 20,
-    shadowColor: '#000',
+    shadowColor: '#ff6a1aff',
     shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.05,
+    shadowOpacity: 0.08,
     shadowRadius: 12,
     elevation: 4,
+    borderWidth: 1,
+    borderColor: '#FED7AA',
   },
   mainCardHeader: {
     flexDirection: 'row',
@@ -226,7 +228,7 @@ const styles = StyleSheet.create({
   },
   mealLabel: {
     fontSize: 14,
-    color: '#6B7280',
+    color: '#78716C',
     marginBottom: 4,
     fontWeight: '500',
   },
@@ -239,12 +241,12 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: '#FFFBEB',
+    backgroundColor: '#FEF3C7',
     justifyContent: 'center',
     alignItems: 'center',
   },
   qrButton: {
-    backgroundColor: '#2563EB',
+    backgroundColor: '#ff6a1aff',
     borderRadius: 16,
     padding: 16,
     flexDirection: 'row',
@@ -277,13 +279,13 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     padding: 20,
     marginBottom: 20,
-    shadowColor: '#000',
+    shadowColor: '#ff6a1aff',
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05,
+    shadowOpacity: 0.08,
     shadowRadius: 8,
     elevation: 2,
     borderLeftWidth: 4,
-    borderLeftColor: '#F59E0B',
+    borderLeftColor: '#ff6a1aff',
   },
   roleHeader: {
     flexDirection: 'row',
@@ -315,7 +317,7 @@ const styles = StyleSheet.create({
   },
   roleDetailText: {
     fontSize: 14,
-    color: '#4B5563',
+    color: '#57534E',
   },
   sectionLabel: {
     fontSize: 18,
@@ -333,7 +335,7 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     padding: 16,
     alignItems: 'center',
-    shadowColor: '#000',
+    shadowColor: '#ff6a1aff',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.05,
     shadowRadius: 8,
@@ -350,7 +352,7 @@ const styles = StyleSheet.create({
   actionTitle: {
     fontSize: 13,
     fontWeight: '600',
-    color: '#374151',
+    color: '#1F2937',
     textAlign: 'center',
   },
 });

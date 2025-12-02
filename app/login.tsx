@@ -69,7 +69,7 @@ export default function LoginScreen() {
                 <View style={styles.headerContainer}>
                     <Animated.View entering={FadeInUp.delay(200).springify()}>
                         <View style={styles.iconContainer}>
-                            <Ionicons name="restaurant" size={40} color="#2563EB" />
+                            <Ionicons name="restaurant" size={40} color="#ff6a1aff" />
                         </View>
                     </Animated.View>
                     <Animated.Text
@@ -93,10 +93,10 @@ export default function LoginScreen() {
                     <View style={styles.inputGroup}>
                         <Text style={styles.label}>Usuario / Matrícula</Text>
                         <View style={styles.inputContainer}>
-                            <Ionicons name="person-outline" size={20} color="#6B7280" style={styles.inputIcon} />
+                            <Ionicons name="person-outline" size={20} color="#78716C" style={styles.inputIcon} />
                             <TextInput
                                 placeholder="Ej. 12345678"
-                                placeholderTextColor="#9CA3AF"
+                                placeholderTextColor="#A8A29E"
                                 value={matricula}
                                 onChangeText={setMatricula}
                                 style={styles.input}
@@ -109,10 +109,10 @@ export default function LoginScreen() {
                     <View style={styles.inputGroup}>
                         <Text style={styles.label}>Contraseña</Text>
                         <View style={styles.inputContainer}>
-                            <Ionicons name="lock-closed-outline" size={20} color="#6B7280" style={styles.inputIcon} />
+                            <Ionicons name="lock-closed-outline" size={20} color="#78716C" style={styles.inputIcon} />
                             <TextInput
                                 placeholder="••••••"
-                                placeholderTextColor="#9CA3AF"
+                                placeholderTextColor="#A8A29E"
                                 value={password}
                                 onChangeText={setPassword}
                                 style={styles.input}
@@ -123,7 +123,7 @@ export default function LoginScreen() {
                                 <Ionicons
                                     name={showPassword ? "eye-off-outline" : "eye-outline"}
                                     size={20}
-                                    color="#6B7280"
+                                    color="#78716C"
                                 />
                             </TouchableOpacity>
                         </View>
@@ -160,7 +160,7 @@ export default function LoginScreen() {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#F9FAFB',
+        backgroundColor: '#FFF7ED',
     },
     backButton: {
         position: 'absolute',
@@ -173,9 +173,9 @@ const styles = StyleSheet.create({
         backgroundColor: 'white',
         justifyContent: 'center',
         alignItems: 'center',
-        shadowColor: '#000',
+        shadowColor: '#ff6a1aff',
         shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.05,
+        shadowOpacity: 0.1,
         shadowRadius: 8,
         elevation: 2,
     },
@@ -196,52 +196,54 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
         marginBottom: 24,
-        shadowColor: '#2563EB',
+        shadowColor: '#ff6a1aff',
         shadowOffset: { width: 0, height: 10 },
-        shadowOpacity: 0.15,
+        shadowOpacity: 0.2,
         shadowRadius: 20,
         elevation: 10,
     },
     title: {
         fontSize: 28,
         fontWeight: '800',
-        color: '#111827',
+        color: '#1F2937',
         marginBottom: 8,
         letterSpacing: -0.5,
     },
     subtitle: {
         fontSize: 16,
-        color: '#6B7280',
+        color: '#78716C',
         textAlign: 'center',
     },
     formContainer: {
         backgroundColor: 'white',
         borderRadius: 30,
         padding: 30,
-        shadowColor: '#000',
+        shadowColor: '#ff6a1aff',
         shadowOffset: { width: 0, height: 10 },
-        shadowOpacity: 0.05,
+        shadowOpacity: 0.1,
         shadowRadius: 20,
         elevation: 5,
+        borderWidth: 1,
+        borderColor: '#FED7AA',
     },
     inputGroup: {
         marginBottom: 20,
     },
     label: {
         fontSize: 14,
-        color: '#374151',
+        color: '#1F2937',
         marginBottom: 8,
         fontWeight: '600',
     },
     inputContainer: {
         flexDirection: 'row',
         alignItems: 'center',
-        backgroundColor: '#F9FAFB',
+        backgroundColor: '#FFF7ED',
         borderRadius: 16,
         paddingHorizontal: 16,
         height: 56,
         borderWidth: 1,
-        borderColor: '#E5E7EB',
+        borderColor: '#FED7AA',
     },
     inputIcon: {
         marginRight: 12,
@@ -256,17 +258,17 @@ const styles = StyleSheet.create({
         marginBottom: 24,
     },
     forgotPasswordText: {
-        color: '#2563EB',
+        color: '#ff6a1aff',
         fontSize: 14,
         fontWeight: '600',
     },
     button: {
-        backgroundColor: '#2563EB',
+        backgroundColor: '#ff6a1aff',
         height: 56,
         borderRadius: 16,
         justifyContent: 'center',
         alignItems: 'center',
-        shadowColor: '#2563EB',
+        shadowColor: '#ff6a1aff',
         shadowOffset: { width: 0, height: 4 },
         shadowOpacity: 0.3,
         shadowRadius: 8,

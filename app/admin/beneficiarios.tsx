@@ -110,13 +110,13 @@ export default function BeneficiariosScreen() {
 
   return (
     <View style={styles.container}>
-      <StatusBar barStyle="dark-content" />
+      <StatusBar barStyle="light-content" />
 
       {/* Header Moderno */}
       <View style={styles.header}>
         <View style={styles.headerTop}>
           <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
-            <Ionicons name="arrow-back" size={24} color="#1F2937" />
+            <Ionicons name="arrow-back" size={24} color="white" />
           </TouchableOpacity>
           <View style={styles.headerCenter}>
             <Text style={styles.headerTitle}>Beneficiarios</Text>
@@ -129,17 +129,17 @@ export default function BeneficiariosScreen() {
 
         {/* Barra de Búsqueda */}
         <View style={styles.searchContainer}>
-          <Ionicons name="search" size={20} color="#9CA3AF" />
+          <Ionicons name="search" size={20} color="rgba(255,255,255,0.8)" />
           <TextInput
             style={styles.searchInput}
             placeholder="Buscar por nombre o matrícula..."
-            placeholderTextColor="#9CA3AF"
+            placeholderTextColor="rgba(255,255,255,0.6)"
             value={searchQuery}
             onChangeText={setSearchQuery}
           />
           {searchQuery.length > 0 && (
             <TouchableOpacity onPress={() => setSearchQuery('')}>
-              <Ionicons name="close-circle" size={20} color="#9CA3AF" />
+              <Ionicons name="close-circle" size={20} color="rgba(255,255,255,0.8)" />
             </TouchableOpacity>
           )}
         </View>
@@ -183,8 +183,8 @@ export default function BeneficiariosScreen() {
                 style={styles.card}
               >
                 <View style={styles.cardHeader}>
-                  <View style={[styles.avatarContainer, { backgroundColor: beneficiario.activo ? '#EFF6FF' : '#F3F4F6' }]}>
-                    <Text style={[styles.avatarText, { color: beneficiario.activo ? '#2563EB' : '#9CA3AF' }]}>
+                  <View style={[styles.avatarContainer, { backgroundColor: beneficiario.activo ? '#FFF7ED' : '#F3F4F6' }]}>
+                    <Text style={[styles.avatarText, { color: beneficiario.activo ? '#ff6a1aff' : '#9CA3AF' }]}>
                       {beneficiario.nombre.charAt(0).toUpperCase()}
                     </Text>
                   </View>
@@ -208,8 +208,8 @@ export default function BeneficiariosScreen() {
                     style={styles.actionBtn}
                     onPress={() => handleEditarBeneficiario(beneficiario)}
                   >
-                    <Ionicons name="create-outline" size={20} color="#2563EB" />
-                    <Text style={styles.actionText}>Editar</Text>
+                    <Ionicons name="create-outline" size={20} color="#ff6a1aff" />
+                    <Text style={[styles.actionText, { color: '#ff6a1aff' }]}>Editar</Text>
                   </TouchableOpacity>
 
                   <TouchableOpacity
@@ -261,7 +261,7 @@ export default function BeneficiariosScreen() {
                   <Ionicons
                     name={editingBeneficiario ? "create-outline" : "person-add-outline"}
                     size={24}
-                    color="#2563EB"
+                    color="#ff6a1aff"
                   />
                 </View>
                 <Text style={styles.modalTitle}>
@@ -349,8 +349,8 @@ export default function BeneficiariosScreen() {
                 <Switch
                   value={formData.activo}
                   onValueChange={(v) => setFormData({ ...formData, activo: v })}
-                  trackColor={{ false: '#E5E7EB', true: '#93C5FD' }}
-                  thumbColor={formData.activo ? '#2563EB' : '#F3F4F6'}
+                  trackColor={{ false: '#E5E7EB', true: '#FED7AA' }}
+                  thumbColor={formData.activo ? '#ff6a1aff' : '#F3F4F6'}
                 />
               </View>
             </ScrollView>
@@ -374,10 +374,10 @@ export default function BeneficiariosScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F9FAFB',
+    backgroundColor: '#FFF7ED',
   },
   header: {
-    backgroundColor: 'white',
+    backgroundColor: '#ff6a1aff',
     paddingTop: 60,
     paddingBottom: 20,
     paddingHorizontal: 20,
@@ -385,7 +385,7 @@ const styles = StyleSheet.create({
     borderBottomRightRadius: 24,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.08,
+    shadowOpacity: 0.2,
     shadowRadius: 12,
     elevation: 5,
   },
@@ -402,18 +402,18 @@ const styles = StyleSheet.create({
   headerTitle: {
     fontSize: 22,
     fontWeight: '700',
-    color: '#111827',
+    color: 'white',
   },
   headerSubtitle: {
     fontSize: 13,
-    color: '#6B7280',
+    color: 'rgba(255,255,255,0.9)',
     marginTop: 2,
   },
   backButton: {
     width: 40,
     height: 40,
     borderRadius: 12,
-    backgroundColor: '#F3F4F6',
+    backgroundColor: 'rgba(255,255,255,0.2)',
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -421,14 +421,14 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 12,
-    backgroundColor: '#2563EB',
+    backgroundColor: 'rgba(255,255,255,0.2)',
     justifyContent: 'center',
     alignItems: 'center',
   },
   searchContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#F3F4F6',
+    backgroundColor: 'rgba(255,255,255,0.2)',
     borderRadius: 12,
     paddingHorizontal: 12,
     height: 48,
@@ -437,7 +437,7 @@ const styles = StyleSheet.create({
     flex: 1,
     marginLeft: 10,
     fontSize: 16,
-    color: '#1F2937',
+    color: 'white',
   },
   content: {
     flex: 1,
@@ -457,11 +457,13 @@ const styles = StyleSheet.create({
     padding: 16,
     borderRadius: 16,
     alignItems: 'center',
-    shadowColor: '#000',
+    shadowColor: '#ff6a1aff',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.05,
     shadowRadius: 8,
     elevation: 2,
+    borderWidth: 1,
+    borderColor: '#FED7AA',
   },
   statIcon: {
     width: 48,
@@ -489,11 +491,13 @@ const styles = StyleSheet.create({
     backgroundColor: 'white',
     borderRadius: 16,
     padding: 16,
-    shadowColor: '#000',
+    shadowColor: '#ff6a1aff',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.05,
     shadowRadius: 8,
     elevation: 2,
+    borderWidth: 1,
+    borderColor: '#FED7AA',
   },
   cardHeader: {
     flexDirection: 'row',
@@ -562,7 +566,7 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     paddingHorizontal: 12,
     borderRadius: 10,
-    backgroundColor: '#EFF6FF',
+    backgroundColor: '#FFF7ED',
     gap: 6,
   },
   deleteBtn: {
@@ -571,7 +575,6 @@ const styles = StyleSheet.create({
   actionText: {
     fontSize: 14,
     fontWeight: '600',
-    color: '#2563EB',
   },
   emptyState: {
     alignItems: 'center',
@@ -582,7 +585,7 @@ const styles = StyleSheet.create({
     width: 96,
     height: 96,
     borderRadius: 48,
-    backgroundColor: '#F3F4F6',
+    backgroundColor: '#FFF7ED',
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: 20,
@@ -603,7 +606,7 @@ const styles = StyleSheet.create({
   emptyButton: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#2563EB',
+    backgroundColor: '#ff6a1aff',
     paddingHorizontal: 24,
     paddingVertical: 12,
     borderRadius: 12,
@@ -637,7 +640,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     padding: 20,
     borderBottomWidth: 1,
-    borderBottomColor: '#F3F4F6',
+    borderBottomColor: '#FFF7ED',
   },
   modalTitleContainer: {
     flexDirection: 'row',
@@ -648,7 +651,7 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: '#EFF6FF',
+    backgroundColor: '#FFF7ED',
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -661,7 +664,7 @@ const styles = StyleSheet.create({
     width: 32,
     height: 32,
     borderRadius: 16,
-    backgroundColor: '#F3F4F6',
+    backgroundColor: '#FFF7ED',
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -680,9 +683,9 @@ const styles = StyleSheet.create({
   inputWrapper: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#F9FAFB',
+    backgroundColor: '#FFF7ED',
     borderWidth: 1,
-    borderColor: '#E5E7EB',
+    borderColor: '#FED7AA',
     borderRadius: 12,
     paddingHorizontal: 12,
     height: 52,
@@ -705,10 +708,12 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    backgroundColor: '#F9FAFB',
+    backgroundColor: '#FFF7ED',
     padding: 16,
     borderRadius: 12,
     marginBottom: 10,
+    borderWidth: 1,
+    borderColor: '#FED7AA',
   },
   switchLabel: {
     flexDirection: 'row',
@@ -719,7 +724,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     padding: 20,
     borderTopWidth: 1,
-    borderTopColor: '#F3F4F6',
+    borderTopColor: '#FFF7ED',
     gap: 12,
   },
   cancelBtn: {
@@ -739,7 +744,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     padding: 16,
     borderRadius: 12,
-    backgroundColor: '#2563EB',
+    backgroundColor: '#ff6a1aff',
     alignItems: 'center',
     justifyContent: 'center',
     gap: 8,

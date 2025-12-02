@@ -84,20 +84,20 @@ export default function PermisosScreen() {
 
     return (
         <View style={styles.container}>
-            <StatusBar barStyle="dark-content" />
+            <StatusBar barStyle="light-content" />
 
             {/* Header Estilo Admin */}
             <View style={styles.header}>
                 <View style={styles.headerTop}>
                     <TouchableOpacity onPress={() => router.back()} style={styles.iconButton}>
-                        <Ionicons name="arrow-back" size={24} color="#1F2937" />
+                        <Ionicons name="arrow-back" size={24} color="white" />
                     </TouchableOpacity>
                     <View style={styles.headerTitleContainer}>
                         <Text style={styles.headerTitle}>Mis Permisos</Text>
                         <Text style={styles.headerSubtitle}>Solicitudes de inasistencia</Text>
                     </View>
-                    <TouchableOpacity onPress={() => setModalVisible(true)} style={[styles.iconButton, { backgroundColor: '#EFF6FF' }]}>
-                        <Ionicons name="add" size={24} color="#2563EB" />
+                    <TouchableOpacity onPress={() => setModalVisible(true)} style={[styles.iconButton, { backgroundColor: 'rgba(255,255,255,0.2)' }]}>
+                        <Ionicons name="add" size={24} color="white" />
                     </TouchableOpacity>
                 </View>
             </View>
@@ -113,7 +113,7 @@ export default function PermisosScreen() {
                             <View style={styles.cardHeader}>
                                 <View style={styles.dateContainer}>
                                     <View style={styles.calendarIcon}>
-                                        <Ionicons name="calendar" size={18} color="#6B7280" />
+                                        <Ionicons name="calendar" size={18} color="#ff6a1aff" />
                                     </View>
                                     <Text style={styles.dateText}>
                                         {new Date(permiso.fecha).toLocaleDateString('es-MX', {
@@ -140,7 +140,7 @@ export default function PermisosScreen() {
                 ) : (
                     <View style={styles.emptyState}>
                         <View style={styles.emptyIconContainer}>
-                            <Ionicons name="document-text" size={40} color="#9CA3AF" />
+                            <Ionicons name="document-text" size={40} color="#A8A29E" />
                         </View>
                         <Text style={styles.emptyTitle}>Sin solicitudes</Text>
                         <Text style={styles.emptySubtitle}>No has solicitado permisos de inasistencia.</Text>
@@ -166,7 +166,7 @@ export default function PermisosScreen() {
 
                         <View style={styles.formContainer}>
                             <View style={styles.infoBox}>
-                                <Ionicons name="information-circle" size={20} color="#2563EB" style={{ marginTop: 2 }} />
+                                <Ionicons name="information-circle" size={20} color="#ff6a1aff" style={{ marginTop: 2 }} />
                                 <Text style={styles.infoText}>
                                     Puedes solicitar permiso para faltar al comedor.
                                     {'\n'}
@@ -228,10 +228,10 @@ export default function PermisosScreen() {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#F9FAFB',
+        backgroundColor: '#FFF7ED',
     },
     header: {
-        backgroundColor: 'white',
+        backgroundColor: '#ff6a1aff',
         paddingTop: 60,
         paddingBottom: 20,
         paddingHorizontal: 20,
@@ -239,7 +239,7 @@ const styles = StyleSheet.create({
         borderBottomRightRadius: 24,
         shadowColor: '#000',
         shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.08,
+        shadowOpacity: 0.2,
         shadowRadius: 12,
         elevation: 5,
         zIndex: 10,
@@ -255,18 +255,18 @@ const styles = StyleSheet.create({
     headerTitle: {
         fontSize: 20,
         fontWeight: '700',
-        color: '#111827',
+        color: 'white',
     },
     headerSubtitle: {
         fontSize: 12,
-        color: '#6B7280',
+        color: 'rgba(255,255,255,0.9)',
         marginTop: 2,
     },
     iconButton: {
         width: 40,
         height: 40,
         borderRadius: 12,
-        backgroundColor: '#F3F4F6',
+        backgroundColor: 'rgba(255,255,255,0.2)',
         justifyContent: 'center',
         alignItems: 'center',
     },
@@ -278,11 +278,13 @@ const styles = StyleSheet.create({
         borderRadius: 20,
         padding: 20,
         marginBottom: 16,
-        shadowColor: '#000',
+        shadowColor: '#ff6a1aff',
         shadowOffset: { width: 0, height: 2 },
         shadowOpacity: 0.05,
         shadowRadius: 8,
         elevation: 2,
+        borderWidth: 1,
+        borderColor: '#FED7AA',
     },
     cardHeader: {
         flexDirection: 'row',
@@ -299,7 +301,7 @@ const styles = StyleSheet.create({
         width: 32,
         height: 32,
         borderRadius: 10,
-        backgroundColor: '#F3F4F6',
+        backgroundColor: '#FFF7ED',
         justifyContent: 'center',
         alignItems: 'center',
     },
@@ -323,13 +325,13 @@ const styles = StyleSheet.create({
     },
     divider: {
         height: 1,
-        backgroundColor: '#F3F4F6',
+        backgroundColor: '#FFF7ED',
         marginBottom: 12,
     },
     motivoLabel: {
         fontSize: 12,
         fontWeight: '600',
-        color: '#6B7280',
+        color: '#78716C',
         marginBottom: 4,
     },
     motivoText: {
@@ -345,7 +347,7 @@ const styles = StyleSheet.create({
         width: 80,
         height: 80,
         borderRadius: 40,
-        backgroundColor: '#F3F4F6',
+        backgroundColor: '#FFF7ED',
         justifyContent: 'center',
         alignItems: 'center',
         marginBottom: 16,
@@ -383,7 +385,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         padding: 20,
         borderBottomWidth: 1,
-        borderBottomColor: '#F3F4F6',
+        borderBottomColor: '#FFF7ED',
     },
     modalTitle: {
         fontSize: 18,
@@ -392,7 +394,7 @@ const styles = StyleSheet.create({
     },
     closeButton: {
         padding: 8,
-        backgroundColor: '#F3F4F6',
+        backgroundColor: '#FFF7ED',
         borderRadius: 10,
     },
     formContainer: {
@@ -401,15 +403,17 @@ const styles = StyleSheet.create({
     infoBox: {
         flexDirection: 'row',
         gap: 12,
-        backgroundColor: '#EFF6FF',
+        backgroundColor: '#FFF7ED',
         padding: 16,
         borderRadius: 16,
         marginBottom: 20,
+        borderWidth: 1,
+        borderColor: '#FED7AA',
     },
     infoText: {
         flex: 1,
         fontSize: 13,
-        color: '#1E40AF',
+        color: '#C2410C',
         lineHeight: 20,
     },
     inputGroup: {
@@ -425,9 +429,9 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'space-between',
-        backgroundColor: '#F9FAFB',
+        backgroundColor: '#FFF7ED',
         borderWidth: 1,
-        borderColor: '#E5E7EB',
+        borderColor: '#FED7AA',
         borderRadius: 14,
         padding: 14,
     },
@@ -438,9 +442,9 @@ const styles = StyleSheet.create({
         fontWeight: '500',
     },
     input: {
-        backgroundColor: '#F9FAFB',
+        backgroundColor: '#FFF7ED',
         borderWidth: 1,
-        borderColor: '#E5E7EB',
+        borderColor: '#FED7AA',
         borderRadius: 14,
         padding: 14,
         fontSize: 15,
@@ -451,14 +455,14 @@ const styles = StyleSheet.create({
         textAlignVertical: 'top',
     },
     submitBtn: {
-        backgroundColor: '#2563EB',
+        backgroundColor: '#ff6a1aff',
         padding: 16,
         borderRadius: 16,
         alignItems: 'center',
         flexDirection: 'row',
         justifyContent: 'center',
         gap: 10,
-        shadowColor: '#2563EB',
+        shadowColor: '#ff6a1aff',
         shadowOffset: { width: 0, height: 4 },
         shadowOpacity: 0.2,
         shadowRadius: 8,

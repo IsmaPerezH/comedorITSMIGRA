@@ -13,7 +13,7 @@ export default function RoleSelectionScreen() {
       <View style={styles.header}>
         <Animated.View entering={FadeInUp.delay(200)} style={styles.logoContainer}>
           <View style={styles.logoCircle}>
-            <Ionicons name="restaurant" size={48} color="#2563EB" />
+            <Ionicons name="restaurant" size={48} color="#ff6a1aff" />
           </View>
         </Animated.View>
 
@@ -29,8 +29,8 @@ export default function RoleSelectionScreen() {
         <Link href="/login" asChild>
           <TouchableOpacity activeOpacity={0.9} style={styles.touchable}>
             <Animated.View entering={FadeInDown.delay(500)} style={styles.card}>
-              <View style={[styles.iconBox, { backgroundColor: '#EFF6FF' }]}>
-                <Ionicons name="person" size={32} color="#2563EB" />
+              <View style={[styles.iconBox, { backgroundColor: '#FED7AA' }]}>
+                <Ionicons name="person" size={32} color="#ff6a1aff" />
               </View>
               <View style={styles.cardContent}>
                 <Text style={styles.cardTitle}>Soy Beneficiario</Text>
@@ -46,8 +46,8 @@ export default function RoleSelectionScreen() {
         <Link href="/login" asChild>
           <TouchableOpacity activeOpacity={0.9} style={styles.touchable}>
             <Animated.View entering={FadeInDown.delay(600)} style={styles.card}>
-              <View style={[styles.iconBox, { backgroundColor: '#ECFDF5' }]}>
-                <Ionicons name="settings" size={32} color="#059669" />
+              <View style={[styles.iconBox, { backgroundColor: '#E5E7EB' }]}>
+                <Ionicons name="settings" size={32} color="#1F2937" />
               </View>
               <View style={styles.cardContent}>
                 <Text style={styles.cardTitle}>Soy Administrador</Text>
@@ -73,7 +73,7 @@ export default function RoleSelectionScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F9FAFB',
+    backgroundColor: '#FFF7ED',
     padding: 24,
     justifyContent: 'space-between',
   },
@@ -83,7 +83,7 @@ const styles = StyleSheet.create({
   },
   logoContainer: {
     marginBottom: 24,
-    shadowColor: '#2563EB',
+    shadowColor: '#ff6a1aff',
     shadowOffset: { width: 0, height: 10 },
     shadowOpacity: 0.2,
     shadowRadius: 20,
@@ -100,14 +100,14 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 28,
     fontWeight: '800',
-    color: '#111827',
+    color: '#1F2937',
     marginBottom: 8,
     textAlign: 'center',
     letterSpacing: -0.5,
   },
   subtitle: {
     fontSize: 16,
-    color: '#6B7280',
+    color: '#78716C',
     textAlign: 'center',
     fontWeight: '500',
   },
@@ -125,13 +125,13 @@ const styles = StyleSheet.create({
     backgroundColor: 'white',
     padding: 20,
     borderRadius: 24,
-    shadowColor: '#000',
+    shadowColor: '#ff6a1aff',
     shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.05,
+    shadowOpacity: 0.08,
     shadowRadius: 12,
     elevation: 4,
     borderWidth: 1,
-    borderColor: 'rgba(0,0,0,0.02)',
+    borderColor: '#FED7AA',
   },
   iconBox: {
     width: 64,
@@ -153,7 +153,7 @@ const styles = StyleSheet.create({
   },
   cardDescription: {
     fontSize: 13,
-    color: '#6B7280',
+    color: '#78716C',
     lineHeight: 18,
   },
   footer: {
@@ -162,7 +162,7 @@ const styles = StyleSheet.create({
   },
   footerText: {
     fontSize: 12,
-    color: '#9CA3AF',
+    color: '#A8A29E',
     textAlign: 'center',
     fontWeight: '500',
   },

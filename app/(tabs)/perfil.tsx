@@ -28,7 +28,7 @@ export default function PerfilScreen() {
 
     return (
         <View style={styles.container}>
-            <StatusBar barStyle="dark-content" />
+            <StatusBar barStyle="light-content" />
 
             {/* Header Estilo Admin */}
             <View style={styles.header}>
@@ -38,7 +38,7 @@ export default function PerfilScreen() {
                         <Text style={styles.headerSubtitle}>Información personal</Text>
                     </View>
                     <TouchableOpacity onPress={() => router.push('/(tabs)/actividades')} style={styles.iconButton}>
-                        <Ionicons name="notifications-outline" size={24} color="#1F2937" />
+                        <Ionicons name="notifications-outline" size={24} color="white" />
                     </TouchableOpacity>
                 </View>
             </View>
@@ -63,21 +63,21 @@ export default function PerfilScreen() {
                 {/* Opciones */}
                 <View style={styles.optionsContainer}>
                     <TouchableOpacity style={styles.optionItem} onPress={() => { }}>
-                        <View style={[styles.optionIcon, { backgroundColor: '#EFF6FF' }]}>
-                            <Ionicons name="settings-outline" size={22} color="#2563EB" />
+                        <View style={[styles.optionIcon, { backgroundColor: '#FED7AA' }]}>
+                            <Ionicons name="settings-outline" size={22} color="#ff6a1aff" />
                         </View>
                         <Text style={styles.optionText}>Configuración</Text>
-                        <Ionicons name="chevron-forward" size={20} color="#9CA3AF" />
+                        <Ionicons name="chevron-forward" size={20} color="#D1D5DB" />
                     </TouchableOpacity>
 
                     <View style={styles.divider} />
 
                     <TouchableOpacity style={styles.optionItem} onPress={() => { }}>
-                        <View style={[styles.optionIcon, { backgroundColor: '#F3E8FF' }]}>
-                            <Ionicons name="help-circle-outline" size={22} color="#9333EA" />
+                        <View style={[styles.optionIcon, { backgroundColor: '#E5E7EB' }]}>
+                            <Ionicons name="help-circle-outline" size={22} color="#4B5563" />
                         </View>
                         <Text style={styles.optionText}>Ayuda y Soporte</Text>
-                        <Ionicons name="chevron-forward" size={20} color="#9CA3AF" />
+                        <Ionicons name="chevron-forward" size={20} color="#D1D5DB" />
                     </TouchableOpacity>
                 </View>
 
@@ -96,10 +96,10 @@ export default function PerfilScreen() {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#F9FAFB',
+        backgroundColor: '#FFF7ED',
     },
     header: {
-        backgroundColor: 'white',
+        backgroundColor: '#ff6a1aff',
         paddingTop: 60,
         paddingBottom: 20,
         paddingHorizontal: 20,
@@ -107,7 +107,7 @@ const styles = StyleSheet.create({
         borderBottomRightRadius: 24,
         shadowColor: '#000',
         shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.08,
+        shadowOpacity: 0.2,
         shadowRadius: 12,
         elevation: 5,
     },
@@ -119,18 +119,18 @@ const styles = StyleSheet.create({
     headerTitle: {
         fontSize: 24,
         fontWeight: '700',
-        color: '#111827',
+        color: 'white',
     },
     headerSubtitle: {
         fontSize: 14,
-        color: '#6B7280',
+        color: 'rgba(255,255,255,0.9)',
         marginTop: 2,
     },
     iconButton: {
         width: 40,
         height: 40,
         borderRadius: 12,
-        backgroundColor: '#F3F4F6',
+        backgroundColor: 'rgba(255,255,255,0.2)',
         justifyContent: 'center',
         alignItems: 'center',
     },
@@ -144,27 +144,29 @@ const styles = StyleSheet.create({
         padding: 24,
         alignItems: 'center',
         marginBottom: 24,
-        shadowColor: '#000',
+        shadowColor: '#ff6a1aff',
         shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.05,
+        shadowOpacity: 0.08,
         shadowRadius: 8,
         elevation: 2,
+        borderWidth: 1,
+        borderColor: '#FED7AA',
     },
     avatarContainer: {
         width: 80,
         height: 80,
         borderRadius: 40,
-        backgroundColor: '#EFF6FF',
+        backgroundColor: '#FED7AA',
         justifyContent: 'center',
         alignItems: 'center',
         marginBottom: 16,
         borderWidth: 4,
-        borderColor: '#DBEAFE',
+        borderColor: '#FFEDD5',
     },
     avatarText: {
         fontSize: 32,
         fontWeight: '700',
-        color: '#2563EB',
+        color: '#ff6a1aff',
     },
     userName: {
         fontSize: 20,
@@ -175,19 +177,21 @@ const styles = StyleSheet.create({
     },
     userRole: {
         fontSize: 14,
-        color: '#6B7280',
+        color: '#78716C',
         marginBottom: 12,
     },
     matriculaBadge: {
-        backgroundColor: '#F3F4F6',
+        backgroundColor: '#FFF7ED',
         paddingHorizontal: 12,
         paddingVertical: 6,
         borderRadius: 12,
+        borderWidth: 1,
+        borderColor: '#FED7AA',
     },
     matriculaText: {
         fontSize: 14,
         fontWeight: '600',
-        color: '#4B5563',
+        color: '#ff6a1aff',
         letterSpacing: 0.5,
     },
     optionsContainer: {
@@ -195,11 +199,13 @@ const styles = StyleSheet.create({
         borderRadius: 20,
         padding: 8,
         marginBottom: 24,
-        shadowColor: '#000',
+        shadowColor: '#ff6a1aff',
         shadowOffset: { width: 0, height: 2 },
         shadowOpacity: 0.05,
         shadowRadius: 8,
         elevation: 2,
+        borderWidth: 1,
+        borderColor: '#FED7AA',
     },
     optionItem: {
         flexDirection: 'row',
@@ -222,7 +228,7 @@ const styles = StyleSheet.create({
     },
     divider: {
         height: 1,
-        backgroundColor: '#F3F4F6',
+        backgroundColor: '#FFF7ED',
         marginLeft: 60,
     },
     logoutButton: {
@@ -244,7 +250,7 @@ const styles = StyleSheet.create({
     versionText: {
         textAlign: 'center',
         marginTop: 24,
-        color: '#9CA3AF',
+        color: '#A8A29E',
         fontSize: 12,
     },
 });

@@ -21,7 +21,7 @@ export default function ActividadesScreen() {
 
     return (
         <View style={styles.container}>
-            <StatusBar barStyle="dark-content" />
+            <StatusBar barStyle="light-content" />
 
             {/* Header Estilo Admin */}
             <View style={styles.header}>
@@ -31,7 +31,7 @@ export default function ActividadesScreen() {
                         <Text style={styles.headerSubtitle}>Agenda y registro de asistencia</Text>
                     </View>
                     <View style={styles.iconButton}>
-                        <Ionicons name="calendar-outline" size={24} color="#1F2937" />
+                        <Ionicons name="calendar-outline" size={24} color="white" />
                     </View>
                 </View>
             </View>
@@ -85,7 +85,7 @@ export default function ActividadesScreen() {
                             ))
                         ) : (
                             <View style={styles.emptyState}>
-                                <Ionicons name="calendar-outline" size={48} color="#9CA3AF" />
+                                <Ionicons name="calendar-outline" size={48} color="#A8A29E" />
                                 <Text style={styles.emptyText}>No tienes roles asignados próximamente</Text>
                             </View>
                         )}
@@ -115,7 +115,7 @@ export default function ActividadesScreen() {
                             ))
                         ) : (
                             <View style={styles.emptyState}>
-                                <Ionicons name="time-outline" size={48} color="#9CA3AF" />
+                                <Ionicons name="time-outline" size={48} color="#A8A29E" />
                                 <Text style={styles.emptyText}>No hay historial de asistencias</Text>
                             </View>
                         )}
@@ -129,10 +129,10 @@ export default function ActividadesScreen() {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#F9FAFB',
+        backgroundColor: '#FFF7ED',
     },
     header: {
-        backgroundColor: 'white',
+        backgroundColor: '#ff6a1aff',
         paddingTop: 60,
         paddingBottom: 20,
         paddingHorizontal: 20,
@@ -140,7 +140,7 @@ const styles = StyleSheet.create({
         borderBottomRightRadius: 24,
         shadowColor: '#000',
         shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.08,
+        shadowOpacity: 0.2,
         shadowRadius: 12,
         elevation: 5,
     },
@@ -152,28 +152,30 @@ const styles = StyleSheet.create({
     headerTitle: {
         fontSize: 24,
         fontWeight: '700',
-        color: '#111827',
+        color: 'white',
     },
     headerSubtitle: {
         fontSize: 14,
-        color: '#6B7280',
+        color: 'rgba(255,255,255,0.9)',
         marginTop: 2,
     },
     iconButton: {
         width: 40,
         height: 40,
         borderRadius: 12,
-        backgroundColor: '#F3F4F6',
+        backgroundColor: 'rgba(255,255,255,0.2)',
         justifyContent: 'center',
         alignItems: 'center',
     },
     tabContainer: {
         flexDirection: 'row',
         padding: 4,
-        backgroundColor: '#F3F4F6',
+        backgroundColor: 'rgba(255,255,255,0.5)',
         marginHorizontal: 20,
         marginVertical: 20,
         borderRadius: 16,
+        borderWidth: 1,
+        borderColor: '#FED7AA',
     },
     tab: {
         flex: 1,
@@ -183,7 +185,7 @@ const styles = StyleSheet.create({
     },
     activeTab: {
         backgroundColor: 'white',
-        shadowColor: '#000',
+        shadowColor: '#ff6a1aff',
         shadowOffset: { width: 0, height: 2 },
         shadowOpacity: 0.1,
         shadowRadius: 4,
@@ -192,10 +194,10 @@ const styles = StyleSheet.create({
     tabText: {
         fontSize: 14,
         fontWeight: '600',
-        color: '#6B7280',
+        color: '#78716C',
     },
     activeTabText: {
-        color: '#2563EB',
+        color: '#ff6a1aff',
         fontWeight: '700',
     },
     content: {
@@ -212,11 +214,13 @@ const styles = StyleSheet.create({
         padding: 16,
         borderRadius: 20,
         marginBottom: 12,
-        shadowColor: '#000',
+        shadowColor: '#ff6a1aff',
         shadowOffset: { width: 0, height: 2 },
         shadowOpacity: 0.05,
         shadowRadius: 8,
         elevation: 2,
+        borderWidth: 1,
+        borderColor: '#FED7AA',
     },
     iconContainer: {
         width: 48,
@@ -260,7 +264,7 @@ const styles = StyleSheet.create({
     emptyText: {
         marginTop: 12,
         fontSize: 16,
-        color: '#9CA3AF',
+        color: '#A8A29E',
         textAlign: 'center',
     },
 });

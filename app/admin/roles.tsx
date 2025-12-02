@@ -129,13 +129,13 @@ export default function RolesScreen() {
 
   return (
     <View style={styles.container}>
-      <StatusBar barStyle="dark-content" />
+      <StatusBar barStyle="light-content" />
 
       {/* Header Moderno */}
       <View style={styles.header}>
         <View style={styles.headerTop}>
           <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
-            <Ionicons name="arrow-back" size={24} color="#1F2937" />
+            <Ionicons name="arrow-back" size={24} color="white" />
           </TouchableOpacity>
           <View style={styles.headerCenter}>
             <Text style={styles.headerTitle}>Gestión de Roles</Text>
@@ -251,7 +251,7 @@ export default function RolesScreen() {
                       style={styles.actionBtn}
                       onPress={() => handleEditarRol(rol)}
                     >
-                      <Ionicons name="create-outline" size={18} color="#2563EB" />
+                      <Ionicons name="create-outline" size={18} color="#ff6a1aff" />
                     </TouchableOpacity>
                     <TouchableOpacity
                       style={[styles.actionBtn, styles.deleteBtn]}
@@ -266,7 +266,7 @@ export default function RolesScreen() {
           ))
         ) : (
           <View style={styles.emptyState}>
-            <Ionicons name="calendar-outline" size={64} color="#E5E7EB" />
+            <Ionicons name="calendar-outline" size={64} color="#FED7AA" />
             <Text style={styles.emptyTitle}>No hay roles asignados</Text>
             <Text style={styles.emptySubtitle}>Comienza asignando roles a los beneficiarios</Text>
           </View>
@@ -444,10 +444,10 @@ export default function RolesScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F9FAFB',
+    backgroundColor: '#FFF7ED',
   },
   header: {
-    backgroundColor: 'white',
+    backgroundColor: '#ff6a1aff',
     paddingTop: 60,
     paddingBottom: 20,
     paddingHorizontal: 20,
@@ -455,7 +455,7 @@ const styles = StyleSheet.create({
     borderBottomRightRadius: 24,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.08,
+    shadowOpacity: 0.2,
     shadowRadius: 12,
     elevation: 5,
     zIndex: 10,
@@ -471,18 +471,18 @@ const styles = StyleSheet.create({
   headerTitle: {
     fontSize: 20,
     fontWeight: '700',
-    color: '#111827',
+    color: 'white',
   },
   headerSubtitle: {
     fontSize: 13,
-    color: '#6B7280',
+    color: 'rgba(255,255,255,0.9)',
     marginTop: 2,
   },
   backButton: {
     width: 40,
     height: 40,
     borderRadius: 12,
-    backgroundColor: '#F3F4F6',
+    backgroundColor: 'rgba(255,255,255,0.2)',
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -490,7 +490,7 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 12,
-    backgroundColor: '#2563EB',
+    backgroundColor: 'rgba(255,255,255,0.2)',
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -511,6 +511,14 @@ const styles = StyleSheet.create({
     padding: 12,
     borderRadius: 12,
     alignItems: 'center',
+    backgroundColor: 'white',
+    shadowColor: '#ff6a1aff',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 8,
+    elevation: 2,
+    borderWidth: 1,
+    borderColor: '#FED7AA',
   },
   statValue: {
     fontSize: 20,
@@ -542,11 +550,13 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     padding: 16,
     marginBottom: 12,
-    shadowColor: '#000',
+    shadowColor: '#ff6a1aff',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.05,
     shadowRadius: 8,
     elevation: 2,
+    borderWidth: 1,
+    borderColor: '#FED7AA',
   },
   rolHeader: {
     flexDirection: 'row',
@@ -606,7 +616,7 @@ const styles = StyleSheet.create({
   actionBtn: {
     padding: 8,
     borderRadius: 8,
-    backgroundColor: '#EFF6FF',
+    backgroundColor: '#FFF7ED',
   },
   deleteBtn: {
     backgroundColor: '#FEF2F2',
@@ -648,7 +658,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     padding: 20,
     borderBottomWidth: 1,
-    borderBottomColor: '#F3F4F6',
+    borderBottomColor: '#FFF7ED',
   },
   modalTitle: {
     fontSize: 18,
@@ -668,9 +678,9 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   input: {
-    backgroundColor: '#F9FAFB',
+    backgroundColor: '#FFF7ED',
     borderWidth: 1,
-    borderColor: '#E5E7EB',
+    borderColor: '#FED7AA',
     borderRadius: 12,
     padding: 12,
     fontSize: 16,
@@ -687,21 +697,21 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     paddingVertical: 8,
     borderRadius: 20,
-    backgroundColor: '#F3F4F6',
+    backgroundColor: '#FFF7ED',
     marginRight: 8,
     borderWidth: 1,
-    borderColor: '#E5E7EB',
+    borderColor: '#FED7AA',
   },
   beneficiarioChipActive: {
-    backgroundColor: '#EFF6FF',
-    borderColor: '#2563EB',
+    backgroundColor: '#ff6a1aff',
+    borderColor: '#ff6a1aff',
   },
   beneficiarioChipText: {
     fontSize: 13,
     color: '#6B7280',
   },
   beneficiarioChipTextActive: {
-    color: '#2563EB',
+    color: 'white',
     fontWeight: '600',
   },
   typeSelector: {
@@ -716,13 +726,13 @@ const styles = StyleSheet.create({
     gap: 4,
     padding: 8,
     borderRadius: 8,
-    backgroundColor: '#F3F4F6',
+    backgroundColor: '#FFF7ED',
     borderWidth: 1,
-    borderColor: '#E5E7EB',
+    borderColor: '#FED7AA',
   },
   typeOptionActive: {
-    backgroundColor: '#2563EB',
-    borderColor: '#2563EB',
+    backgroundColor: '#ff6a1aff',
+    borderColor: '#ff6a1aff',
   },
   typeText: {
     fontSize: 12,
@@ -736,9 +746,9 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 8,
-    backgroundColor: '#F9FAFB',
+    backgroundColor: '#FFF7ED',
     borderWidth: 1,
-    borderColor: '#E5E7EB',
+    borderColor: '#FED7AA',
     borderRadius: 12,
     padding: 12,
   },
@@ -755,13 +765,13 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     padding: 8,
     borderRadius: 8,
-    backgroundColor: '#F3F4F6',
+    backgroundColor: '#FFF7ED',
     borderWidth: 1,
-    borderColor: '#E5E7EB',
+    borderColor: '#FED7AA',
   },
   statusOptionActive: {
-    backgroundColor: '#2563EB',
-    borderColor: '#2563EB',
+    backgroundColor: '#ff6a1aff',
+    borderColor: '#ff6a1aff',
   },
   statusOptionText: {
     fontSize: 11,
@@ -772,7 +782,7 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   saveBtn: {
-    backgroundColor: '#2563EB',
+    backgroundColor: '#ff6a1aff',
     padding: 16,
     borderRadius: 12,
     alignItems: 'center',

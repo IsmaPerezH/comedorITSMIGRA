@@ -9,6 +9,7 @@ import {
   Dimensions,
   Modal,
   ScrollView,
+  StatusBar,
   StyleSheet,
   Text,
   TextInput,
@@ -117,11 +118,12 @@ export default function GestionPDFsScreen() {
 
   return (
     <View style={styles.container}>
+      <StatusBar barStyle="light-content" />
       {/* Header Moderno */}
       <View style={styles.header}>
         <View style={styles.headerTop}>
           <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
-            <Ionicons name="arrow-back" size={24} color="#1F2937" />
+            <Ionicons name="arrow-back" size={24} color="white" />
           </TouchableOpacity>
           <Text style={styles.headerTitle}>Documentos</Text>
           <TouchableOpacity onPress={seleccionarPDF} style={styles.addButton}>
@@ -167,7 +169,7 @@ export default function GestionPDFsScreen() {
                   <Ionicons
                     name={pdf.tipo === 'cocina' ? 'restaurant' : 'sparkles'}
                     size={24}
-                    color={pdf.tipo === 'cocina' ? '#EA580C' : '#2563EB'}
+                    color={pdf.tipo === 'cocina' ? '#ff6a1aff' : '#2563EB'}
                   />
                 </View>
 
@@ -189,7 +191,7 @@ export default function GestionPDFsScreen() {
           </View>
         ) : (
           <View style={styles.emptyState}>
-            <Ionicons name="document-text-outline" size={64} color="#E5E7EB" />
+            <Ionicons name="document-text-outline" size={64} color="#FED7AA" />
             <Text style={styles.emptyTitle}>No hay documentos</Text>
             <Text style={styles.emptySubtitle}>Sube un PDF para comenzar</Text>
           </View>
@@ -218,6 +220,7 @@ export default function GestionPDFsScreen() {
                 <TextInput
                   style={styles.input}
                   placeholder="Ej. Rol de Cocina Noviembre"
+                  placeholderTextColor="#9CA3AF"
                   value={formData.titulo}
                   onChangeText={(t) => setFormData({ ...formData, titulo: t })}
                 />
@@ -269,6 +272,7 @@ export default function GestionPDFsScreen() {
                 <TextInput
                   style={[styles.input, styles.textArea]}
                   placeholder="Detalles adicionales..."
+                  placeholderTextColor="#9CA3AF"
                   multiline
                   numberOfLines={3}
                   value={formData.descripcion}
@@ -290,10 +294,10 @@ export default function GestionPDFsScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F9FAFB',
+    backgroundColor: '#FFF7ED',
   },
   header: {
-    backgroundColor: 'white',
+    backgroundColor: '#ff6a1aff',
     paddingTop: 60,
     paddingBottom: 20,
     paddingHorizontal: 20,
@@ -315,21 +319,21 @@ const styles = StyleSheet.create({
   headerTitle: {
     fontSize: 20,
     fontWeight: '700',
-    color: '#111827',
+    color: 'white',
   },
   backButton: {
     padding: 8,
     borderRadius: 12,
-    backgroundColor: '#F3F4F6',
+    backgroundColor: 'rgba(255,255,255,0.2)',
   },
   addButton: {
     padding: 10,
     borderRadius: 12,
-    backgroundColor: '#2563EB',
+    backgroundColor: 'rgba(255,255,255,0.2)',
   },
   filterSegment: {
     flexDirection: 'row',
-    backgroundColor: '#F3F4F6',
+    backgroundColor: 'rgba(255,255,255,0.2)',
     borderRadius: 12,
     padding: 4,
   },
@@ -350,10 +354,10 @@ const styles = StyleSheet.create({
   filterText: {
     fontSize: 13,
     fontWeight: '500',
-    color: '#6B7280',
+    color: 'rgba(255,255,255,0.8)',
   },
   filterTextActive: {
-    color: '#111827',
+    color: '#ff6a1aff',
     fontWeight: '600',
   },
   content: {
@@ -368,11 +372,13 @@ const styles = StyleSheet.create({
     padding: 16,
     flexDirection: 'row',
     alignItems: 'center',
-    shadowColor: '#000',
+    shadowColor: '#ff6a1aff',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.03,
     shadowRadius: 8,
     elevation: 2,
+    borderWidth: 1,
+    borderColor: '#FED7AA',
   },
   cardIcon: {
     width: 48,
@@ -438,7 +444,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     padding: 20,
     borderBottomWidth: 1,
-    borderBottomColor: '#F3F4F6',
+    borderBottomColor: '#FFF7ED',
   },
   modalTitle: {
     fontSize: 18,
@@ -458,9 +464,9 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   input: {
-    backgroundColor: '#F9FAFB',
+    backgroundColor: '#FFF7ED',
     borderWidth: 1,
-    borderColor: '#E5E7EB',
+    borderColor: '#FED7AA',
     borderRadius: 12,
     padding: 12,
     fontSize: 16,
@@ -487,8 +493,8 @@ const styles = StyleSheet.create({
     backgroundColor: 'white',
   },
   categoryBtnActive: {
-    backgroundColor: '#2563EB',
-    borderColor: '#2563EB',
+    backgroundColor: '#ff6a1aff',
+    borderColor: '#ff6a1aff',
   },
   categoryText: {
     fontSize: 14,
@@ -499,7 +505,7 @@ const styles = StyleSheet.create({
     color: 'white',
   },
   saveBtn: {
-    backgroundColor: '#2563EB',
+    backgroundColor: '#ff6a1aff',
     padding: 16,
     borderRadius: 12,
     alignItems: 'center',

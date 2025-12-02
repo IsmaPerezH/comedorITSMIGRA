@@ -59,7 +59,7 @@ export default function MiQRScreen() {
           width: 300,
           margin: 2,
           color: {
-            dark: '#2563EB',
+            dark: '#ff6a1aff',
             light: '#ffffff',
           },
         });
@@ -95,7 +95,7 @@ export default function MiQRScreen() {
     return (
       <View style={[styles.container, styles.centerContent]}>
         <StatusBar barStyle="dark-content" />
-        <ActivityIndicator size="large" color="#2563EB" />
+        <ActivityIndicator size="large" color="#ff6a1aff" />
         <Text style={styles.loadingText}>Cargando información...</Text>
       </View>
     );
@@ -106,7 +106,7 @@ export default function MiQRScreen() {
       <View style={[styles.container, styles.centerContent]}>
         <StatusBar barStyle="dark-content" />
         <View style={styles.emptyIcon}>
-          <Ionicons name="person-remove-outline" size={48} color="#9CA3AF" />
+          <Ionicons name="person-remove-outline" size={48} color="#A8A29E" />
         </View>
         <Text style={styles.emptyTitle}>No se encontró información</Text>
         <Text style={styles.emptySubtitle}>No se pudo cargar tu perfil de beneficiario</Text>
@@ -120,20 +120,20 @@ export default function MiQRScreen() {
 
   return (
     <View style={styles.container}>
-      <StatusBar barStyle="dark-content" />
+      <StatusBar barStyle="light-content" />
 
-      {/* Header Estilo Admin */}
+      {/* Header Estilo Terracota */}
       <View style={styles.header}>
         <View style={styles.headerTop}>
           <TouchableOpacity onPress={() => router.back()} style={styles.iconButton}>
-            <Ionicons name="arrow-back" size={24} color="#1F2937" />
+            <Ionicons name="arrow-back" size={24} color="white" />
           </TouchableOpacity>
           <View style={styles.headerTitleContainer}>
             <Text style={styles.headerTitle}>Mi Código QR</Text>
             <Text style={styles.headerSubtitle}>Identificación personal</Text>
           </View>
           <TouchableOpacity style={styles.iconButton} onPress={handleLogout}>
-            <Ionicons name="log-out-outline" size={24} color="#EF4444" />
+            <Ionicons name="log-out-outline" size={24} color="white" />
           </TouchableOpacity>
         </View>
       </View>
@@ -146,15 +146,15 @@ export default function MiQRScreen() {
         {/* Tarjeta de Usuario */}
         <Animated.View entering={FadeInDown.delay(100)} style={styles.userCard}>
           <View style={styles.userCardHeader}>
-            <View style={[styles.avatar, { backgroundColor: beneficiario.activo ? '#EFF6FF' : '#F3F4F6' }]}>
-              <Text style={[styles.avatarText, { color: beneficiario.activo ? '#2563EB' : '#9CA3AF' }]}>
+            <View style={[styles.avatar, { backgroundColor: beneficiario.activo ? '#FED7AA' : '#F3F4F6' }]}>
+              <Text style={[styles.avatarText, { color: beneficiario.activo ? '#ff6a1aff' : '#9CA3AF' }]}>
                 {beneficiario.nombre.charAt(0).toUpperCase()}
               </Text>
             </View>
             <View style={styles.userInfo}>
               <Text style={styles.userName}>{beneficiario.nombre}</Text>
               <View style={styles.userMeta}>
-                <Ionicons name="card-outline" size={14} color="#6B7280" />
+                <Ionicons name="card-outline" size={14} color="#78716C" />
                 <Text style={styles.userMatricula}>{beneficiario.matricula}</Text>
               </View>
             </View>
@@ -170,13 +170,13 @@ export default function MiQRScreen() {
         {/* Tarjeta del QR */}
         <Animated.View entering={FadeInDown.delay(200)} style={styles.qrCard}>
           <View style={styles.qrHeader}>
-            <Ionicons name="qr-code-outline" size={24} color="#2563EB" />
+            <Ionicons name="qr-code-outline" size={24} color="#ff6a1aff" />
             <Text style={styles.qrTitle}>Código de Asistencia</Text>
           </View>
 
           {cargando ? (
             <View style={styles.loadingContainer}>
-              <ActivityIndicator size="large" color="#2563EB" />
+              <ActivityIndicator size="large" color="#ff6a1aff" />
               <Text style={styles.loadingText}>Generando código QR...</Text>
             </View>
           ) : qrValue ? (
@@ -190,13 +190,13 @@ export default function MiQRScreen() {
                       resizeMode="contain"
                     />
                   ) : (
-                    <ActivityIndicator size="small" color="#2563EB" />
+                    <ActivityIndicator size="small" color="#ff6a1aff" />
                   )
                 ) : (
                   <QRCode
                     value={qrValue}
                     size={width * 0.6}
-                    color="#2563EB"
+                    color="#ff6a1aff"
                     backgroundColor="white"
                     getRef={(c) => (qrRef = c)}
                   />
@@ -222,7 +222,7 @@ export default function MiQRScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F9FAFB',
+    backgroundColor: '#FFF7ED',
   },
   centerContent: {
     justifyContent: 'center',
@@ -230,18 +230,20 @@ const styles = StyleSheet.create({
     padding: 20,
   },
   header: {
-    backgroundColor: 'white',
+    backgroundColor: '#ff6a1aff',
     paddingTop: 60,
     paddingBottom: 20,
     paddingHorizontal: 20,
     borderBottomLeftRadius: 24,
     borderBottomRightRadius: 24,
-    shadowColor: '#000',
+    shadowColor: '#ff6a1aff',
     shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.08,
+    shadowOpacity: 0.1,
     shadowRadius: 12,
     elevation: 5,
     zIndex: 10,
+    borderBottomWidth: 1,
+    borderBottomColor: '#FED7AA',
   },
   headerTop: {
     flexDirection: 'row',
@@ -254,18 +256,18 @@ const styles = StyleSheet.create({
   headerTitle: {
     fontSize: 20,
     fontWeight: '700',
-    color: '#111827',
+    color: 'white',
   },
   headerSubtitle: {
     fontSize: 12,
-    color: '#6B7280',
+    color: 'rgba(255,255,255,0.9)',
     marginTop: 2,
   },
   iconButton: {
     width: 40,
     height: 40,
     borderRadius: 12,
-    backgroundColor: '#F3F4F6',
+    backgroundColor: 'rgba(255,255,255,0.2)',
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -281,11 +283,13 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     padding: 16,
     marginBottom: 20,
-    shadowColor: '#000',
+    shadowColor: '#ff6a1aff',
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05,
+    shadowOpacity: 0.08,
     shadowRadius: 8,
     elevation: 2,
+    borderWidth: 1,
+    borderColor: '#FED7AA',
   },
   userCardHeader: {
     flexDirection: 'row',
@@ -319,7 +323,7 @@ const styles = StyleSheet.create({
   },
   userMatricula: {
     fontSize: 14,
-    color: '#6B7280',
+    color: '#78716C',
   },
   statusBadge: {
     flexDirection: 'row',
@@ -343,11 +347,13 @@ const styles = StyleSheet.create({
     borderRadius: 24,
     padding: 24,
     marginBottom: 20,
-    shadowColor: '#000',
+    shadowColor: '#ff6a1aff',
     shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.08,
+    shadowOpacity: 0.1,
     shadowRadius: 12,
     elevation: 4,
+    borderWidth: 1,
+    borderColor: '#FED7AA',
   },
   qrHeader: {
     flexDirection: 'row',
@@ -367,16 +373,16 @@ const styles = StyleSheet.create({
   loadingText: {
     marginTop: 12,
     fontSize: 14,
-    color: '#6B7280',
+    color: '#78716C',
   },
   qrCodeContainer: {
-    backgroundColor: '#F9FAFB',
+    backgroundColor: '#FFF7ED',
     padding: 24,
     borderRadius: 20,
     alignItems: 'center',
     justifyContent: 'center',
     borderWidth: 2,
-    borderColor: '#E5E7EB',
+    borderColor: '#FED7AA',
     marginBottom: 20,
   },
   qrImage: {
@@ -397,7 +403,7 @@ const styles = StyleSheet.create({
   retryButton: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#2563EB',
+    backgroundColor: '#ff6a1aff',
     paddingHorizontal: 20,
     paddingVertical: 12,
     borderRadius: 12,
@@ -420,12 +426,12 @@ const styles = StyleSheet.create({
   emptyTitle: {
     fontSize: 18,
     fontWeight: '700',
-    color: '#374151',
+    color: '#1F2937',
     marginBottom: 8,
   },
   emptySubtitle: {
     fontSize: 14,
-    color: '#9CA3AF',
+    color: '#A8A29E',
     textAlign: 'center',
     marginBottom: 24,
   },
