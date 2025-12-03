@@ -30,7 +30,7 @@ export default function RecordatoriosScreen() {
     obtenerRecordatoriosPorBeneficiario
   } = useStorage();
 
-  const beneficiarioActualId = user?.role === 'student' ? user.beneficiarioId : '';
+  const beneficiarioActualId = user?.role === 'student' ? user.uid : '';
 
   const [modalVisible, setModalVisible] = useState(false);
   const [recordatorioEditando, setRecordatorioEditando] = useState<any>(null);
@@ -408,7 +408,7 @@ export default function RecordatoriosScreen() {
                       value={recordatorio.activo}
                       onValueChange={() => toggleRecordatorio(recordatorio)}
                       trackColor={{ false: '#E5E7EB', true: '#93C5FD' }}
-                      thumbColor={recordatorio.activo ? '#2563EB' : '#F3F4F6'}
+                      thumbColor={recordatorio.activo ? '#ff6a1aff' : '#F3F4F6'}
                     />
                     <TouchableOpacity
                       onPress={() => editarRecordatorio(recordatorio)}
@@ -456,7 +456,7 @@ export default function RecordatoriosScreen() {
             <View style={styles.modalHeader}>
               <View style={styles.modalTitleContainer}>
                 <View style={styles.modalIcon}>
-                  <Ionicons name="notifications-outline" size={24} color="#2563EB" />
+                  <Ionicons name="notifications-outline" size={24} color="#ff6a1aff" />
                 </View>
                 <Text style={styles.modalTitle}>
                   {recordatorioEditando ? 'Editar Recordatorio' : 'Configurar Recordatorio'}
@@ -575,7 +575,7 @@ export default function RecordatoriosScreen() {
                   value={formData.activo}
                   onValueChange={(value) => setFormData({ ...formData, activo: value })}
                   trackColor={{ false: '#E5E7EB', true: '#93C5FD' }}
-                  thumbColor={formData.activo ? '#2563EB' : '#F3F4F6'}
+                  thumbColor={formData.activo ? '#ff6a1aff' : '#F3F4F6'}
                   disabled={!permisosNotificaciones}
                 />
               </View>
@@ -615,7 +615,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#F9FAFB',
   },
   header: {
-    backgroundColor: '#2563EB',
+    backgroundColor: '#ff6a1aff',
     paddingTop: 60,
     paddingBottom: 24,
     paddingHorizontal: 20,
@@ -784,7 +784,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     gap: 8,
-    backgroundColor: '#2563EB',
+    backgroundColor: '#ff6a1aff',
     paddingVertical: 12,
     paddingHorizontal: 16,
     borderRadius: 10,

@@ -31,7 +31,7 @@ export default function PermisosScreen() {
         motivo: ''
     });
 
-    const beneficiarioId = user?.role === 'student' ? user.beneficiarioId : '';
+    const beneficiarioId = user?.role === 'student' ? user.uid : '';
     const permisos = beneficiarioId ? obtenerPermisosPorBeneficiario(beneficiarioId) : [];
 
     // Ordenar permisos por fecha descendente

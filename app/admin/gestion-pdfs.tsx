@@ -164,12 +164,12 @@ export default function GestionPDFsScreen() {
               >
                 <View style={[
                   styles.cardIcon,
-                  { backgroundColor: pdf.tipo === 'cocina' ? '#FFF7ED' : '#EFF6FF' }
+                  { backgroundColor: pdf.tipo === 'cocina' ? '#FFF7ED' : '#FFF7ED' }
                 ]}>
                   <Ionicons
                     name={pdf.tipo === 'cocina' ? 'restaurant' : 'sparkles'}
                     size={24}
-                    color={pdf.tipo === 'cocina' ? '#ff6a1aff' : '#2563EB'}
+                    color={pdf.tipo === 'cocina' ? '#ff6a1aff' : '#ff6a1aff'}
                   />
                 </View>
 

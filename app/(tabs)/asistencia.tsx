@@ -20,7 +20,7 @@ export default function AsistenciaScreen() {
   const { user } = useAuth();
   const { obtenerAsistenciasPorBeneficiario, obtenerEstadisticasCompletas } = useStorage();
 
-  const beneficiarioActualId = user?.role === 'student' ? user.beneficiarioId : '';
+  const beneficiarioActualId = user?.role === 'student' ? user.uid : '';
   const [filtroActivo, setFiltroActivo] = useState<FiltroTipo>('todos');
 
   const todasAsistencias = beneficiarioActualId ? obtenerAsistenciasPorBeneficiario(beneficiarioActualId) : [];

@@ -1,16 +1,32 @@
-// hooks/useStorage.ts - Hook de almacenamiento con gestión completa
-import AsyncStorage from '@react-native-async-storage/async-storage';
+// hooks/useStorage.ts - Hook de almacenamiento con Firebase
+import {
+    createUserWithEmailAndPassword,
+    signInWithEmailAndPassword,
+    signOut,
+    User
+} from 'firebase/auth';
+import {
+    addDoc,
+    collection,
+    deleteDoc,
+    doc,
+    onSnapshot,
+    setDoc,
+    updateDoc
+} from 'firebase/firestore';
 import { useEffect, useState } from 'react';
 import { Alert } from 'react-native';
+import { auth, db } from '../src/firebase/config';
 import { useNotifications } from './useNotifications';
 
 // Interfaces de datos
 export interface Beneficiario {
-    id: string;
+    id: string; // UID de Firebase Auth
     nombre: string;
     matricula: string;
+    email: string;
     activo: boolean;
-    password: string;
+    rol?: 'admin' | 'beneficiario' | 'student';
 }
 
 export interface Asistencia {
@@ -60,102 +76,6 @@ export interface Recordatorio {
     horaRecordatorio: string;
 }
 
-// Claves para AsyncStorage
-const STORAGE_KEYS = {
-    BENEFICIARIOS: 'beneficiarios',
-    ASISTENCIAS: 'asistencias',
-    ROLES: 'roles',
-    PDFS: 'pdfs',
-    RECORDATORIOS: 'recordatorios',
-    PERMISOS: 'permisos',
-};
-
-// Generador de contraseña de 6 dígitos
-const generarPassword6 = (): string => {
-    const num = Math.floor(Math.random() * 1_000_000);
-    return num.toString().padStart(6, '0');
-};
-
-// Datos iniciales (para demo)
-const DATOS_INICIALES = {
-    beneficiarios: [
-        { id: '1', nombre: 'Brenda Vásquez Cruz', matricula: '22105081', activo: true, password: generarPassword6() },
-        { id: '2', nombre: 'Ismael Hernández Pérez', matricula: '22105082', activo: true, password: generarPassword6() },
-        { id: '3', nombre: 'José Adrián Cruz Cuevas', matricula: '22105083', activo: true, password: generarPassword6() },
-        { id: '4', nombre: 'Ana García López', matricula: '22105084', activo: true, password: generarPassword6() },
-        { id: '5', nombre: 'Carlos Ruiz Martínez', matricula: '22105085', activo: true, password: generarPassword6() },
-    ] as Beneficiario[],
-    asistencias: [
-        { id: '1', beneficiarioId: '1', fecha: '2025-11-25', hora: '14:30', tipo: 'comida', comedor: 'Comedor Principal' },
-        { id: '2', beneficiarioId: '2', fecha: '2025-11-25', hora: '14:25', tipo: 'comida', comedor: 'Comedor Principal' },
-        { id: '3', beneficiarioId: '1', fecha: '2025-11-24', hora: '14:40', tipo: 'comida', comedor: 'Comedor Principal' },
-        { id: '4', beneficiarioId: '3', fecha: '2025-11-24', hora: '14:35', tipo: 'comida', comedor: 'Comedor Principal' },
-    ] as Asistencia[],
-    roles: [
-        {
-            id: '1',
-            beneficiarioId: '1',
-            tipo: 'cocina',
-            fecha: '2025-11-28',
-            horario: '07:00 - 10:00',
-            estado: 'proximo',
-            descripcion: 'Preparación desayuno',
-            compañeros: ['Ismael Hernández', 'Carlos Ruiz'],
-        },
-        {
-            id: '2',
-            beneficiarioId: '2',
-            tipo: 'aseo',
-            fecha: '2025-11-25',
-            horario: '14:00 - 16:00',
-            estado: 'pendiente',
-            descripcion: 'Limpieza comedor',
-            compañeros: ['Ana García'],
-        },
-        {
-            id: '3',
-            beneficiarioId: '1',
-            tipo: 'cocina',
-            fecha: '2025-11-22',
-            horario: '07:00 - 10:00',
-            estado: 'completado',
-            descripcion: 'Preparación desayuno',
-            compañeros: ['María López', 'Pedro Martínez'],
-        },
-        {
-            id: '4',
-            beneficiarioId: '3',
-            tipo: 'aseo',
-            fecha: '2025-11-20',
-            horario: '14:00 - 16:00',
-            estado: 'completado',
-            descripcion: 'Limpieza áreas comunes',
-            compañeros: ['Juan Pérez'],
-        },
-    ] as Rol[],
-    pdfs: [
-        {
-            id: '1',
-            titulo: 'Rool de Cocina Noviembre 2025',
-            tipo: 'cocina',
-            fecha: '2025-11-01',
-            url: 'https://ejemplo.com/rool-cocina-nov.pdf',
-            descripcion: 'Turnos de cocina para el mes de noviembre',
-            tamaño: 1024 * 1024,
-        },
-        {
-            id: '2',
-            titulo: 'Rool de Aseo Noviembre 2025',
-            tipo: 'aseo',
-            fecha: '2025-11-01',
-            url: 'https://ejemplo.com/rool-aseo-nov.pdf',
-            descripcion: 'Turnos de aseo para el mes de noviembre',
-            tamaño: 1024 * 1024,
-        },
-    ] as PDFDocument[],
-    recordatorios: [] as Recordatorio[],
-};
-
 export const useStorage = () => {
     const [loading, setLoading] = useState(true);
     const [beneficiarios, setBeneficiarios] = useState<Beneficiario[]>([]);
@@ -166,99 +86,138 @@ export const useStorage = () => {
     const [permisos, setPermisos] = useState<Permiso[]>([]);
     const { programarRecordatorio, cancelarNotificacion, isExpoGo } = useNotifications();
 
-    // Cargar datos una sola vez al montar el hook
+    // Suscripción a datos en tiempo real
     useEffect(() => {
-        inicializarDatos();
+        const unsubBeneficiarios = onSnapshot(collection(db, 'beneficiarios'), (snap) => {
+            const data = snap.docs.map(d => ({ id: d.id, ...d.data() } as Beneficiario));
+            setBeneficiarios(data);
+        });
+
+        const unsubAsistencias = onSnapshot(collection(db, 'asistencias'), (snap) => {
+            const data = snap.docs.map(d => ({ id: d.id, ...d.data() } as Asistencia));
+            setAsistencias(data);
+        });
+
+        const unsubRoles = onSnapshot(collection(db, 'roles'), (snap) => {
+            const data = snap.docs.map(d => ({ id: d.id, ...d.data() } as Rol));
+            setRoles(data);
+        });
+
+        const unsubPdfs = onSnapshot(collection(db, 'pdfs'), (snap) => {
+            const data = snap.docs.map(d => ({ id: d.id, ...d.data() } as PDFDocument));
+            setPdfs(data);
+        });
+
+        const unsubPermisos = onSnapshot(collection(db, 'permisos'), (snap) => {
+            const data = snap.docs.map(d => ({ id: d.id, ...d.data() } as Permiso));
+            setPermisos(data);
+        });
+
+        // Recordatorios locales (opcionalmente podrían ir a Firestore)
+        // Por simplicidad, los mantenemos en Firestore también
+        const unsubRecordatorios = onSnapshot(collection(db, 'recordatorios'), (snap) => {
+            const data = snap.docs.map(d => ({ id: d.id, ...d.data() } as Recordatorio));
+            setRecordatorios(data);
+        });
+
+        setLoading(false);
+
+        return () => {
+            unsubBeneficiarios();
+            unsubAsistencias();
+            unsubRoles();
+            unsubPdfs();
+            unsubPermisos();
+            unsubRecordatorios();
+        };
     }, []);
 
-    // ---------- CRUD Beneficiarios ----------
-    const agregarBeneficiario = async (beneficiario: Omit<Beneficiario, 'id'> | Omit<Beneficiario, 'id' | 'password'>) => {
-        // Si no se proporciona password, generar uno automáticamente
-        const password = 'password' in beneficiario && beneficiario.password ? beneficiario.password : generarPassword6();
-        const nuevo: Beneficiario = {
-            ...beneficiario,
-            id: Date.now().toString(),
-            password
-        };
-        const nuevos = [...beneficiarios, nuevo];
-        setBeneficiarios(nuevos);
-        await AsyncStorage.setItem(STORAGE_KEYS.BENEFICIARIOS, JSON.stringify(nuevos));
-
-        // Solo mostrar alerta si se generó automáticamente
-        if (!('password' in beneficiario) || !beneficiario.password) {
-            Alert.alert('Beneficiario creado', `Matrícula: ${nuevo.matricula}\nContraseña: ${password}`);
-        }
-        return nuevo;
+    // ---------- Autenticación ----------
+    const login = async (email: string, pass: string): Promise<User> => {
+        const cred = await signInWithEmailAndPassword(auth, email, pass);
+        return cred.user;
     };
 
-    const actualizarBeneficiario = async (id: string, datosActualizados: Partial<Beneficiario>) => {
-        const actualizados = beneficiarios.map(b => (b.id === id ? { ...b, ...datosActualizados } : b));
-        setBeneficiarios(actualizados);
-        await AsyncStorage.setItem(STORAGE_KEYS.BENEFICIARIOS, JSON.stringify(actualizados));
+    const logout = async () => {
+        await signOut(auth);
+    };
+
+    // ---------- CRUD Beneficiarios ----------
+    const agregarBeneficiario = async (datos: { nombre: string; email: string; matricula: string; activo: boolean; password?: string }) => {
+        if (!datos.password) throw new Error('Contraseña requerida para crear usuario');
+
+        // 1. Crear usuario en Firebase Auth
+        const cred = await createUserWithEmailAndPassword(auth, datos.email, datos.password);
+        const uid = cred.user.uid;
+
+        // 2. Guardar datos en Firestore
+        const nuevoBeneficiario: Beneficiario = {
+            id: uid,
+            nombre: datos.nombre,
+            email: datos.email,
+            matricula: datos.matricula,
+            activo: datos.activo,
+            rol: 'student'
+        };
+
+        await setDoc(doc(db, 'beneficiarios', uid), nuevoBeneficiario);
+        return nuevoBeneficiario;
+    };
+
+    const actualizarBeneficiario = async (id: string, datos: Partial<Beneficiario>) => {
+        const ref = doc(db, 'beneficiarios', id);
+        await updateDoc(ref, datos);
     };
 
     const eliminarBeneficiario = async (id: string) => {
-        const filtrados = beneficiarios.filter(b => b.id !== id);
-        setBeneficiarios(filtrados);
-        await AsyncStorage.setItem(STORAGE_KEYS.BENEFICIARIOS, JSON.stringify(filtrados));
+        // Eliminar de Firestore
+        await deleteDoc(doc(db, 'beneficiarios', id));
+        // Nota: Eliminar de Auth requiere Cloud Functions o re-autenticación del usuario a eliminar
+        Alert.alert('Aviso', 'El usuario fue eliminado de la base de datos. La cuenta de acceso debe ser deshabilitada manualmente en la consola de Firebase.');
     };
 
     const matriculaExiste = (matricula: string, excludeId?: string): boolean =>
         beneficiarios.some(b => b.matricula === matricula && b.id !== excludeId);
 
+    const emailExiste = (email: string, excludeId?: string): boolean =>
+        beneficiarios.some(b => b.email === email && b.id !== excludeId);
+
+    const obtenerBeneficiarioPorId = (id: string): Beneficiario | undefined =>
+        beneficiarios.find(b => b.id === id);
+
+    const obtenerBeneficiarioPorMatricula = (matricula: string): Beneficiario | undefined =>
+        beneficiarios.find(b => b.matricula === matricula);
+
     // ---------- CRUD PDFs ----------
     const agregarPDF = async (pdf: Omit<PDFDocument, 'id'>) => {
-        const nuevo: PDFDocument = { ...pdf, id: Date.now().toString() };
-        const nuevos = [...pdfs, nuevo];
-        setPdfs(nuevos);
-        await AsyncStorage.setItem(STORAGE_KEYS.PDFS, JSON.stringify(nuevos));
-        return nuevo;
+        await addDoc(collection(db, 'pdfs'), pdf);
     };
 
     const eliminarPDF = async (id: string) => {
-        const filtrados = pdfs.filter(p => p.id !== id);
-        setPdfs(filtrados);
-        await AsyncStorage.setItem(STORAGE_KEYS.PDFS, JSON.stringify(filtrados));
+        await deleteDoc(doc(db, 'pdfs', id));
     };
 
     // ---------- CRUD Roles ----------
     const agregarRol = async (rol: Omit<Rol, 'id'>) => {
-        const nuevo: Rol = { ...rol, id: Date.now().toString() };
-        const nuevos = [...roles, nuevo];
-        setRoles(nuevos);
-        await AsyncStorage.setItem(STORAGE_KEYS.ROLES, JSON.stringify(nuevos));
-        return nuevo;
+        await addDoc(collection(db, 'roles'), rol);
     };
 
-    const actualizarRol = async (id: string, datosActualizados: Partial<Rol>) => {
-        const actualizados = roles.map(r => (r.id === id ? { ...r, ...datosActualizados } : r));
-        setRoles(actualizados);
-        await AsyncStorage.setItem(STORAGE_KEYS.ROLES, JSON.stringify(actualizados));
+    const actualizarRol = async (id: string, datos: Partial<Rol>) => {
+        await updateDoc(doc(db, 'roles', id), datos);
     };
 
     const eliminarRol = async (id: string) => {
-        const filtrados = roles.filter(r => r.id !== id);
-        setRoles(filtrados);
-        await AsyncStorage.setItem(STORAGE_KEYS.ROLES, JSON.stringify(filtrados));
+        await deleteDoc(doc(db, 'roles', id));
     };
 
     // ---------- CRUD Permisos ----------
     const solicitarPermiso = async (permiso: Omit<Permiso, 'id' | 'estado'>) => {
-        const nuevo: Permiso = {
-            ...permiso,
-            id: Date.now().toString(),
-            estado: 'pendiente'
-        };
-        const nuevos = [...permisos, nuevo];
-        setPermisos(nuevos);
-        await AsyncStorage.setItem(STORAGE_KEYS.PERMISOS, JSON.stringify(nuevos));
-        return nuevo;
+        const nuevo = { ...permiso, estado: 'pendiente' };
+        await addDoc(collection(db, 'permisos'), nuevo);
     };
 
     const actualizarEstadoPermiso = async (id: string, estado: 'aprobado' | 'rechazado') => {
-        const actualizados = permisos.map(p => (p.id === id ? { ...p, estado } : p));
-        setPermisos(actualizados);
-        await AsyncStorage.setItem(STORAGE_KEYS.PERMISOS, JSON.stringify(actualizados));
+        await updateDoc(doc(db, 'permisos', id), { estado });
     };
 
     const obtenerPermisosPorBeneficiario = (beneficiarioId: string) => {
@@ -271,8 +230,7 @@ export const useStorage = () => {
         const fecha = ahora.toISOString().split('T')[0];
         const hora = ahora.toTimeString().split(' ')[0].substring(0, 5);
 
-        const nueva: Asistencia = {
-            id: Date.now().toString(),
+        const nueva = {
             beneficiarioId,
             fecha,
             hora,
@@ -280,15 +238,11 @@ export const useStorage = () => {
             comedor: 'Comedor Principal',
         };
 
-        const nuevas = [...asistencias, nueva];
-        setAsistencias(nuevas);
-        await AsyncStorage.setItem(STORAGE_KEYS.ASISTENCIAS, JSON.stringify(nuevas));
-        return nueva;
+        const ref = await addDoc(collection(db, 'asistencias'), nueva);
+        return { id: ref.id, ...nueva };
     };
 
     // ---------- Utilidades ----------
-    const obtenerBeneficiarioPorMatricula = (mat: string) => beneficiarios.find(b => b.matricula === mat);
-    const obtenerBeneficiarioPorId = (id: string) => beneficiarios.find(b => b.id === id);
 
     const obtenerAsistenciasDelDia = () => {
         const hoy = new Date().toISOString().split('T')[0];
@@ -306,7 +260,6 @@ export const useStorage = () => {
         const asistenciasComida = asistenciasBeneficiario.filter(a => a.tipo === 'comida').length;
         const asistenciasCena = asistenciasBeneficiario.filter(a => a.tipo === 'cena').length;
 
-        // Calcular racha actual (días consecutivos)
         const fechasOrdenadas = [...new Set(asistenciasBeneficiario.map(a => a.fecha))].sort().reverse();
         let rachaActual = 0;
         const hoy = new Date();
@@ -344,102 +297,25 @@ export const useStorage = () => {
 
     // ---------- CRUD Recordatorios ----------
     const agregarRecordatorio = async (recordatorio: Omit<Recordatorio, 'id'>) => {
-        const nuevo: Recordatorio = {
-            ...recordatorio,
-            id: Date.now().toString(),
-        };
-        const nuevos = [...recordatorios, nuevo];
-        setRecordatorios(nuevos);
-        await AsyncStorage.setItem(STORAGE_KEYS.RECORDATORIOS, JSON.stringify(nuevos));
+        const ref = await addDoc(collection(db, 'recordatorios'), recordatorio);
+        const nuevo = { id: ref.id, ...recordatorio };
 
         if (nuevo.activo) {
             await programarRecordatorio(nuevo.tipo, nuevo.fecha, nuevo.horaRecordatorio);
         }
-
         return nuevo;
     };
 
-    const actualizarRecordatorio = async (id: string, datosActualizados: Partial<Recordatorio>) => {
-        const recordatorioAnterior = recordatorios.find(r => r.id === id);
-        if (!recordatorioAnterior) return;
-
-        const actualizados = recordatorios.map(r => (r.id === id ? { ...r, ...datosActualizados } : r));
-        setRecordatorios(actualizados);
-        await AsyncStorage.setItem(STORAGE_KEYS.RECORDATORIOS, JSON.stringify(actualizados));
-
-        const recordatorioNuevo = { ...recordatorioAnterior, ...datosActualizados };
-
-        if (recordatorioNuevo.activo) {
-            await programarRecordatorio(recordatorioNuevo.tipo, recordatorioNuevo.fecha, recordatorioNuevo.horaRecordatorio);
-        }
+    const actualizarRecordatorio = async (id: string, datos: Partial<Recordatorio>) => {
+        await updateDoc(doc(db, 'recordatorios', id), datos);
+        // Nota: La reprogramación de notificaciones locales requeriría lógica adicional aquí
     };
 
-    // ---------- Función de desarrollo para limpiar datos ----------
     const limpiarDatos = async () => {
-        try {
-            await AsyncStorage.multiRemove([
-                STORAGE_KEYS.BENEFICIARIOS,
-                STORAGE_KEYS.ASISTENCIAS,
-                STORAGE_KEYS.ROLES,
-                STORAGE_KEYS.PDFS,
-                STORAGE_KEYS.RECORDATORIOS,
-                STORAGE_KEYS.PERMISOS,
-            ]);
-            setBeneficiarios([]);
-            setAsistencias([]);
-            setRoles([]);
-            setPdfs([]);
-            setRecordatorios([]);
-            setPermisos([]);
-        } catch (e) {
-            console.error('Error limpiando datos:', e);
-        }
+        // Función de desarrollo: No implementada para Firebase para evitar borrado masivo accidental
+        Alert.alert('Info', 'Limpiar datos no está disponible en modo Firebase por seguridad.');
     };
 
-    // ---------- Inicialización de datos ----------
-    const inicializarDatos = async () => {
-        try {
-            const existentes = await AsyncStorage.getItem(STORAGE_KEYS.BENEFICIARIOS);
-            if (!existentes) {
-                await Promise.all([
-                    AsyncStorage.setItem(STORAGE_KEYS.BENEFICIARIOS, JSON.stringify(DATOS_INICIALES.beneficiarios)),
-                    AsyncStorage.setItem(STORAGE_KEYS.ASISTENCIAS, JSON.stringify(DATOS_INICIALES.asistencias)),
-                    AsyncStorage.setItem(STORAGE_KEYS.ROLES, JSON.stringify(DATOS_INICIALES.roles)),
-                    AsyncStorage.setItem(STORAGE_KEYS.PDFS, JSON.stringify(DATOS_INICIALES.pdfs)),
-                    AsyncStorage.setItem(STORAGE_KEYS.RECORDATORIOS, JSON.stringify(DATOS_INICIALES.recordatorios)),
-                    AsyncStorage.setItem(STORAGE_KEYS.PERMISOS, JSON.stringify([])),
-                ]);
-            }
-            await cargarDatos();
-        } catch (e) {
-            console.error('Error inicializando datos:', e);
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    const cargarDatos = async () => {
-        try {
-            const [benefData, asistData, rolData, pdfData, recData, permData] = await Promise.all([
-                AsyncStorage.getItem(STORAGE_KEYS.BENEFICIARIOS),
-                AsyncStorage.getItem(STORAGE_KEYS.ASISTENCIAS),
-                AsyncStorage.getItem(STORAGE_KEYS.ROLES),
-                AsyncStorage.getItem(STORAGE_KEYS.PDFS),
-                AsyncStorage.getItem(STORAGE_KEYS.RECORDATORIOS),
-                AsyncStorage.getItem(STORAGE_KEYS.PERMISOS),
-            ]);
-            if (benefData) setBeneficiarios(JSON.parse(benefData));
-            if (asistData) setAsistencias(JSON.parse(asistData));
-            if (rolData) setRoles(JSON.parse(rolData));
-            if (pdfData) setPdfs(JSON.parse(pdfData));
-            if (recData) setRecordatorios(JSON.parse(recData));
-            if (permData) setPermisos(JSON.parse(permData));
-        } catch (e) {
-            console.error('Error cargando datos:', e);
-        }
-    };
-
-    // ---------- Exportar API ----------
     return {
         loading,
         beneficiarios,
@@ -448,10 +324,13 @@ export const useStorage = () => {
         pdfs,
         recordatorios,
         permisos,
+        login,
+        logout,
         agregarBeneficiario,
         actualizarBeneficiario,
         eliminarBeneficiario,
         matriculaExiste,
+        emailExiste,
         agregarRol,
         actualizarRol,
         eliminarRol,

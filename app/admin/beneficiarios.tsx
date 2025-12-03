@@ -24,7 +24,8 @@ export default function BeneficiariosScreen() {
     agregarBeneficiario,
     actualizarBeneficiario,
     eliminarBeneficiario,
-    matriculaExiste
+    matriculaExiste,
+    emailExiste
   } = useStorage();
 
   const [modalVisible, setModalVisible] = useState(false);
@@ -34,18 +35,20 @@ export default function BeneficiariosScreen() {
   const [formData, setFormData] = useState({
     nombre: '',
     matricula: '',
+    email: '',
     activo: true,
     password: ''
   });
 
   const beneficiariosFiltrados = beneficiarios.filter(beneficiario =>
     beneficiario.nombre.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    beneficiario.matricula.includes(searchQuery)
+    beneficiario.matricula.includes(searchQuery) ||
+    (beneficiario.email && beneficiario.email.toLowerCase().includes(searchQuery.toLowerCase()))
   );
 
   const handleNuevoBeneficiario = () => {
     setEditingBeneficiario(null);
-    setFormData({ nombre: '', matricula: '', activo: true, password: '' });
+    setFormData({ nombre: '', matricula: '', email: '', activo: true, password: '' });
     setShowPassword(false);
     setModalVisible(true);
   };
@@ -55,16 +58,17 @@ export default function BeneficiariosScreen() {
     setFormData({
       nombre: beneficiario.nombre,
       matricula: beneficiario.matricula,
+      email: beneficiario.email || '',
       activo: beneficiario.activo,
-      password: beneficiario.password
+      password: '' // No mostramos la contraseña por seguridad
     });
     setShowPassword(false);
     setModalVisible(true);
   };
 
   const handleGuardar = async () => {
-    if (!formData.nombre.trim() || !formData.matricula.trim()) {
-      Alert.alert('Campos incompletos', 'Por favor completa nombre y matrícula.');
+    if (!formData.nombre.trim() || !formData.matricula.trim() || !formData.email.trim()) {
+      Alert.alert('Campos incompletos', 'Por favor completa nombre, matrícula y correo.');
       return;
     }
 
@@ -78,6 +82,11 @@ export default function BeneficiariosScreen() {
       return;
     }
 
+    if (emailExiste(formData.email, editingBeneficiario?.id)) {
+      Alert.alert('Correo duplicado', 'Este correo electrónico ya está registrado.');
+      return;
+    }
+
     try {
       if (editingBeneficiario) {
         await actualizarBeneficiario(editingBeneficiario.id, formData);
@@ -85,15 +94,20 @@ export default function BeneficiariosScreen() {
         await agregarBeneficiario(formData);
       }
       setModalVisible(false);
-    } catch (error) {
-      Alert.alert('Error', 'No se pudo guardar el beneficiario.');
+    } catch (error: any) {
+      console.error(error);
+      let msg = 'No se pudo guardar el beneficiario.';
+      if (error.code === 'auth/email-already-in-use') msg = 'El correo ya está en uso por otra cuenta.';
+      if (error.code === 'auth/weak-password') msg = 'La contraseña es muy débil (mínimo 6 caracteres).';
+      if (error.code === 'auth/invalid-email') msg = 'El correo electrónico no es válido.';
+      Alert.alert('Error', msg);
     }
   };
 
   const handleEliminar = (beneficiario: Beneficiario) => {
     Alert.alert(
       'Eliminar Beneficiario',
-      `¿Eliminar a ${beneficiario.nombre}? Esta acción no se puede deshacer.`,
+      `¿Eliminar a ${beneficiario.nombre}? Esta acción borrará sus datos de la base de datos.`,
       [
         { text: 'Cancelar', style: 'cancel' },
         {
@@ -132,7 +146,7 @@ export default function BeneficiariosScreen() {
           <Ionicons name="search" size={20} color="rgba(255,255,255,0.8)" />
           <TextInput
             style={styles.searchInput}
-            placeholder="Buscar por nombre o matrícula..."
+            placeholder="Buscar por nombre, matrícula o correo..."
             placeholderTextColor="rgba(255,255,255,0.6)"
             value={searchQuery}
             onChangeText={setSearchQuery}
@@ -149,8 +163,8 @@ export default function BeneficiariosScreen() {
         {/* Estadísticas */}
         <View style={styles.statsRow}>
           <Animated.View entering={FadeInDown.delay(100)} style={styles.statCard}>
-            <View style={[styles.statIcon, { backgroundColor: '#EFF6FF' }]}>
-              <Ionicons name="people" size={24} color="#2563EB" />
+            <View style={[styles.statIcon, { backgroundColor: '#FFF7ED' }]}>
+              <Ionicons name="people" size={24} color="#ff6a1aff" />
             </View>
             <Text style={styles.statValue}>{beneficiarios.length}</Text>
             <Text style={styles.statLabel}>Total</Text>
@@ -194,6 +208,12 @@ export default function BeneficiariosScreen() {
                       <Ionicons name="card-outline" size={14} color="#6B7280" />
                       <Text style={styles.cardMatricula}>{beneficiario.matricula}</Text>
                     </View>
+                    {beneficiario.email && (
+                      <View style={styles.cardMeta}>
+                        <Ionicons name="mail-outline" size={14} color="#6B7280" />
+                        <Text style={styles.cardMatricula}>{beneficiario.email}</Text>
+                      </View>
+                    )}
                   </View>
                   <View style={[styles.statusBadge, { backgroundColor: beneficiario.activo ? '#ECFDF5' : '#FEF2F2' }]}>
                     <View style={[styles.statusDot, { backgroundColor: beneficiario.activo ? '#10B981' : '#EF4444' }]} />
@@ -286,6 +306,24 @@ export default function BeneficiariosScreen() {
                     placeholderTextColor="#9CA3AF"
                     value={formData.nombre}
                     onChangeText={(t) => setFormData({ ...formData, nombre: t })}
+                  />
+                </View>
+              </View>
+
+              <View style={styles.inputGroup}>
+                <Text style={styles.label}>
+                  <Ionicons name="mail-outline" size={14} color="#374151" /> Correo Electrónico
+                </Text>
+                <View style={styles.inputWrapper}>
+                  <Ionicons name="mail" size={20} color="#9CA3AF" style={styles.inputIcon} />
+                  <TextInput
+                    style={styles.input}
+                    placeholder="ejemplo@correo.com"
+                    placeholderTextColor="#9CA3AF"
+                    keyboardType="email-address"
+                    autoCapitalize="none"
+                    value={formData.email}
+                    onChangeText={(t) => setFormData({ ...formData, email: t })}
                   />
                 </View>
               </View>

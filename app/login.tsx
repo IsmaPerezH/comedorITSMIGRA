@@ -20,7 +20,7 @@ import Animated, { FadeInDown, FadeInUp } from 'react-native-reanimated';
 export default function LoginScreen() {
     const router = useRouter();
     const { user, login } = useAuth();
-    const [matricula, setMatricula] = useState('');
+    const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [loading, setLoading] = useState(false);
     const [showPassword, setShowPassword] = useState(false);
@@ -28,23 +28,30 @@ export default function LoginScreen() {
     // Redirect if already logged in
     useEffect(() => {
         if (user) {
-            if (user.role === 'admin') router.replace('/admin');
+            // Aquí podrías redirigir basado en el rol si lo tuvieras en el objeto user
+            // Por defecto redirigimos a admin si el email contiene 'admin' (lógica temporal)
+            // O mejor, redirigimos a una pantalla de carga que decida
+            if (user.email?.includes('admin')) router.replace('/admin');
             else router.replace('/(tabs)/mi-qr');
         }
     }, [user]);
 
     const handleLogin = async () => {
-        if (!matricula || !password) {
-            Alert.alert('Campos incompletos', 'Por favor ingresa tu matrícula y contraseña.');
+        if (!email || !password) {
+            Alert.alert('Campos incompletos', 'Por favor ingresa tu correo y contraseña.');
             return;
         }
         setLoading(true);
         try {
-            await login(matricula, password);
+            await login(email, password);
             // navigation handled by useEffect
-        } catch (e) {
+        } catch (e: any) {
             console.error(e);
-            Alert.alert('Error de inicio de sesión', 'Credenciales incorrectas o error de conexión.');
+            let mensaje = 'Credenciales incorrectas o error de conexión.';
+            if (e.code === 'auth/invalid-email') mensaje = 'El correo electrónico no es válido.';
+            if (e.code === 'auth/user-not-found') mensaje = 'No existe una cuenta con este correo.';
+            if (e.code === 'auth/wrong-password') mensaje = 'Contraseña incorrecta.';
+            Alert.alert('Error de inicio de sesión', mensaje);
         } finally {
             setLoading(false);
         }
@@ -91,17 +98,17 @@ export default function LoginScreen() {
                     style={styles.formContainer}
                 >
                     <View style={styles.inputGroup}>
-                        <Text style={styles.label}>Usuario / Matrícula</Text>
+                        <Text style={styles.label}>Correo Electrónico</Text>
                         <View style={styles.inputContainer}>
-                            <Ionicons name="person-outline" size={20} color="#78716C" style={styles.inputIcon} />
+                            <Ionicons name="mail-outline" size={20} color="#78716C" style={styles.inputIcon} />
                             <TextInput
-                                placeholder="Ej. 12345678"
+                                placeholder="ejemplo@correo.com"
                                 placeholderTextColor="#A8A29E"
-                                value={matricula}
-                                onChangeText={setMatricula}
+                                value={email}
+                                onChangeText={setEmail}
                                 style={styles.input}
                                 autoCapitalize="none"
-                                keyboardType="default"
+                                keyboardType="email-address"
                             />
                         </View>
                     </View>

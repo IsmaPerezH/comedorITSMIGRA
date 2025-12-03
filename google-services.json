@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "380034872966",
+    "project_id": "comedoritsmigra",
+    "storage_bucket": "comedoritsmigra.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:380034872966:android:679bd6a8e22a513fe3c307",
+        "android_client_info": {
+          "package_name": "Comedor.ITSMIGRA"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB1UyG-06h84xrR76Rn-8i82eGNi1jMuH8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

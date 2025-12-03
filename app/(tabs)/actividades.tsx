@@ -12,11 +12,11 @@ export default function ActividadesScreen() {
 
     // Filtrar datos
     const misRoles = user && user.role === 'student'
-        ? roles.filter(r => r.beneficiarioId === user.beneficiarioId).sort((a, b) => new Date(a.fecha).getTime() - new Date(b.fecha).getTime())
+        ? roles.filter(r => r.beneficiarioId === user.uid).sort((a, b) => new Date(a.fecha).getTime() - new Date(b.fecha).getTime())
         : [];
 
     const misAsistencias = user && user.role === 'student'
-        ? asistencias.filter(a => a.beneficiarioId === user.beneficiarioId).sort((a, b) => new Date(b.fecha).getTime() - new Date(a.fecha).getTime())
+        ? asistencias.filter(a => a.beneficiarioId === user.uid).sort((a, b) => new Date(b.fecha).getTime() - new Date(a.fecha).getTime())
         : [];
 
     return (

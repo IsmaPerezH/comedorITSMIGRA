@@ -1,92 +1,77 @@
 // context/AuthContext.tsx
-import { useStorage } from '@/hooks/useStorage';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import { auth, db } from '@/src/firebase/config';
+import { User as FirebaseUser, onAuthStateChanged, signInWithEmailAndPassword, signOut } from 'firebase/auth';
+import { doc, getDoc } from 'firebase/firestore';
 import React, { createContext, ReactNode, useContext, useEffect, useState } from 'react';
-import { Alert } from 'react-native';
 
-type User =
-    | {
-        role: 'student';
-        beneficiarioId: string;
-        matricula: string;
-        nombre: string;
-    }
-    | { role: 'admin'; username: string };
+// Extendemos el tipo User para incluir datos personalizados
+export type User = FirebaseUser & {
+    role?: 'admin' | 'beneficiario' | 'student';
+    nombre?: string;
+    matricula?: string;
+};
 
 interface AuthContextProps {
     user: User | null;
-    login: (identifier: string, password: string) => Promise<void>;
-    logout: () => void;
+    loading: boolean;
+    login: (email: string, pass: string) => Promise<void>;
+    logout: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextProps | undefined>(undefined);
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const [user, setUser] = useState<User | null>(null);
-    const { beneficiarios } = useStorage();
+    const [loading, setLoading] = useState(true);
 
-    // Persist user in AsyncStorage
     useEffect(() => {
-        const loadUser = async () => {
-            try {
-                const stored = await AsyncStorage.getItem('auth_user');
-                if (stored) setUser(JSON.parse(stored));
-            } catch (e) {
-                console.error('Error loading auth user', e);
+        const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
+            if (firebaseUser) {
+                // Fetch additional user data from Firestore
+                try {
+                    const userDocRef = doc(db, 'beneficiarios', firebaseUser.uid);
+                    const userDoc = await getDoc(userDocRef);
+
+                    if (userDoc.exists()) {
+                        const userData = userDoc.data();
+                        setUser({
+                            ...firebaseUser,
+                            role: userData.rol || 'beneficiario',
+                            nombre: userData.nombre,
+                            matricula: userData.matricula,
+                        } as User);
+                    } else {
+                        // Si no existe documento, asumimos que es un usuario básico o admin manual
+                        // Podríamos verificar si el email contiene 'admin' para asignar rol temporalmente
+                        const role = firebaseUser.email?.includes('admin') ? 'admin' : 'beneficiario';
+                        setUser({
+                            ...firebaseUser,
+                            role
+                        } as User);
+                    }
+                } catch (error) {
+                    console.error("Error fetching user data:", error);
+                    setUser(firebaseUser as User);
+                }
+            } else {
+                setUser(null);
             }
-        };
-        loadUser();
+            setLoading(false);
+        });
+
+        return unsubscribe;
     }, []);
 
-    const persistUser = async (u: User | null) => {
-        if (u) await AsyncStorage.setItem('auth_user', JSON.stringify(u));
-        else await AsyncStorage.removeItem('auth_user');
+    const login = async (email: string, pass: string) => {
+        await signInWithEmailAndPassword(auth, email, pass);
     };
 
-    const login = async (identifier: string, password: string) => {
-        // Admin shortcut
-        if (identifier === 'admin' && password === 'admin123') {
-            const adminUser: User = { role: 'admin', username: 'admin' };
-            setUser(adminUser);
-            await persistUser(adminUser);
-            return;
-        }
-
-        // Student login: identifier is matricula, password must be a 6‑digit numeric string
-        const isSixDigits = /^\d{6}$/.test(password);
-        if (!isSixDigits) {
-            Alert.alert('Error', 'La contraseña debe ser un número de 6 dígitos');
-            return;
-        }
-
-        const beneficiario = beneficiarios.find((b) => b.matricula === identifier);
-        if (!beneficiario) {
-            Alert.alert('Error', 'No se encontró un beneficiario con esa matrícula');
-            return;
-        }
-
-        if (beneficiario.password !== password) {
-            Alert.alert('Error', 'Contraseña incorrecta');
-            return;
-        }
-
-        const studentUser: User = {
-            role: 'student',
-            beneficiarioId: beneficiario.id,
-            matricula: beneficiario.matricula,
-            nombre: beneficiario.nombre,
-        };
-        setUser(studentUser);
-        await persistUser(studentUser);
-    };
-
-    const logout = () => {
-        setUser(null);
-        persistUser(null);
+    const logout = async () => {
+        await signOut(auth);
     };
 
     return (
-        <AuthContext.Provider value={{ user, login, logout }}>
+        <AuthContext.Provider value={{ user, loading, login, logout }}>
             {children}
         </AuthContext.Provider>
     );

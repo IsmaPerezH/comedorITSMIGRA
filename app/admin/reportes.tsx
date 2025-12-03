@@ -217,8 +217,8 @@ export default function AdminReportesScreen() {
         {/* Resumen Estadístico */}
         <View style={styles.statsRow}>
           <Animated.View entering={FadeInDown.delay(100)} style={styles.statCard}>
-            <View style={[styles.statIcon, { backgroundColor: '#EFF6FF' }]}>
-              <Ionicons name="people" size={24} color="#2563EB" />
+            <View style={[styles.statIcon, { backgroundColor: '#FFF7ED' }]}>
+              <Ionicons name="people" size={24} color="#ff6a1aff" />
             </View>
             <Text style={styles.statValue}>{estadisticas.totalBeneficiarios}</Text>
             <Text style={styles.statLabel}>Total</Text>

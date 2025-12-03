@@ -28,7 +28,7 @@ export default function MiQRScreen() {
   const router = useRouter();
   const { obtenerBeneficiarioPorId, beneficiarios, loading } = useStorage();
 
-  const beneficiarioId = user?.role === 'student' ? user.beneficiarioId : null;
+  const beneficiarioId = user?.role === 'student' ? user.uid : null;
   const [qrValue, setQrValue] = useState<string>('');
   const [qrWebDataUrl, setQrWebDataUrl] = useState<string>('');
   const [cargando, setCargando] = useState(true);

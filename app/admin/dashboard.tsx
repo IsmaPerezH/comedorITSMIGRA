@@ -137,7 +137,7 @@ export default function AdminDashboard() {
             title="Escanear QR"
             subtitle="Registrar entradas rápidamente"
             href="/admin/qr-scanner"
-            color="#2563EB"
+            color="#ff6a1aff"
             delay={300}
           />
           <ActionButton
@@ -187,7 +187,7 @@ export default function AdminDashboard() {
                       <Ionicons
                         name={asistencia.tipo === 'comida' ? 'sunny' : 'moon'}
                         size={18}
-                        color={asistencia.tipo === 'comida' ? '#0284C7' : '#DB2777'}
+                        color={asistencia.tipo === 'comida' ? '#ff6a1aff' : '#DB2777'}
                       />
                     </View>
                     <View style={styles.recentInfo}>
