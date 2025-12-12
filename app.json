@@ -4,7 +4,7 @@
     "slug": "comedorITSMIGRA",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/images/icon.png",
+    "icon": "./assets/images/comedor.png",
     "scheme": "comedoritsmigra",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
@@ -16,23 +16,27 @@
       "googleServicesFile": "./google-services.json",
       "adaptiveIcon": {
         "backgroundColor": "#E6F4FE",
-        "foregroundImage": "./assets/images/android-icon-foreground.png",
+        "foregroundImage": "./assets/images/comedor.png",
         "backgroundImage": "./assets/images/android-icon-background.png",
         "monochromeImage": "./assets/images/android-icon-monochrome.png"
       },
       "edgeToEdgeEnabled": true,
-      "predictiveBackGestureEnabled": false
+      "predictiveBackGestureEnabled": false,
+      "permissions": [
+        "android.permission.CAMERA",
+        "android.permission.RECORD_AUDIO"
+      ]
     },
     "web": {
       "output": "static",
-      "favicon": "./assets/images/favicon.png"
+      "favicon": "./assets/images/comedor.png"
     },
     "plugins": [
       "expo-router",
       [
         "expo-splash-screen",
         {
-          "image": "./assets/images/splash-icon.png",
+          "image": "./assets/images/comedor.png",
           "imageWidth": 200,
           "resizeMode": "contain",
           "backgroundColor": "#ffffff",
@@ -41,17 +45,36 @@
           }
         }
       ],
-      "expo-barcode-scanner",
       [
         "expo-camera",
         {
           "cameraPermission": "Permite a ComedorITSMIGRA acceder a tu cámara para escanear códigos QR."
+        }
+      ],
+      "expo-web-browser",
+      [
+        "expo-build-properties",
+        {
+          "android": {
+            "kotlinVersion": "2.0.20",
+            "gradleChildProcessParams": [
+              "-Xmx4g",
+              "-XX:MaxMetaspaceSize=1g"
+            ],
+            "enableProGuard": true
+          }
         }
       ]
     ],
     "experiments": {
       "typedRoutes": true,
       "reactCompiler": true
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "5e2fbdf0-25c3-4e63-bfd0-f4727dfde501"
+      }
     }
   }
 }

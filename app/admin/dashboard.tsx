@@ -164,6 +164,7 @@ export default function AdminDashboard() {
             color="#F59E0B"
             delay={600}
           />
+
         </View>
 
         {/* Asistencias Recientes */}

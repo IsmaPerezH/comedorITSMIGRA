@@ -212,7 +212,7 @@ export const useStorage = () => {
 
     // ---------- CRUD Permisos ----------
     const solicitarPermiso = async (permiso: Omit<Permiso, 'id' | 'estado'>) => {
-        const nuevo = { ...permiso, estado: 'pendiente' };
+        const nuevo = { ...permiso, estado: 'aprobado' }; // Se auto-aprueban al solicitar
         await addDoc(collection(db, 'permisos'), nuevo);
     };
 
@@ -311,11 +311,6 @@ export const useStorage = () => {
         // Nota: La reprogramación de notificaciones locales requeriría lógica adicional aquí
     };
 
-    const limpiarDatos = async () => {
-        // Función de desarrollo: No implementada para Firebase para evitar borrado masivo accidental
-        Alert.alert('Info', 'Limpiar datos no está disponible en modo Firebase por seguridad.');
-    };
-
     return {
         loading,
         beneficiarios,
@@ -349,7 +344,6 @@ export const useStorage = () => {
         solicitarPermiso,
         actualizarEstadoPermiso,
         obtenerPermisosPorBeneficiario,
-        limpiarDatos,
         programarRecordatorio,
         cancelarNotificacion,
         isExpoGo,

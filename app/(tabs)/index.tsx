@@ -2,7 +2,7 @@ import { useAuth } from '@/context/AuthContext';
 import { useStorage } from '@/hooks/useStorage';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { ScrollView, StatusBar, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import Animated, { FadeInDown } from 'react-native-reanimated';
 
@@ -58,7 +58,7 @@ export default function UserHomeScreen() {
             <View>
               <Text style={styles.mealLabel}>Horario de {comidaActual}</Text>
               <Text style={styles.mealTime}>
-                {comidaActual === 'Almuerzo' ? '8:00 - 12:00' : comidaActual === 'Comida' ? '12:00 - 18:00' : '18:00 - 20:00'}
+                {comidaActual === 'Almuerzo' ? '9:00 - 10:00' : comidaActual === 'Comida' ? '15:00 - 16:00' : '19:00 - 20:00'}
               </Text>
             </View>
             <View style={styles.mealIcon}>

@@ -1,8 +1,8 @@
-// context/AuthContext.tsx
+
 import { auth, db } from '@/src/firebase/config';
 import { User as FirebaseUser, onAuthStateChanged, signInWithEmailAndPassword, signOut } from 'firebase/auth';
 import { doc, getDoc } from 'firebase/firestore';
-import React, { createContext, ReactNode, useContext, useEffect, useState } from 'react';
+import { createContext, ReactNode, useContext, useEffect, useState } from 'react';
 
 // Extendemos el tipo User para incluir datos personalizados
 export type User = FirebaseUser & {

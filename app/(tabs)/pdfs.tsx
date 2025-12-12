@@ -1,9 +1,12 @@
 // app/(tabs)/pdfs.tsx
 import { useStorage } from '@/hooks/useStorage';
 import { Ionicons } from '@expo/vector-icons';
+import * as FileSystem from 'expo-file-system/legacy';
 import { useRouter } from 'expo-router';
-import React, { useState } from 'react';
+import { shareAsync } from 'expo-sharing';
+import { useState } from 'react';
 import {
+  ActivityIndicator,
   Alert,
   ScrollView,
   StatusBar,
@@ -18,6 +21,7 @@ export default function PDFsScreen() {
   const router = useRouter();
   const { obtenerPDFsPorTipo } = useStorage();
   const [tipoFiltro, setTipoFiltro] = useState<'cocina' | 'aseo' | 'todos'>('todos');
+  const [downloadingId, setDownloadingId] = useState<string | null>(null);
 
   const pdfsCocina = obtenerPDFsPorTipo('cocina');
   const pdfsAseo = obtenerPDFsPorTipo('aseo');
@@ -26,42 +30,45 @@ export default function PDFsScreen() {
     ? [...pdfsCocina, ...pdfsAseo]
     : tipoFiltro === 'cocina' ? pdfsCocina : pdfsAseo;
 
-  const abrirPDF = (pdf: any) => {
-    Alert.alert(
-      'Abrir PDF',
-      `¿Quieres abrir "${pdf.titulo}"?`,
-      [
-        { text: 'Cancelar', style: 'cancel' },
-        {
-          text: 'Abrir',
-          onPress: () => {
-            Alert.alert(
-              'PDF Simulado',
-              `El PDF "${pdf.titulo}" se abriría en un visor de PDFs.\n\nEn una aplicación real, este PDF estaría disponible para descargar y ver.`
-            );
-          }
-        },
-      ]
-    );
-  };
+  const abrirPDF = async (pdf: any) => {
+    if (!pdf.url) {
+      Alert.alert('Error', 'Este documento no tiene una URL válida.');
+      return;
+    }
 
-  const descargarPDF = (pdf: any) => {
-    Alert.alert(
-      'Descargar PDF',
-      `¿Descargar "${pdf.titulo}"?`,
-      [
-        { text: 'Cancelar', style: 'cancel' },
-        {
-          text: 'Descargar',
-          onPress: () => {
-            Alert.alert(
-              'Descarga Simulada',
-              `El PDF "${pdf.titulo}" se descargaría a tu dispositivo.\n\nTamaño: ${(pdf.tamaño / 1024 / 1024).toFixed(1)} MB`
-            );
-          }
-        },
-      ]
-    );
+    setDownloadingId(pdf.id);
+
+    try {
+      // 1. Definir ruta local temporal
+      const fileName = pdf.titulo.replace(/[^a-zA-Z0-9]/g, '_') + '.pdf';
+      const fileUri = FileSystem.cacheDirectory + fileName;
+
+      // 2. Descargar el archivo
+      const downloadResumable = FileSystem.createDownloadResumable(
+        pdf.url,
+        fileUri,
+        {},
+      );
+
+      const result = await downloadResumable.downloadAsync();
+
+      if (result && result.uri) {
+        // 3. Abrir con la intención nativa del sistema
+        await shareAsync(result.uri, {
+          mimeType: 'application/pdf',
+          dialogTitle: `Abrir ${pdf.titulo}`,
+          UTI: 'com.adobe.pdf' // Ayuda en iOS
+        });
+      } else {
+        throw new Error('No se pudo obtener la URI del archivo descargado');
+      }
+
+    } catch (error) {
+      console.error('Error al abrir PDF:', error);
+      Alert.alert('Error', 'No se pudo descargar o abrir el documento. Verifica tu conexión.');
+    } finally {
+      setDownloadingId(null);
+    }
   };
 
   const formatearFecha = (fecha: string) => {
@@ -216,19 +223,16 @@ export default function PDFsScreen() {
                   <TouchableOpacity
                     style={styles.accionButton}
                     onPress={() => abrirPDF(pdf)}
+                    disabled={downloadingId === pdf.id}
                   >
-                    <Text style={[styles.accionText, { color: '#ff6a1aff' }]}>Ver PDF</Text>
-                    <Ionicons name="eye-outline" size={18} color="#ff6a1aff" />
-                  </TouchableOpacity>
-
-                  <View style={styles.verticalDivider} />
-
-                  <TouchableOpacity
-                    style={styles.accionButton}
-                    onPress={() => descargarPDF(pdf)}
-                  >
-                    <Text style={[styles.accionText, { color: '#059669' }]}>Descargar</Text>
-                    <Ionicons name="download-outline" size={18} color="#059669" />
+                    {downloadingId === pdf.id ? (
+                      <ActivityIndicator size="small" color="#ff6a1aff" />
+                    ) : (
+                      <>
+                        <Text style={[styles.accionText, { color: '#ff6a1aff' }]}>Ver PDF</Text>
+                        <Ionicons name="open-outline" size={18} color="#ff6a1aff" />
+                      </>
+                    )}
                   </TouchableOpacity>
                 </View>
               </Animated.View>

@@ -2,10 +2,11 @@
 import { useAuth } from '@/context/AuthContext';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
     ActivityIndicator,
     Alert,
+    Image,
     KeyboardAvoidingView,
     Platform,
     StatusBar,
@@ -25,12 +26,8 @@ export default function LoginScreen() {
     const [loading, setLoading] = useState(false);
     const [showPassword, setShowPassword] = useState(false);
 
-    // Redirect if already logged in
     useEffect(() => {
         if (user) {
-            // Aquí podrías redirigir basado en el rol si lo tuvieras en el objeto user
-            // Por defecto redirigimos a admin si el email contiene 'admin' (lógica temporal)
-            // O mejor, redirigimos a una pantalla de carga que decida
             if (user.email?.includes('admin')) router.replace('/admin');
             else router.replace('/(tabs)/mi-qr');
         }
@@ -44,7 +41,6 @@ export default function LoginScreen() {
         setLoading(true);
         try {
             await login(email, password);
-            // navigation handled by useEffect
         } catch (e: any) {
             console.error(e);
             let mensaje = 'Credenciales incorrectas o error de conexión.';
@@ -61,7 +57,6 @@ export default function LoginScreen() {
         <View style={styles.container}>
             <StatusBar barStyle="dark-content" />
 
-            {/* Botón Atrás */}
             <TouchableOpacity
                 style={styles.backButton}
                 onPress={() => router.back()}
@@ -76,7 +71,11 @@ export default function LoginScreen() {
                 <View style={styles.headerContainer}>
                     <Animated.View entering={FadeInUp.delay(200).springify()}>
                         <View style={styles.iconContainer}>
-                            <Ionicons name="restaurant" size={40} color="#ff6a1aff" />
+                            <Image
+                                source={require('../assets/images/comedor.png')}
+                                style={styles.logoImage}
+                                resizeMode="contain"
+                            />
                         </View>
                     </Animated.View>
                     <Animated.Text
@@ -196,10 +195,10 @@ const styles = StyleSheet.create({
         marginBottom: 40,
     },
     iconContainer: {
-        width: 80,
-        height: 80,
+        width: 100,
+        height: 100,
         backgroundColor: 'white',
-        borderRadius: 40,
+        borderRadius: 50,
         justifyContent: 'center',
         alignItems: 'center',
         marginBottom: 24,
@@ -208,6 +207,11 @@ const styles = StyleSheet.create({
         shadowOpacity: 0.2,
         shadowRadius: 20,
         elevation: 10,
+        padding: 10,
+    },
+    logoImage: {
+        width: '100%',
+        height: '100%',
     },
     title: {
         fontSize: 28,

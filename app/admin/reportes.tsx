@@ -32,7 +32,11 @@ export default function AdminReportesScreen() {
   };
 
   const formatearFecha = (fecha: Date) => {
-    return fecha.toISOString().split('T')[0];
+    // Usar fecha local para evitar problemas de zona horaria
+    const year = fecha.getFullYear();
+    const month = String(fecha.getMonth() + 1).padStart(2, '0');
+    const day = String(fecha.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
   };
 
   const fechaStr = formatearFecha(fechaSeleccionada);
@@ -44,14 +48,14 @@ export default function AdminReportesScreen() {
     );
 
     const permisoDia = permisos.find(
-      p => p.beneficiarioId === beneficiarioId && p.fecha === fechaStr && p.estado === 'aprobado'
+      p => p.beneficiarioId === beneficiarioId && p.fecha === fechaStr
     );
 
     return {
       almuerzo: asistenciasDia.some(a => a.tipo === 'almuerzo'),
       comida: asistenciasDia.some(a => a.tipo === 'comida'),
       cena: asistenciasDia.some(a => a.tipo === 'cena'),
-      permiso: !!permisoDia,
+      estadoPermiso: permisoDia?.estado || null,
       motivoPermiso: permisoDia?.motivo
     };
   };
@@ -67,8 +71,21 @@ export default function AdminReportesScreen() {
     asistenciasAlmuerzo: datosReporte.filter(d => d.estado.almuerzo).length,
     asistenciasComida: datosReporte.filter(d => d.estado.comida).length,
     asistenciasCena: datosReporte.filter(d => d.estado.cena).length,
-    permisos: datosReporte.filter(d => d.estado.permiso).length
+    permisos: datosReporte.filter(d => d.estado.estadoPermiso).length // Count any permission
   };
+
+  // ... (render PDF generation code needs small update for permiso check but simplifying for tool usage limits, focus on UI first) ...
+
+  // Skipping PDF gen update for brevity in this chunk, assuming UI is priority. 
+  // Ideally I should update the PDF generation loop too if I could seeing the whole file but replace_file_content is better for chunks.
+  // I will actually include the updated PDF map snippet? No, it's too far apart. I'll stick to UI first block and then the second block.
+
+  // Wait, I can't break the PDF generation logic if I change `estado.permiso` (boolean) to `estado.estadoPermiso` (string).
+  // I must make sure `generarPDF` logic is updated or compatible.
+  // In `generarPDF`: `<td style="text-align: center">${item.estado.permiso ? ...` 
+  // I need to update that too. Since `replace_file_content` works on contiguous blocks, and `generarPDF` is lines 73-161, and logic is 34-71, they are separate.
+  // I'll use multi_replace_file_content.
+
 
   const generarPDF = async () => {
     setLoadingPdf(true);
@@ -141,7 +158,7 @@ export default function AdminReportesScreen() {
                     <td style="text-align: center">${item.estado.almuerzo ? '<span class="check">✓</span>' : '<span class="dash">-</span>'}</td>
                     <td style="text-align: center">${item.estado.comida ? '<span class="check">✓</span>' : '<span class="dash">-</span>'}</td>
                     <td style="text-align: center">${item.estado.cena ? '<span class="check">✓</span>' : '<span class="dash">-</span>'}</td>
-                    <td style="text-align: center">${item.estado.permiso ? '<span class="permiso">Sí</span>' : '<span class="dash">-</span>'}</td>
+                  <td style="text-align: center">${item.estado.estadoPermiso ? '<span class="permiso">Sí</span>' : '<span class="dash">-</span>'}</td>
                   </tr>
                 `).join('')}
               </tbody>
@@ -293,7 +310,7 @@ export default function AdminReportesScreen() {
               </View>
 
               <View style={styles.cell}>
-                {item.estado.permiso ? (
+                {item.estado.estadoPermiso ? (
                   <TouchableOpacity onPress={() => alert(`Motivo: ${item.estado.motivoPermiso}`)}>
                     <View style={[styles.checkCircle, { backgroundColor: '#FEF3C7' }]}>
                       <Ionicons name="document-text" size={14} color="#D97706" />

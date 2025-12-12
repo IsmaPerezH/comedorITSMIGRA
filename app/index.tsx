@@ -1,8 +1,8 @@
+
 // app/index.tsx
 import { Ionicons } from '@expo/vector-icons';
 import { Link } from 'expo-router';
-import React from 'react';
-import { StatusBar, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Image, StatusBar, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import Animated, { FadeInDown, FadeInUp } from 'react-native-reanimated';
 
 export default function RoleSelectionScreen() {
@@ -13,7 +13,11 @@ export default function RoleSelectionScreen() {
       <View style={styles.header}>
         <Animated.View entering={FadeInUp.delay(200)} style={styles.logoContainer}>
           <View style={styles.logoCircle}>
-            <Ionicons name="restaurant" size={48} color="#ff6a1aff" />
+            <Image
+              source={require('../assets/images/comedor.png')}
+              style={styles.logoImage}
+              resizeMode="contain"
+            />
           </View>
         </Animated.View>
 
@@ -90,12 +94,17 @@ const styles = StyleSheet.create({
     elevation: 10,
   },
   logoCircle: {
-    width: 100,
-    height: 100,
-    borderRadius: 50,
+    width: 120,
+    height: 120,
+    borderRadius: 60,
     backgroundColor: 'white',
     justifyContent: 'center',
     alignItems: 'center',
+    padding: 10,
+  },
+  logoImage: {
+    width: '100%',
+    height: '100%',
   },
   title: {
     fontSize: 28,
