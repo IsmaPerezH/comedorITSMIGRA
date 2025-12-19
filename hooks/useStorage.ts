@@ -212,7 +212,7 @@ export const useStorage = () => {
 
     // ---------- CRUD Permisos ----------
     const solicitarPermiso = async (permiso: Omit<Permiso, 'id' | 'estado'>) => {
-        const nuevo = { ...permiso, estado: 'aprobado' }; // Se auto-aprueban al solicitar
+        const nuevo = { ...permiso, estado: 'aprobado' };
         await addDoc(collection(db, 'permisos'), nuevo);
     };
 

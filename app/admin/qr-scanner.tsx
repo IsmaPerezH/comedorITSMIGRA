@@ -60,14 +60,14 @@ export default function AdminQRScannerScreen() {
 
   const handleBarCodeScanned = async ({ type, data }: { type: string; data: string }) => {
     if (scanned) return;
-    setScanned(true); // Set scanned to true to prevent multiple scans
+    setScanned(true);
 
     try {
       const validacion = QRGenerator.validarQR(data);
 
       if (!validacion.valido) {
         Alert.alert(
-          '❌ QR Inválido',
+          'QR Inválido',
           validacion.error || 'Este código QR no es válido',
           [{ text: 'Intentar de nuevo', onPress: () => setScanned(false) }]
         );
@@ -94,7 +94,7 @@ export default function AdminQRScannerScreen() {
         const asistencia = await registrarAsistencia(beneficiario.id, tipo);
 
         Alert.alert(
-          '✅ Asistencia Registrada',
+          'Asistencia Registrada',
           'Beneficiario: ' + beneficiario.nombre + '\nMatrícula: ' + beneficiario.matricula + '\nTipo: ' + tipo + '\nHora: ' + asistencia.hora,
           [
             {
@@ -110,14 +110,14 @@ export default function AdminQRScannerScreen() {
         );
       } else {
         Alert.alert(
-          '❌ Beneficiario No Encontrado',
+          'Beneficiario No Encontrado',
           'El código QR es válido pero no se encontró al beneficiario con matrícula ' + datos!.matricula,
           [{ text: 'Intentar de nuevo', onPress: () => setScanned(false) }]
         );
       }
     } catch (error) {
       Alert.alert(
-        '❌ Error',
+        'Error',
         'Hubo un problema al registrar la asistencia',
         [{ text: 'Intentar de nuevo', onPress: () => setScanned(false) }]
       );

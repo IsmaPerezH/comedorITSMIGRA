@@ -1,23 +1,104 @@
 import { useAuth } from '@/context/AuthContext';
 import { useStorage } from '@/hooks/useStorage';
 import { Ionicons } from '@expo/vector-icons';
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { ScrollView, StatusBar, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import Animated, { FadeInDown } from 'react-native-reanimated';
 
 export default function ActividadesScreen() {
     const { user } = useAuth();
-    const { roles, asistencias } = useStorage();
+    const { roles, asistencias, recordatorios, permisos } = useStorage();
     const [activeTab, setActiveTab] = useState<'agenda' | 'historial'>('agenda');
 
-    // Filtrar datos
-    const misRoles = user && user.role === 'student'
-        ? roles.filter(r => r.beneficiarioId === user.uid).sort((a, b) => new Date(a.fecha).getTime() - new Date(b.fecha).getTime())
-        : [];
+    // 1. Obtener datos del usuario actual
+    const userId = user?.role === 'student' ? user.uid : '';
 
-    const misAsistencias = user && user.role === 'student'
-        ? asistencias.filter(a => a.beneficiarioId === user.uid).sort((a, b) => new Date(b.fecha).getTime() - new Date(a.fecha).getTime())
-        : [];
+    // 2. Unificar eventos para la AGENDA (Futuros/Pendientes)
+    const eventosAgenda = useMemo(() => {
+        if (!userId) return [];
+
+        const listaEventos: any[] = [];
+
+        // Roles Pendientes
+        const misRoles = roles.filter(r => r.beneficiarioId === userId && r.estado !== 'completado');
+        misRoles.forEach(rol => {
+            listaEventos.push({
+                id: rol.id,
+                tipo: 'rol',
+                subtipo: rol.tipo, // 'cocina' | 'aseo'
+                fecha: rol.fecha,
+                titulo: `Rol de ${rol.tipo.charAt(0).toUpperCase() + rol.tipo.slice(1)}`,
+                detalle: rol.horario,
+                estado: rol.estado
+            });
+        });
+
+        // Recordatorios Activos
+        const misRecordatorios = recordatorios.filter(r => r.beneficiarioId === userId && r.activo);
+        misRecordatorios.forEach(rec => {
+            listaEventos.push({
+                id: rec.id,
+                tipo: 'recordatorio',
+                subtipo: rec.tipo,
+                fecha: rec.fecha,
+                titulo: 'Recordatorio',
+                detalle: `${rec.horaRecordatorio} - ${rec.tipo.toUpperCase()}`,
+                estado: 'activo'
+            });
+        });
+
+        // Permisos Solicitados (Futuros o Recientes)
+        const misPermisos = permisos.filter(p => p.beneficiarioId === userId);
+        misPermisos.forEach(per => {
+            listaEventos.push({
+                id: per.id,
+                tipo: 'permiso',
+                subtipo: 'general',
+                fecha: per.fecha,
+                titulo: 'Permiso Solicitado',
+                detalle: per.motivo,
+                estado: per.estado // 'aprobado' | 'pendiente'
+            });
+        });
+
+        // Ordenar por fecha (más cercano primero)
+        return listaEventos.sort((a, b) => new Date(a.fecha).getTime() - new Date(b.fecha).getTime());
+
+    }, [userId, roles, recordatorios, permisos]);
+
+    // 3. Historial de Asistencias (Pasado)
+    const historialAsistencias = useMemo(() => {
+        if (!userId) return [];
+        return asistencias
+            .filter(a => a.beneficiarioId === userId)
+            .sort((a, b) => new Date(b.fecha).getTime() - new Date(a.fecha).getTime());
+    }, [userId, asistencias]);
+
+    const renderIcon = (item: any) => {
+        if (item.tipo === 'rol') {
+            return (
+                <View style={[styles.iconContainer, { backgroundColor: item.subtipo === 'cocina' ? '#FEF3C7' : '#DBEAFE' }]}>
+                    <Ionicons
+                        name={item.subtipo === 'cocina' ? 'restaurant' : 'sparkles'}
+                        size={24}
+                        color={item.subtipo === 'cocina' ? '#D97706' : '#2563EB'}
+                    />
+                </View>
+            );
+        } else if (item.tipo === 'recordatorio') {
+            return (
+                <View style={[styles.iconContainer, { backgroundColor: '#FEE2E2' }]}>
+                    <Ionicons name="notifications" size={24} color="#DC2626" />
+                </View>
+            );
+        } else { // Permiso
+            return (
+                <View style={[styles.iconContainer, { backgroundColor: '#ECFDF5' }]}>
+                    <Ionicons name="document-text" size={24} color="#059669" />
+                </View>
+            );
+        }
+    };
 
     return (
         <View style={styles.container}>
@@ -27,11 +108,11 @@ export default function ActividadesScreen() {
             <View style={styles.header}>
                 <View style={styles.headerTop}>
                     <View>
-                        <Text style={styles.headerTitle}>Mis Actividades</Text>
-                        <Text style={styles.headerSubtitle}>Agenda y registro de asistencia</Text>
+                        <Text style={styles.headerTitle}>Mi Agenda</Text>
+                        <Text style={styles.headerSubtitle}>Roles, recordatorios y permisos</Text>
                     </View>
                     <View style={styles.iconButton}>
-                        <Ionicons name="calendar-outline" size={24} color="white" />
+                        <Ionicons name="calendar" size={24} color="white" />
                     </View>
                 </View>
             </View>
@@ -42,7 +123,7 @@ export default function ActividadesScreen() {
                     style={[styles.tab, activeTab === 'agenda' && styles.activeTab]}
                     onPress={() => setActiveTab('agenda')}
                 >
-                    <Text style={[styles.tabText, activeTab === 'agenda' && styles.activeTabText]}>Agenda</Text>
+                    <Text style={[styles.tabText, activeTab === 'agenda' && styles.activeTabText]}>Próximos</Text>
                 </TouchableOpacity>
                 <TouchableOpacity
                     style={[styles.tab, activeTab === 'historial' && styles.activeTab]}
@@ -55,55 +136,44 @@ export default function ActividadesScreen() {
             <ScrollView style={styles.content} contentContainerStyle={styles.contentContainer} showsVerticalScrollIndicator={false}>
                 {activeTab === 'agenda' ? (
                     <View>
-                        {misRoles.length > 0 ? (
-                            misRoles.map((rol, index) => (
-                                <Animated.View
-                                    key={rol.id}
-                                    entering={FadeInDown.delay(index * 100)}
-                                    style={styles.card}
-                                >
-                                    <View style={[styles.iconContainer, { backgroundColor: rol.tipo === 'cocina' ? '#FEF3C7' : '#DBEAFE' }]}>
-                                        <Ionicons
-                                            name={rol.tipo === 'cocina' ? 'restaurant' : 'sparkles'}
-                                            size={24}
-                                            color={rol.tipo === 'cocina' ? '#D97706' : '#2563EB'}
-                                        />
-                                    </View>
+                        {eventosAgenda.length > 0 ? (
+                            eventosAgenda.map((item, index) => (
+                                <Animated.View key={item.id} entering={FadeInDown.delay(index * 100)} style={styles.card}>
+                                    {renderIcon(item)}
                                     <View style={styles.cardContent}>
-                                        <Text style={styles.cardTitle}>Rol de {rol.tipo.charAt(0).toUpperCase() + rol.tipo.slice(1)}</Text>
+                                        <Text style={styles.cardTitle}>{item.titulo}</Text>
                                         <Text style={styles.cardDate}>
-                                            {new Date(rol.fecha).toLocaleDateString('es-MX', { weekday: 'long', day: 'numeric', month: 'long' })}
+                                            {new Date(item.fecha).toLocaleDateString('es-MX', { weekday: 'long', day: 'numeric', month: 'long' })}
                                         </Text>
-                                        <Text style={styles.cardSubtitle}>{rol.horario}</Text>
+                                        <Text style={styles.cardSubtitle}>{item.detalle}</Text>
                                     </View>
-                                    <View style={[styles.statusBadge, { backgroundColor: rol.estado === 'completado' ? '#D1FAE5' : '#EFF6FF' }]}>
-                                        <Text style={[styles.statusText, { color: rol.estado === 'completado' ? '#059669' : '#2563EB' }]}>
-                                            {rol.estado === 'completado' ? 'Listo' : 'Pendiente'}
-                                        </Text>
-                                    </View>
+
+                                    {/* Badge Lateral opcional según tipo */}
+                                    {item.tipo === 'permiso' && (
+                                        <View style={[styles.statusBadge, { backgroundColor: '#ECFDF5' }]}>
+                                            <Text style={[styles.statusText, { color: '#059669' }]}>Sí</Text>
+                                        </View>
+                                    )}
                                 </Animated.View>
                             ))
                         ) : (
                             <View style={styles.emptyState}>
-                                <Ionicons name="calendar-outline" size={48} color="#A8A29E" />
-                                <Text style={styles.emptyText}>No tienes roles asignados próximamente</Text>
+                                <Ionicons name="calendar-outline" size={64} color="#D6D3D1" />
+                                <Text style={styles.emptyText}>No tienes actividades pendientes</Text>
+                                <Text style={styles.emptySubtext}>Tus roles y recordatorios aparecerán aquí</Text>
                             </View>
                         )}
                     </View>
                 ) : (
                     <View>
-                        {misAsistencias.length > 0 ? (
-                            misAsistencias.map((asistencia, index) => (
-                                <Animated.View
-                                    key={asistencia.id}
-                                    entering={FadeInDown.delay(index * 50)}
-                                    style={styles.card}
-                                >
-                                    <View style={[styles.iconContainer, { backgroundColor: '#ECFDF5' }]}>
-                                        <Ionicons name="checkmark-circle" size={24} color="#059669" />
+                        {historialAsistencias.length > 0 ? (
+                            historialAsistencias.map((asistencia, index) => (
+                                <Animated.View key={asistencia.id} entering={FadeInDown.delay(index * 50)} style={styles.card}>
+                                    <View style={[styles.iconContainer, { backgroundColor: '#F3F4F6' }]}>
+                                        <Ionicons name="checkmark-done" size={24} color="#4B5563" />
                                     </View>
                                     <View style={styles.cardContent}>
-                                        <Text style={styles.cardTitle}>Asistencia Registrada</Text>
+                                        <Text style={styles.cardTitle}>Asistencia</Text>
                                         <Text style={styles.cardDate}>
                                             {new Date(asistencia.fecha).toLocaleDateString('es-MX', { weekday: 'long', day: 'numeric', month: 'long' })}
                                         </Text>
@@ -115,8 +185,8 @@ export default function ActividadesScreen() {
                             ))
                         ) : (
                             <View style={styles.emptyState}>
-                                <Ionicons name="time-outline" size={48} color="#A8A29E" />
-                                <Text style={styles.emptyText}>No hay historial de asistencias</Text>
+                                <Ionicons name="time-outline" size={64} color="#D6D3D1" />
+                                <Text style={styles.emptyText}>Sin historial reciente</Text>
                             </View>
                         )}
                     </View>
@@ -235,18 +305,19 @@ const styles = StyleSheet.create({
     },
     cardTitle: {
         fontSize: 16,
-        fontWeight: '600',
+        fontWeight: '700',
         color: '#1F2937',
         marginBottom: 2,
     },
     cardDate: {
         fontSize: 14,
-        color: '#4B5563',
+        color: '#ea580c', // Naranja oscuro para resaltar fecha
+        fontWeight: '600',
         marginBottom: 2,
     },
     cardSubtitle: {
-        fontSize: 12,
-        color: '#9CA3AF',
+        fontSize: 13,
+        color: '#6B7280',
     },
     statusBadge: {
         paddingHorizontal: 10,
@@ -259,11 +330,18 @@ const styles = StyleSheet.create({
     },
     emptyState: {
         alignItems: 'center',
-        paddingVertical: 40,
+        paddingVertical: 60,
     },
     emptyText: {
-        marginTop: 12,
-        fontSize: 16,
+        marginTop: 16,
+        fontSize: 18,
+        fontWeight: '600',
+        color: '#57534E',
+        textAlign: 'center',
+    },
+    emptySubtext: {
+        marginTop: 8,
+        fontSize: 14,
         color: '#A8A29E',
         textAlign: 'center',
     },

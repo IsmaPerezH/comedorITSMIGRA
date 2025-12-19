@@ -145,6 +145,16 @@ export default function UserHomeScreen() {
             </View>
             <Text style={styles.actionTitle}>Mi Agenda</Text>
           </TouchableOpacity>
+
+          <TouchableOpacity
+            style={styles.actionCard}
+            onPress={() => router.push('/recordatorios')}
+          >
+            <View style={[styles.actionIcon, { backgroundColor: '#FEF3C7' }]}>
+              <Ionicons name="notifications" size={24} color="#D97706" />
+            </View>
+            <Text style={styles.actionTitle}>Recordatorios</Text>
+          </TouchableOpacity>
         </View>
 
       </ScrollView>
@@ -327,10 +337,11 @@ const styles = StyleSheet.create({
   },
   quickActions: {
     flexDirection: 'row',
+    flexWrap: 'wrap',
     gap: 12,
   },
   actionCard: {
-    flex: 1,
+    width: '48%',
     backgroundColor: 'white',
     borderRadius: 16,
     padding: 16,
@@ -340,6 +351,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.05,
     shadowRadius: 8,
     elevation: 2,
+    marginBottom: 0,
   },
   actionIcon: {
     width: 48,

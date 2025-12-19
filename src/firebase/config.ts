@@ -3,7 +3,6 @@ import { getAuth } from 'firebase/auth';
 import { getFirestore } from 'firebase/firestore';
 
 // Configuración de Firebase
-// IMPORTANTE: Reemplaza 'TU_API_KEY' y 'TU_APP_ID' con los valores de tu consola de Firebase
 const firebaseConfig = {
     apiKey: "AIzaSyB1UyG-06h84xrR76Rn-8i82eGNi1jMuH8",
     authDomain: "comedoritsmigra.firebaseapp.com",

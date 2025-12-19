@@ -14,7 +14,6 @@ import {
   StyleSheet,
   Switch,
   Text,
-  TextInput,
   TouchableOpacity,
   View
 } from 'react-native';
@@ -35,7 +34,9 @@ export default function RecordatoriosScreen() {
   const [modalVisible, setModalVisible] = useState(false);
   const [recordatorioEditando, setRecordatorioEditando] = useState<any>(null);
   const [showTimePicker, setShowTimePicker] = useState(false);
+  const [showDatePicker, setShowDatePicker] = useState(false);
   const [horaSeleccionada, setHoraSeleccionada] = useState(new Date());
+  const [fechaSeleccionada, setFechaSeleccionada] = useState(new Date());
   const [permisosNotificaciones, setPermisosNotificaciones] = useState(false);
   const [formData, setFormData] = useState({
     tipo: 'cocina' as 'cocina' | 'aseo',
@@ -73,6 +74,26 @@ export default function RecordatoriosScreen() {
   const proximoCocina = rolesCocina.sort((a, b) => new Date(a.fecha).getTime() - new Date(b.fecha).getTime())[0];
   const proximoAseo = rolesAseo.sort((a, b) => new Date(a.fecha).getTime() - new Date(b.fecha).getTime())[0];
 
+  const nuevoRecordatorioManual = () => {
+    if (!permisosNotificaciones) {
+      Alert.alert('Permisos', 'Activa las notificaciones primero');
+      return;
+    }
+    const manana = new Date();
+    manana.setDate(manana.getDate() + 1);
+    const fechaStr = manana.toISOString().split('T')[0];
+
+    setFormData({
+      tipo: 'cocina',
+      fecha: fechaStr,
+      horaRecordatorio: '08:00',
+      activo: true
+    });
+    setFechaSeleccionada(manana);
+    setRecordatorioEditando(null);
+    setModalVisible(true);
+  };
+
   const configurarRecordatorioAutomatico = async (tipo: 'cocina' | 'aseo') => {
     if (!permisosNotificaciones) {
       Alert.alert(
@@ -89,7 +110,7 @@ export default function RecordatoriosScreen() {
     const proximoRol = tipo === 'cocina' ? proximoCocina : proximoAseo;
 
     if (!proximoRol) {
-      Alert.alert('Info', `No tienes roles de ${tipo} pendientes`);
+      nuevoRecordatorioManual(); // Si no hay rol, abrir manual
       return;
     }
 
@@ -108,8 +129,21 @@ export default function RecordatoriosScreen() {
       horaRecordatorio: '08:00',
       activo: true
     });
+    // Parsear fecha para el picker
+    const [y, m, d] = proximoRol.fecha.split('-').map(Number);
+    setFechaSeleccionada(new Date(y, m - 1, d));
+
     setRecordatorioEditando(null);
     setModalVisible(true);
+  };
+
+  const onDateChange = (event: any, selectedDate?: Date) => {
+    setShowDatePicker(false);
+    if (selectedDate) {
+      setFechaSeleccionada(selectedDate);
+      const fechaStr = selectedDate.toISOString().split('T')[0];
+      setFormData({ ...formData, fecha: fechaStr });
+    }
   };
 
   const onHoraChange = (event: any, selectedTime?: Date) => {
@@ -240,6 +274,12 @@ export default function RecordatoriosScreen() {
               <Text style={styles.headerSubtitle}>Alertas para tus turnos</Text>
             </View>
           </View>
+          <TouchableOpacity
+            style={styles.headerAddButton}
+            onPress={nuevoRecordatorioManual}
+          >
+            <Ionicons name="add" size={24} color="#ff6a1aff" />
+          </TouchableOpacity>
         </View>
       </View>
 
@@ -527,18 +567,27 @@ export default function RecordatoriosScreen() {
 
               <View style={styles.inputGroup}>
                 <Text style={styles.label}>Fecha del Turno</Text>
-                <View style={styles.inputWrapper}>
+                <TouchableOpacity
+                  style={styles.inputWrapper}
+                  onPress={() => setShowDatePicker(true)}
+                >
                   <Ionicons name="calendar-outline" size={20} color="#9CA3AF" style={styles.inputIcon} />
-                  <TextInput
-                    style={styles.input}
-                    placeholder="YYYY-MM-DD"
-                    placeholderTextColor="#9CA3AF"
-                    value={formData.fecha}
-                    onChangeText={(text) => setFormData({ ...formData, fecha: text })}
-                  />
-                </View>
-                <Text style={styles.helperText}>Formato: AAAA-MM-DD (ej: 2025-11-25)</Text>
+                  <Text style={[styles.input, { paddingVertical: 14 }]}>
+                    {formData.fecha || 'Selecciona una fecha'}
+                  </Text>
+                </TouchableOpacity>
+                <Text style={styles.helperText}>Formato: AAAA-MM-DD</Text>
               </View>
+
+              {showDatePicker && (
+                <DateTimePicker
+                  value={fechaSeleccionada}
+                  mode="date"
+                  display={Platform.OS === 'ios' ? 'spinner' : 'default'}
+                  onChange={onDateChange}
+                  minimumDate={new Date()}
+                />
+              )}
 
               <View style={styles.inputGroup}>
                 <Text style={styles.label}>Hora del Recordatorio</Text>
@@ -1116,5 +1165,18 @@ const styles = StyleSheet.create({
     color: 'white',
     fontWeight: '600',
     fontSize: 16,
+  },
+  headerAddButton: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    backgroundColor: 'white',
+    justifyContent: 'center',
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
   },
 });
